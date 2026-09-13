@@ -1,7 +1,7 @@
 ## 1. 共通変換
 
-- [ ] 1.1 Pandocと`reference.docx`を使う共通DOCX変換処理を追加し、サンプルMarkdownからDOCXを生成できることを確認する
-- [ ] 1.2 `openspec/artifacts/**/*.docx`をGit管理外にし、Markdownと`reference.docx`だけが追跡されることを確認する
+- [x] 1.1 Pandocと`reference.docx`を使う共通DOCX変換処理を追加し、サンプルMarkdownからDOCXを生成できることを確認する
+- [x] 1.2 `openspec/artifacts/**/*.docx`をGit管理外にし、Markdownと`reference.docx`だけが追跡されることを確認する
 
 ## 2. gen-pd
 

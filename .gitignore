@@ -1,0 +1,2 @@
+# 配布用DOCXは正本Markdownから再生成する。
+openspec/artifacts/**/*.docx
