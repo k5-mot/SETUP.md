@@ -17,5 +17,5 @@
 
 ## 4. 検証
 
-- [ ] 4.1 両Skillを同じChangeへ再実行し、規定の出力先だけが更新されることを確認する
-- [ ] 4.2 `openspec validate add-gen-pd-gen-bd --strict`を実行し、エラーがないことを確認する
+- [x] 4.1 両Skillを同じChangeへ再実行し、規定の出力先だけが更新されることを確認する
+- [x] 4.2 `openspec validate add-gen-pd-gen-bd --strict`を実行し、エラーがないことを確認する
