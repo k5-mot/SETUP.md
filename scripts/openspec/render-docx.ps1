@@ -17,13 +17,15 @@ $ReferenceFile = Get-Item -LiteralPath $ReferenceDoc -ErrorAction Stop
 $OutputFile = [IO.Path]::GetFullPath($OutputPath)
 $OutputDirectory = Split-Path -Parent $OutputFile
 
-if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+$MiseCommand = Get-Command mise -CommandType Application -ErrorAction SilentlyContinue |
+  Select-Object -First 1
+if (-not $MiseCommand) {
   throw 'mise is required.'
 }
 
 [void][IO.Directory]::CreateDirectory($OutputDirectory)
 
-& mise exec 'pandoc@3.11' -- pandoc `
+& $MiseCommand.Source exec 'pandoc@3.11' -- pandoc `
   $InputFile.FullName `
   '--from=gfm' `
   '--to=docx' `
