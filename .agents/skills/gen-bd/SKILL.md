@@ -1,6 +1,6 @@
 ---
 name: gen-bd
-description: OpenSpecの要求・方式・設計Artifactから基本設計書のMarkdownとDOCXを生成する。基本設計書の作成または再生成を依頼されたときに使用する。
+description: sdd-custom Changeのbd Artifactとして基本設計書のMarkdownとDOCXを生成する。基本設計書の作成または再生成を依頼されたときに使用する。
 ---
 
 # 🏛️ gen-bd
@@ -9,15 +9,16 @@ description: OpenSpecの要求・方式・設計Artifactから基本設計書の
 
 ## 入力
 
-- `openspec/changes/<change-name>/requirements.md`
-- `openspec/changes/<change-name>/architecture.md`
-- `openspec/changes/<change-name>/design.md`
+- `openspec/changes/<change-name>/proposal.md`
 - `openspec/changes/<change-name>/specs/**/*.md`（1ファイル以上）
+- `openspec/changes/<change-name>/design.md`（存在する場合）
+
+Artifact IDは`bd`とする。`openspec instructions bd --change <change-name> --json`のTemplateと`resolvedOutputPath`を使う。
 
 ## 出力
 
-- `openspec/artifacts/<change-name>/basic-design/基本設計書.md`
-- `openspec/artifacts/<change-name>/basic-design/基本設計書.docx`
+- `openspec/changes/<change-name>/docs/bd.md`
+- `openspec/changes/<change-name>/docs/bd.docx`
 
 ## 章立て
 
@@ -36,4 +37,4 @@ description: OpenSpecの要求・方式・設計Artifactから基本設計書の
 13. 要求トレーサビリティ
 14. 未決事項・リスク
 
-各設計判断にはArchitecture IDまたはDesign IDと、対応する要求IDを記載する。
+Designがない場合は設計固有の項目を`TBD`とする。既存IDがない場合はRequirement見出し、Scenario名、Design見出しを参照名として使う。

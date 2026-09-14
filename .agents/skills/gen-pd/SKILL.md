@@ -1,6 +1,6 @@
 ---
 name: gen-pd
-description: OpenSpecの要求関連Artifactから要件定義書のMarkdownとDOCXを生成する。要件定義書の作成または再生成を依頼されたときに使用する。
+description: sdd-custom Changeのrd Artifactとして要件定義書のMarkdownとDOCXを生成する。要件定義書の作成または再生成を依頼されたときに使用する。
 ---
 
 # 📋 gen-pd
@@ -10,14 +10,14 @@ description: OpenSpecの要求関連Artifactから要件定義書のMarkdownとD
 ## 入力
 
 - `openspec/changes/<change-name>/proposal.md`
-- `openspec/changes/<change-name>/requirements.md`
 - `openspec/changes/<change-name>/specs/**/*.md`（1ファイル以上）
-- `openspec/changes/<change-name>/architecture.md`
+
+Artifact IDは`rd`とする。`openspec instructions rd --change <change-name> --json`のTemplateと`resolvedOutputPath`を使う。
 
 ## 出力
 
-- `openspec/artifacts/<change-name>/requirements-definition/要件定義書.md`
-- `openspec/artifacts/<change-name>/requirements-definition/要件定義書.docx`
+- `openspec/changes/<change-name>/docs/rd.md`
+- `openspec/changes/<change-name>/docs/rd.docx`
 
 ## 章立て
 
@@ -35,3 +35,4 @@ description: OpenSpecの要求関連Artifactから要件定義書のMarkdownとD
 12. 用語集
 
 品質要件にはQuality Characteristic、Requirement、Measure、Target、Conditions、Verification Methodを記載する。
+要求IDがない場合はCapability path、Requirement見出し、Scenario名をトレーサビリティの参照名として使う。
