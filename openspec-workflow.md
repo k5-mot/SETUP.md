@@ -1,6 +1,6 @@
 # 🔄 OpenSpec開発ワークフロー
 
-この流れはOpenSpecのデフォルトSchemaである`spec-driven`を使う。ProposeでProposal、Delta Spec、Design、Tasksを作成し、次の順に進める。
+OpenSpecのデフォルトSchemaは`spec-driven`である。このProjectでは、そのProposal、Delta Spec、Design、Tasksを維持し、要件定義書と基本設計書を追加した`sdd-custom`を使う。開発の流れは変えない。
 
 ```text
 propose → apply → verify → archive
@@ -13,7 +13,7 @@ propose → apply → verify → archive
 /opsx:propose <変更内容>
 ```
 
-Changeを作成し、実装前に必要なArtifactを生成する。生成物を確認し、内容が正しくなるまで実装へ進まない。
+Changeを作成し、Proposal、Delta Spec、Design、Tasks、`docs/rd.md`、`docs/bd.md`を生成する。生成物を確認し、内容が正しくなるまで実装へ進まない。
 
 ## 2️⃣ Apply
 
