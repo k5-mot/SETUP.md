@@ -115,7 +115,7 @@ openspec/
 
 ## 💾 コミット
 
-Commit MessageとGit操作の共通ルールは[Contributing Guideline](../../docs/CONTRIBUTING.md)に従う。
+Commit MessageとGit操作の共通ルールは[Contributing Guideline](../CONTRIBUTING.md)に従う。
 
 各工程後に追跡対象の変更がある場合は、検証してから論理単位でCommitする。変更がない場合は空Commitを作らない。
 

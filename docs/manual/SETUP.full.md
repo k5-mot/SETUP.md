@@ -175,7 +175,7 @@ openspec init --tools agents --force --profile custom --no-animation
 openspec config set telemetry.enabled false
 ```
 
-使い方は[OpenSpec開発ワークフロー](../../openspec/docs/workflow.md)を参照する。
+使い方は[OpenSpec開発ワークフロー](../references/workflow.md)を参照する。
 
 ## 8️⃣. Agent Skillsを導入する
 
