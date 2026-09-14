@@ -16,12 +16,6 @@
 - Project-governance `AGENTS.md` files MUST be written in English. Runtime persona or workspace `AGENTS.md` files for Hermes, OpenClaw, and QwenPaw MAY use the agent's configured language.
 - Language required by an external file format, source code, command, identifier, product name, or quoted specification MAY remain unchanged.
 
-### Normative Language
-
-- The terms `MUST`, `MUST NOT`, `REQUIRED`, `SHALL`, `SHALL NOT`, `SHOULD`, `SHOULD NOT`, `RECOMMENDED`, `NOT RECOMMENDED`, `MAY`, and `OPTIONAL` have the normative meanings defined by RFC 8174 only when written in uppercase.
-- Requirements MUST use the normative terms above to make their strength explicit.
-- The uppercase terms above MUST NOT be used when their normative meanings are not intended.
-
 ### Structure and Content
 
 - Each rule MUST have one authoritative location. The same rule MUST NOT be duplicated across documents.
@@ -44,19 +38,10 @@
 ## Git Operations
 
 - AI agents MUST inspect diffs, tests, generated files, and possible secrets before committing.
-- AI agents MUST commit only completed logical work and MUST NOT include unrelated user changes.
-- AI agents MUST NOT create, move, delete, or push release tags without an explicit user request.
+- AI agents MUST NOT include unrelated user changes in a commit.
 - AI agents MUST NOT force-push or rewrite shared history.
 
 ## Tooling
 
 - AI agents MUST use mise for Node.js, npm, Pandoc, and Python.
 - AI agents MUST activate mise in PowerShell with `(&mise activate pwsh) | Out-String | Invoke-Expression`.
-
-## Rules
-
-- [CONTRIBUTING.md](docs/CONTRIBUTING.md)
-
-## References
-
-- [RFC 8174: Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words](https://www.rfc-editor.org/info/rfc8174/)
