@@ -4,8 +4,8 @@ Windows 11の開発環境を構築し、OpenSpecの`sdd-custom` Schemaで仕様�
 
 ## 🚀 セットアップ
 
-- 最小構成: [SETUP.md](SETUP.md)
-- 拡張構成: [SETUP.full.md](SETUP.full.md)
+- 最小構成: [SETUP.md](docs/manual/SETUP.md)
+- 拡張構成: [SETUP.full.md](docs/manual/SETUP.full.md)
 
 セットアップ後、PowerShellでmiseを有効化する。
 
@@ -79,7 +79,7 @@ $gen-bd <change-name>
 
 ## 📚 ドキュメント
 
-- [OpenSpec開発ワークフロー](openspec-workflow.md)
-- [OpenSpecカスタマイズ](openspec-customization.md)
-- [OpenSpecカスタマイズ実装計画](openspec-customization-implementation-plan.md)
-- [Architecture Decision Records](ADR.md)
+- [OpenSpec開発ワークフロー](docs/references/openspec-workflow.md)
+- [OpenSpecカスタマイズ](docs/references/openspec-customization.md)
+- [OpenSpecカスタマイズ実装計画](docs/references/openspec-customization-implementation-plan.md)
+- [Architecture Decision Records](docs/adr/ADR.md)

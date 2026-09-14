@@ -1,6 +1,6 @@
 # 🧰 Windows開発環境セットアップ 完全版
 
-最小構成は[SETUP.md](./SETUP.md)、設計判断は[ADR.md](./ADR.md)を参照する。
+最小構成は[SETUP.md](./SETUP.md)、設計判断は[ADR.md](../adr/ADR.md)を参照する。
 
 ## 1️⃣. wingetでツールをインストールする
 
@@ -175,7 +175,7 @@ openspec init --tools agents --force --profile custom --no-animation
 openspec config set telemetry.enabled false
 ```
 
-使い方は[OpenSpec開発ワークフロー](./openspec-workflow.md)を参照する。
+使い方は[OpenSpec開発ワークフロー](../references/openspec-workflow.md)を参照する。
 
 ## 8️⃣. Agent Skillsを導入する
 

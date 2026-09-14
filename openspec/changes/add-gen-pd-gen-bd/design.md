@@ -1,6 +1,6 @@
 ## Context
 
-📄 `gen-pd`と`gen-bd`は、`spec-driven`を拡張した`sdd-custom` SchemaのArtifact生成を担当する。Skill名と正本の扱いは[ADR-006](../../../ADR.md#adr-006-openspecのmarkdownを正本とする)および[ADR-008](../../../ADR.md#adr-008-文書生成をgen-pdとgen-bdへ分離する)に従う。
+📄 `gen-pd`と`gen-bd`は、`spec-driven`を拡張した`sdd-custom` SchemaのArtifact生成を担当する。Skill名と正本の扱いは[ADR-006](../../../docs/adr/ADR.md#adr-006-openspecのmarkdownを正本とする)および[ADR-008](../../../docs/adr/ADR.md#adr-008-文書生成をgen-pdとgen-bdへ分離する)に従う。
 
 ## Goals / Non-Goals
 
@@ -20,7 +20,7 @@
 
 ## Decisions
 
-SkillのInterface、出力先、変換順、共通DOCX変換は[ADR-010](../../../ADR.md#adr-010-文書生成のinterfaceと変換順を固定する)に従う。`rd`は`proposal`と`specs`、`bd`は同じ入力と存在する場合の`design`を使う。Applyは`tasks`、`rd`、`bd`が揃ってから開始できる。
+SkillのInterface、出力先、変換順、共通DOCX変換は[ADR-010](../../../docs/adr/ADR.md#adr-010-文書生成のinterfaceと変換順を固定する)に従う。`rd`は`proposal`と`specs`、`bd`は同じ入力と存在する場合の`design`を使う。Applyは`tasks`、`rd`、`bd`が揃ってから開始できる。
 
 ## Risks / Trade-offs
 

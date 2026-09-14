@@ -1,22 +1,26 @@
-# 🧩 OpenSpecカスタマイズ: Config・Schema・Template
-
-> OpenSpecのカスタマイズは、まず`openspec/config.yaml`、次にプロジェクトローカルのCustom Schema、最後にユーザー共通Schemaの順で検討する。
-> 仕様確認日: 2026-09-14
+# 🧩 OpenSpecカスタマイズ: Config・Schema・Template・Agent Skills
 
 ## 1️⃣ どこを変更するか
 
-| レベル | 変更できること | 適した用途 |
+Configのパスは`openspec/config.yaml`である。`schema.yaml`は`openspec/schemas/<schema-name>/schema.yaml`へ置く。
+
+| 変更したいこと | 変更先 | 判断基準 |
 | --- | --- | --- |
-| Project Config | 既定Schema、プロジェクト文脈、Artifact別ルール、Apply／Archiveのガイダンス | ほとんどのチーム |
-| Custom Schema | Artifactの種類、生成ファイル、依存関係、指示、Template | 独自の承認・調査・レビュー工程があるチーム |
-| User-level Schema | 複数プロジェクトで共通利用するSchema | 個人共通のワークフロー。配布・再現性には注意 |
+| 既定Schema、プロジェクト情報、Artifact別ルール、Apply／Archiveの補足 | Config: `openspec/config.yaml` | Artifactの種類と依存関係を変えない |
+| Artifactの追加・削除、生成先、依存順、Apply開始条件 | Schema: `openspec/schemas/<schema-name>/schema.yaml` | ワークフロー構造を変える |
+| 見出し、表、コメント、出力の章立て | Template: `openspec/schemas/<schema-name>/templates/*.md` | Artifactの構造だけを変える |
+| 外部Toolの実行、複数形式の生成、検証や変換などの再利用手順 | Agent Skill: `.agents/skills/<skill-name>/SKILL.md` | Schemaの指示とTemplateだけでは完結しない処理を実行する |
 
-判断の目安は次のとおり。
+最小の変更先を選ぶ。
 
-- 出力の観点やチーム規約を足すだけなら`config.yaml`の`context`／`rules`を使う。
-- 見出しや記入形式を変えるならTemplateを変える。
-- Artifactを追加・削除する、順序や依存関係を変えるならSchemaを変える。
-- チームで共有するSchemaは`openspec/schemas/`へ置き、コードと一緒にバージョン管理する。
+- 内容上の制約を加えるだけならConfigを変更する。
+- 出力形式だけを変えるならTemplateを変更する。
+- Artifactの構成を変える場合だけSchemaを変更する。
+- 外部Toolの実行、複数形式の生成、検証、変換が必要な場合だけAgent Skillを追加または変更する。
+
+複数を組み合わせる場合は、SchemaがArtifactと依存関係、TemplateがMarkdown構造、Agent Skillが実行処理を担当する。たとえば`sdd-custom`では、Schemaが`rd`と`bd`を追加し、Templateが章立てを定め、`gen-pd`と`gen-bd`がMarkdownからDOCXまで生成する。
+
+> 仕様確認日: 2026-09-15
 
 ## 2️⃣ Project Config
 

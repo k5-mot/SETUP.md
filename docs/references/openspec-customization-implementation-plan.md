@@ -6,32 +6,41 @@ OpenSpecの`spec-driven`を維持し、要件定義書と基本設計書をChang
 
 ## 2️⃣ 構成
 
+Marker: `[変更]`は既存ファイルの修正、`[追加]`は新規ファイル、`[生成]`はワークフローによる出力を示す。
+
 ```text
 openspec/
-├─ config.yaml
-├─ schemas/sdd-custom/
-│  ├─ schema.yaml
+├─ config.yaml                                      [変更]
+├─ schemas/sdd-custom/                              [追加]
+│  ├─ schema.yaml                                   [追加]
 │  └─ templates/
-│     ├─ proposal.md
-│     ├─ spec.md
-│     ├─ design.md
-│     ├─ tasks.md
-│     ├─ rd.md
-│     └─ bd.md
-└─ changes/<change-name>/
-   ├─ proposal.md
-   ├─ specs/<capability>/spec.md
-   ├─ design.md
-   ├─ tasks.md
+│     ├─ proposal.md                                [追加]
+│     ├─ spec.md                                    [追加]
+│     ├─ design.md                                  [追加]
+│     ├─ tasks.md                                   [追加]
+│     ├─ rd.md                                      [追加]
+│     └─ bd.md                                      [追加]
+├─ document-templates/
+│  └─ reference.docx                               [追加]
+└─ changes/<change-name>/                           [生成]
+   ├─ proposal.md                                  [生成]
+   ├─ specs/<capability>/spec.md                   [生成]
+   ├─ design.md                                    [生成]
+   ├─ tasks.md                                     [生成]
    └─ docs/
-      ├─ rd.md
-      ├─ rd.docx
-      ├─ bd.md
-      └─ bd.docx
+      ├─ rd.md                                     [生成]
+      ├─ rd.docx                                   [生成]
+      ├─ bd.md                                     [生成]
+      └─ bd.docx                                   [生成]
 
 .agents/skills/
-├─ gen-pd/SKILL.md
-└─ gen-bd/SKILL.md
+├─ gen-pd/SKILL.md                                  [追加]
+└─ gen-bd/SKILL.md                                  [追加]
+
+scripts/openspec/
+└─ render-docx.ps1                                  [追加]
+
+.gitignore                                          [変更]
 ```
 
 ## 3️⃣ Artifact
