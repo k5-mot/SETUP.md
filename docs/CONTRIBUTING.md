@@ -110,6 +110,20 @@ BREAKING CHANGE: Clientは/oauth/tokenを使用する必要がある。
 - 対応する実装とTestは、同じ論理変更である場合に同じCommitへ含めてよい（`MAY`）。
 - 同じ作業で発生した軽微な修正を、意味のない独立Commitへ分割してはならない（`MUST NOT`）。
 
+### OpenSpecワークフローのCommit境界
+
+OpenSpecを使う場合、次の境界で追跡対象の変更があれば、検証後にコミットしなければならない（`MUST`）。変更がない場合は空Commitを作成してはならない（`MUST NOT`）。
+
+| 境界 | Commit対象 |
+| --- | --- |
+| Propose完了後 | Proposal、Delta Spec、Design、Tasks、`rd.md`、`bd.md` |
+| Apply中または完了後 | 完了した独立TaskまたはTask群の実装、テスト、Task更新 |
+| Verify完了後 | Verifyで発生した修正または追跡対象の検証記録。変更がなければCommitしない |
+| `rd`／`bd`再生成後 | 内容が変わった正本Markdown。Git管理外のDOCXは含めない |
+| Archive完了後 | Archiveへ移動したChangeと、更新されたCanonical Spec |
+
+各Commitは上記の境界を機械的に一つずつ作るのではなく、独立してReview、検証、Revertできる論理単位に分けなければならない（`MUST`）。
+
 ## Coding Agent Requirements
 
 - Coding AgentはCommit前に`git diff`、Test結果、生成物、Secret混入を確認しなければならない（`MUST`）。
