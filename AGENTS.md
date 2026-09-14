@@ -3,8 +3,8 @@
 ## Scope
 
 - AI agents MUST respond to users in Japanese.
-- Contributors and AI agents MUST follow the [coding rules](docs/rules/CODING_RULES.md) when changing code.
-- Contributors and AI agents MUST follow the [contribution rules](docs/rules/CONTRIBUTING.md) when working with branches, commits, or tags.
+- AI agents MUST follow the [contribution rules](docs/CONTRIBUTING.md) when working with branches, commits, or tags.
+- AI agents MUST follow the [OpenSpec workflow](openspec/docs/workflow.md) when working with OpenSpec.
 - If a directory contains another `AGENTS.md`, its more specific rules MUST take precedence within that directory.
 
 ## Documentation Rules
@@ -41,6 +41,18 @@
 - A document without external references MAY omit the `References` section.
 - No content section MAY appear after `References`.
 
+## Git Operations
+
+- AI agents MUST inspect diffs, tests, generated files, and possible secrets before committing.
+- AI agents MUST commit only completed logical work and MUST NOT include unrelated user changes.
+- AI agents MUST NOT create, move, delete, or push release tags without an explicit user request.
+- AI agents MUST NOT force-push or rewrite shared history.
+
+## Tooling
+
+- AI agents MUST use mise for Node.js, npm, Pandoc, and Python.
+- AI agents MUST activate mise in PowerShell with `(&mise activate pwsh) | Out-String | Invoke-Expression`.
+
 ## Rules
 
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md)
@@ -48,6 +60,3 @@
 ## References
 
 - [RFC 8174: Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words](https://www.rfc-editor.org/info/rfc8174/)
-
-- node/npm/pandoc/pythonなどは、mise経由で使用してください。
-  - miseアクティベートコマンド: `(&mise activate pwsh) | Out-String | Invoke-Expression`

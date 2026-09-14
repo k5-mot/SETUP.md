@@ -79,7 +79,7 @@ $gen-bd <change-name>
 
 ## 📚 ドキュメント
 
-- [OpenSpec開発ワークフロー](docs/references/openspec-workflow.md)
-- [OpenSpecカスタマイズ](docs/references/openspec-customization.md)
-- [OpenSpecカスタマイズ実装計画](docs/references/openspec-customization-implementation-plan.md)
+- [OpenSpec開発ワークフロー](openspec/docs/workflow.md)
+- [OpenSpecカスタマイズ](openspec/docs/customization.md)
+- [OpenSpecカスタマイズ実装計画](openspec/docs/customization-implementation-plan.md)
 - [Architecture Decision Records](docs/adr/ADR.md)

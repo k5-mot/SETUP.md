@@ -115,7 +115,17 @@ openspec/
 
 ## 💾 コミット
 
-OpenSpecの各工程と文書再生成後のコミット規則は、[CONTRIBUTING.mdのOpenSpecワークフローのCommit境界](../CONTRIBUTING.md#openspecワークフローのcommit境界)を正とする。
+Commit MessageとGit操作の共通ルールは[Contributing Guideline](../../docs/CONTRIBUTING.md)に従う。
+
+各工程後に追跡対象の変更がある場合は、検証してから論理単位でCommitする。変更がない場合は空Commitを作らない。
+
+| 境界 | Commit対象 |
+| --- | --- |
+| Propose完了後 | Proposal、Delta Spec、Design、Tasks、`rd.md`、`bd.md` |
+| Apply中または完了後 | 完了した独立TaskまたはTask群の実装、テスト、Task更新 |
+| Verify完了後 | Verifyで発生した修正または追跡対象の検証記録 |
+| `rd`／`bd`再生成後 | 内容が変わった正本Markdown。Git管理外のDOCXは含めない |
+| Archive完了後 | Archiveへ移動したChangeと、更新されたCanonical Spec |
 
 > コマンド名はツールによって`/opsx-propose`や`$openspec-propose`などと表示される。`verify`はOpenSpecのWorkflow設定で有効化しておく。
 
