@@ -6,24 +6,24 @@ MySDDは、OpenSpecの`spec-driven`をForkし、ISO/IEC/IEEE 12207とISO/IEC 250
 
 ```mermaid
 flowchart LR
-    P["`$openspec-propose`<br/>ISO観点を含む4 Artifact"]
+    P["`/opsx:propose`<br/>ISO観点を含む4 Artifact"]
     P --> RD["`$gen-pd`<br/>要件定義書"]
     P --> BD["`$gen-bd`<br/>基本設計書"]
-    RD --> A["`$openspec-apply-change`<br/>実装とテスト"]
+    RD --> A["`/opsx:apply`<br/>実装とテスト"]
     BD --> A
-    A --> V["`$openspec-verify-change`<br/>実装と成果物を検証"]
-    V -->|合格| R["`$openspec-archive-change`<br/>Spec反映と履歴化"]
+    A --> V["`/opsx:verify`<br/>実装と成果物を検証"]
+    V -->|合格| R["`/opsx:archive`<br/>Spec反映と履歴化"]
     V -->|不合格| A
 ```
 
 OpenSpec Artifactは`proposal`、`specs`、`design`、`tasks`の4つである。
 `rd`と`bd`はSchema Artifactではなく、Propose完了後に専用Agent Skillで作る正式文書とする。
 
-## 1️⃣ `$openspec-propose`; ISO観点を含む変更計画を作成
+## 1️⃣ `/opsx:propose`; 変更分の差分仕様を作成
 
 ```text
 # MySDD Changeの4つの計画Artifactを生成する。
-$openspec-propose <変更名または変更内容>
+/opsx:propose <変更名または変更内容>
 ```
 
 Proposeは次を行う。
@@ -44,7 +44,7 @@ openspec/changes/<change-name>/
 
 4 Artifactの内容とISO観点が揃えばPropose完了である。未確定の重要事項が残る場合は次へ進まない。
 
-## 2️⃣ `gen-pd` / `gen-bd`; 正式文書を別途生成
+## 2️⃣ `$gen-pd` / `$gen-bd`; 正式文書を別途生成
 
 ```text
 # ProposalとDelta Specから要件定義書を生成する。
@@ -64,20 +64,20 @@ openspec/changes/<change-name>/docs/
 
 両Skillは入力Artifactにない事実を補完せず、未確定事項を`TBD`とする。Markdownが正本、DOCXはGit管理外の配布物である。必須Markdownが欠ける場合はApplyへ進まない。DOCXだけが失敗した場合はMarkdownを保持し、再生成する。
 
-## 3️⃣ `$openspec-apply-change`; ドキュメントに従って実装
+## 3️⃣ `/opsx:apply`; ドキュメントに従って実装
 
 ```text
 # tasks.mdに従って実装し、完了項目を更新する。
-$openspec-apply-change <change-name>
+/opsx:apply <change-name>
 ```
 
 Schema上のApply開始条件は`tasks`である。MySDD運用では、`gen-pd`と`gen-bd`の完了を確認してからApplyを開始する。要求または設計が変わった場合は、Artifactと正式文書を先に更新する。
 
-## 4️⃣ `$openspec-verify-change`; 実装を検証
+## 4️⃣ `/opsx:verify`; 実装を検証
 
 ```text
 # 実装、4つのArtifact、正式文書、テスト証跡を照合する。
-$openspec-verify-change <change-name>
+/opsx:verify <change-name>
 ```
 
 次を確認する。
@@ -89,25 +89,25 @@ $openspec-verify-change <change-name>
 
 CRITICALな不整合、参照切れ、失敗テストがある場合はArchiveへ進まず、ApplyとVerifyを再実行する。
 
-## 5️⃣ `$openspec-archive-change`; Spec反映と変更の履歴化
+## 5️⃣ `/opsx:archive`; Spec反映と変更の履歴化
 
 ```text
 # 検証済みChangeをArchiveする。
-$openspec-archive-change <change-name>
+/opsx:archive <change-name>
 ```
 
 Delta SpecがMain Specへ反映され、正式文書を含むChange全体が`openspec/changes/archive/`へ移動する。Archiveが失敗した場合は手作業で移動せず、ValidationまたはSyncの原因を解消する。
 
 ## #️⃣ そのほかのコマンド
 
-### *️⃣ Explore; 変更前の論点整理
+### *️⃣ `/opsx:explore`; 変更前の論点整理
 
 ```text
 # Changeの論点と適用範囲を整理する。
-$openspec-explore <検討内容>
+/opsx:explore <検討内容>
 ```
 
-### *️⃣ Update; 計画Artifactの改訂
+### *️⃣ `/opsx:update`; 計画Artifactの改訂
 
 ```text
 # Active Changeの計画Artifactを整合させる。
@@ -118,11 +118,11 @@ $gen-pd <change-name>
 $gen-bd <change-name>
 ```
 
-### *️⃣ Sync; Delta Specの先行反映
+### *️⃣ `/opsx:sync`; Delta Specの先行反映
 
 ```text
 # Delta SpecをMain Specへ反映し、ChangeはActiveのまま残す。
-$openspec-sync-specs <change-name>
+/opsx:sync <change-name>
 ```
 
 `rd`と`bd`はMain SpecへSyncされず、Change側に残る。
