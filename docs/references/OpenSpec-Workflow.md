@@ -24,7 +24,7 @@ flowchart LR
   - = Canonical Spec
   - = Source of truth: 唯一の情報源
 
-## 1️⃣`/opsx:propose`; 変更分の差分仕様を作成
+## 1️⃣ `/opsx:propose`; 変更分の差分仕様を作成
 
 Delta Specを含む4つのArtifact(proposal, specs, design, tasks)を作成する。
 
