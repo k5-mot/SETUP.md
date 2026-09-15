@@ -1,8 +1,8 @@
 # 🚀 MySDD ワークフロー
 
-MySDDは、OpenSpecの`spec-driven`をForkし、ISO/IEC/IEEE 12207とISO/IEC 25010の観点を計画Artifactへ組み込んだSchemaである。機械識別子には`mysdd`を使う。Schemaの定義は[MySDD仕様](MySDD-Spec.md)、OpenSpec標準の用語と操作は[OpenSpecワークフロー](OpenSpec-Workflow.md)を参照する。
+MySDDは、OpenSpecの`spec-driven`をForkし、ISO/IEC/IEEE 12207とISO/IEC 25010の観点を計画Artifactへ組み込んだカスタムSchemaである。
 
-## 🛹 使い方の流れ
+## 🛝 使い方の流れ
 
 ```mermaid
 flowchart LR
@@ -127,7 +127,7 @@ $gen-bd <change-name>
 
 `rd`と`bd`はMain SpecへSyncされず、Change側に残る。
 
-## References
+## 🔖 参考文献
 
 - [OpenSpec Commands](https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md)
 - [OpenSpec Customization](https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md)

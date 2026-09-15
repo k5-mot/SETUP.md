@@ -58,9 +58,8 @@ OpenSpecとの互換性を保つため、標準4 ArtifactのID、出力先、依
 - `[KEEP]`: 既存実装をそのまま利用
 - `[GEN]`: Changeの操作またはSkillが生成
 - `[IGNORE]`: 生成するがGit管理外
-- `[DELETE]`: 統合後に削除
 
-```text
+```bash
 openspec/
 ├─ config.yaml                                      [MOD]
 ├─ schemas/
@@ -71,7 +70,7 @@ openspec/
 │        ├─ spec.md                                  [ADD][MOD]
 │        ├─ design.md                                [ADD][MOD]
 │        └─ tasks.md                                 [ADD][MOD]
-├─ document-templates/
+├─ assets/
 │  └─ reference.docx                               [MOVE]
 └─ changes/<change-name>/
    ├─ .openspec.yaml                                 [GEN]
@@ -86,35 +85,13 @@ openspec/
       └─ bd.docx                                      [GEN][IGNORE]
 
 .agents/skills/
-├─ _shared/document-generation.md                    [MOD]
+├─ _md2docx/SKILL.md                    [MOD]
 ├─ gen-pd/
 │  ├─ SKILL.md                                       [ADD][MOD]
 │  └─ assets/rd.md                                   [ADD]
 └─ gen-bd/
    ├─ SKILL.md                                       [ADD][MOD]
    └─ assets/bd.md                                   [ADD]
-
-scripts/openspec/
-├─ render-docx.ps1                                   [KEEP]
-└─ test-render-docx.ps1                              [KEEP]
-
-docs/
-├─ references/
-│  ├─ OpenSpec-Workflow.md                          [KEEP]
-│  ├─ MySDD-Workflow.md                            [ADD]
-│  ├─ MySDD-Spec.md                                [ADD]
-│  ├─ workflow.md                                  [DELETE]
-│  └─ customization.md                             [DELETE]
-└─ plan/
-   └─ customization-implementation-plan.md           [DELETE]
-
-AGENTS.md                                                 [MOD]
-README.md                                                 [MOD]
-
-削除対象:
-openspec/schemas/mysdd/templates/
-├─ rd.md                                             [DELETE]
-└─ bd.md                                             [DELETE]
 ```
 
 `openspec/templates/reference.docx`は`openspec/document-templates/reference.docx`へ移動する。以降、Skillと検証Scriptは移動後のパスだけを参照する。
@@ -327,9 +304,6 @@ apply:
 ## 11. 検証手順
 
 ```powershell
-# このPowerShellセッションでmise管理のToolを有効化する。
-(&mise activate pwsh) | Out-String | Invoke-Expression
-
 # MySDDのSchema構造、Template参照、依存関係を検証する。
 openspec schema validate mysdd --verbose
 
@@ -338,9 +312,6 @@ openspec templates --schema mysdd --json
 
 # 対象ChangeとDelta Specを厳格に検証する。
 openspec validate '<change-name>' --strict
-
-# DOCX変換と参照Templateの配置を検証する。
-./scripts/openspec/test-render-docx.ps1
 ```
 
 成功時はSchemaとChangeのValidationが通り、4つのArtifactが解決され、
@@ -359,7 +330,7 @@ DOCXテストが`PASS`を返す。失敗時はSchema名、Artifact ID、Template
 - Markdownだけが正本としてGit管理され、DOCXを再生成できる。
 - Project内のSchema参照が`mysdd`に統一される。
 
-## References
+## 🔖 参考文献
 
 - [OpenSpec Customization](https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md)
 - [Built-in spec-driven schema](https://github.com/Fission-AI/OpenSpec/blob/main/schemas/spec-driven/schema.yaml)
