@@ -1,2 +1,6 @@
 # 配布用DOCXは正本Markdownから再生成する。
 openspec/changes/**/docs/*.docx
+
+# Pythonが生成するBytecode CacheはVersion管理しない。
+__pycache__/
+*.py[cod]
