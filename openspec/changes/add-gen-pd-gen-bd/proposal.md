@@ -4,9 +4,10 @@ OpenSpecの`spec-driven`フローから、内容を推測で補わずに要件�
 
 ## What Changes
 
-- `spec-driven`をForkした`mysdd` Schemaへ`rd`と`bd` Artifactを追加する。
+- `spec-driven`をForkした`mysdd` Schemaの4 Artifactへ、ISO/IEC/IEEE 12207とISO/IEC 25010の観点を追加する。
 - `gen-pd` Skillを使い、ProposalとDelta Specから`docs/rd.md`と配布用DOCXを生成する。
 - `gen-bd` Skillを使い、Proposal、Delta Spec、任意のDesignから`docs/bd.md`と配布用DOCXを生成する。
+- `rd`と`bd`をSchema Artifactにせず、Propose完了後に各Skillを明示実行する。
 - 元Artifactの識別子とトレーサビリティを維持し、不足情報は`TBD`として出力する。
 - 生成MarkdownをGit管理し、再生成可能なDOCXをGit管理外とする。
 
@@ -16,7 +17,7 @@ OpenSpecの`spec-driven`フローから、内容を推測で補わずに要件�
 
 - `gen-pd`: 要求関連Artifactを要件定義書へ変換する。
 - `gen-bd`: 要求・方式・設計Artifactを基本設計書へ変換する。
-- `mysdd-schema`: `spec-driven`へ要件定義書と基本設計書のArtifactを追加する。
+- `mysdd-schema`: `spec-driven`の4 ArtifactへISOライフサイクルと品質の観点を追加する。
 
 ### Modified Capabilities
 

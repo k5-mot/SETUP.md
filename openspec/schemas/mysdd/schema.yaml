@@ -1,6 +1,6 @@
 name: mysdd
 version: 1
-description: MySDD, a spec-driven fork with requirements-definition and basic-design documents
+description: MySDD, a spec-driven fork with ISO lifecycle and product-quality viewpoints
 artifacts:
   - id: proposal
     generates: proposal.md
@@ -16,6 +16,18 @@ artifacts:
         - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<capability-path>/spec.md`. Use kebab-case for path segments you introduce (e.g., `user-auth` or `identity/user-auth`) and follow the project's existing spec organization.
         - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Use the exact existing path under `openspec/specs/`. Leave empty if no requirement changes.
       - **Impact**: Affected code, APIs, dependencies, or systems.
+      - **Stakeholders and Lifecycle Impact**: Review acquisition, supply,
+        transition, operation, maintenance, and disposal using the applicable
+        ISO/IEC/IEEE 12207 viewpoints. Record non-applicable viewpoints with a
+        reason.
+      - **Quality Considerations**: Review the ISO/IEC 25010 product-quality
+        characteristics. Identify applicable characteristics, measurable
+        targets, and verification approaches; record non-applicable
+        characteristics with a reason.
+
+      Keep these ISO viewpoints at planning level. Requirements-definition and
+      basic-design documents are generated later by the separate gen-pd and
+      gen-bd skills, not by the propose workflow.
 
       IMPORTANT: The Capabilities section is critical. It creates the contract between
       proposal and specs phases. Research existing specs before filling this in:
@@ -61,6 +73,8 @@ artifacts:
       - Inputs, outputs, and error conditions
       - External constraints (security, privacy, reliability, compatibility)
       - Scenarios that can be tested or explicitly validated
+      - For applicable ISO/IEC 25010 quality requirements: a quality ID,
+        characteristic, measure, target, conditions, and verification method
 
       Avoid in specs:
       - Internal class/function names
@@ -163,6 +177,11 @@ artifacts:
       - **Context**: Only the current state and constraints needed to explain the approach. Reference the proposal for motivation instead of restating it (e.g., "See proposal.md - Why").
       - **Goals / Non-Goals**: What this design achieves and explicitly excludes. Don't restate the proposal's scope - add only design-level boundaries.
       - **Decisions**: Key technical choices with rationale (why X over Y?). Include alternatives considered for each decision.
+      - **Quality Attribute Design**: Map applicable ISO/IEC 25010 quality IDs
+        to design approaches, trade-offs, and verification evidence.
+      - **Lifecycle, Migration and Operations**: Address applicable
+        ISO/IEC/IEEE 12207 viewpoints for transition, operation, maintenance,
+        support, and disposal.
       - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation
       - **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
       - **Open Questions**: Unknowns that can safely be answered later without
@@ -205,6 +224,8 @@ artifacts:
         that task's checkbox description. Use a separate verification task only
         when it checks broader integration or system behavior that spans
         multiple implementation tasks.
+      - Include tasks and evidence for applicable ISO/IEC 25010 quality targets
+        and ISO/IEC/IEEE 12207 lifecycle impacts.
 
       Example:
       ```
@@ -224,34 +245,8 @@ artifacts:
       - specs
       - design
 
-  - id: rd
-    generates: docs/rd.md
-    description: Requirements definition document generated from proposal and specs
-    template: rd.md
-    instruction: |
-      Use the gen-pd skill to generate the requirements definition Markdown at
-      the resolved output path and a DOCX with the same base name. Preserve the
-      source Requirement headings, Scenario names, IDs, and relationships. Do
-      not invent missing facts; write TBD instead.
-    requires:
-      - proposal
-      - specs
-
-  - id: bd
-    generates: docs/bd.md
-    description: Basic design document generated from proposal, specs, and optional design
-    template: bd.md
-    instruction: |
-      Use the gen-bd skill to generate the basic design Markdown at the resolved
-      output path and a DOCX with the same base name. Read design.md when it
-      exists. Preserve source references and do not invent missing facts; write
-      TBD instead.
-    requires:
-      - proposal
-      - specs
-
 apply:
-  requires: [ tasks, rd, bd ]
+  requires: [ tasks ]
   tracks: tasks.md
   instruction: |
     Read context files, work through pending tasks, mark complete as you go.

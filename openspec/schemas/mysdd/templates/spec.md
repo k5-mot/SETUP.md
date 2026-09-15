@@ -5,6 +5,8 @@
 
 ### Requirement: <!-- requirement name -->
 <!-- requirement text -->
+<!-- For a quality requirement, include its quality ID, ISO/IEC 25010
+     characteristic, measure, target, conditions, and verification method. -->
 
 #### Scenario: <!-- scenario name -->
 - **WHEN** <!-- condition -->

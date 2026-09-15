@@ -19,7 +19,8 @@ MySDDは、OpenSpecの組み込み`spec-driven`をForkしたProject固有Schema�
 
 MySDDは`spec-driven`の軽量なChange管理を保ったまま、次を追加する。
 
-- Change単位の要件定義書`rd`と基本設計書`bd`
+- 4つの標準ArtifactへのISOライフサイクル・品質観点
+- 専用Agent Skillで別途生成する要件定義書`rd`と基本設計書`bd`
 - Requirement、Scenario、設計判断、Task、検証Evidenceのトレーサビリティ
 - ISO/IEC/IEEE 12207のライフサイクル観点
 - ISO/IEC 25010の測定可能なProduct Quality要求
@@ -37,15 +38,15 @@ MySDDは`spec-driven`の軽量なChange管理を保ったまま、次を追加�
 | 項目 | `spec-driven` | `mysdd` |
 | --- | --- | --- |
 | 標準Artifact | `proposal`、`specs`、`design`、`tasks` | 4つを互換のまま維持 |
-| 追加Artifact | なし | `rd`、`bd` |
-| Apply開始条件 | `tasks` | `tasks`、`rd`、`bd` |
-| 正式文書 | なし | `docs/rd.md`、`docs/bd.md` |
+| 追加Artifact | なし | なし |
+| Apply開始条件 | `tasks` | `tasks` |
+| 正式文書 | なし | Agent Skillが`docs/rd.md`、`docs/bd.md`を別途生成 |
 | 配布文書 | なし | Markdownから生成する同名DOCX |
 | ライフサイクル | Project任意 | 12207観点をArtifactとVerifyへ割り当て |
 | 品質モデル | Project任意 | 25010の適用特性と検証Evidenceを追跡 |
 | Agent Skill | OpenSpec標準Skill | `gen-pd`、`gen-bd`を追加 |
 
-OpenSpecとの互換性を保つため、標準4 ArtifactのID、出力先、Delta Specの見出し、RequirementとScenarioの構文は変更しない。
+OpenSpecとの互換性を保つため、標準4 ArtifactのID、出力先、依存関係、Delta Specの構文は変更しない。Proposeは4 Artifactを生成した時点で完了し、正式文書は後続Skillが担当する。
 
 ## 4. 目標ディレクトリ構成
 
@@ -67,11 +68,9 @@ openspec/
 │     ├─ schema.yaml                                [ADD]
 │     └─ templates/
 │        ├─ proposal.md                              [ADD][MOD]
-│        ├─ spec.md                                  [ADD][KEEP]
+│        ├─ spec.md                                  [ADD][MOD]
 │        ├─ design.md                                [ADD][MOD]
-│        ├─ tasks.md                                 [ADD][MOD]
-│        ├─ rd.md                                    [ADD]
-│        └─ bd.md                                    [ADD]
+│        └─ tasks.md                                 [ADD][MOD]
 ├─ document-templates/
 │  └─ reference.docx                               [MOVE]
 └─ changes/<change-name>/
@@ -87,9 +86,13 @@ openspec/
       └─ bd.docx                                      [GEN][IGNORE]
 
 .agents/skills/
-├─ _shared/document-generation.md                    [KEEP]
-├─ gen-pd/SKILL.md                                   [ADD]
-└─ gen-bd/SKILL.md                                   [ADD]
+├─ _shared/document-generation.md                    [MOD]
+├─ gen-pd/
+│  ├─ SKILL.md                                       [ADD][MOD]
+│  └─ assets/rd.md                                   [ADD]
+└─ gen-bd/
+   ├─ SKILL.md                                       [ADD][MOD]
+   └─ assets/bd.md                                   [ADD]
 
 scripts/openspec/
 ├─ render-docx.ps1                                   [KEEP]
@@ -107,9 +110,15 @@ docs/
 
 AGENTS.md                                                 [MOD]
 README.md                                                 [MOD]
+
+削除対象:
+openspec/schemas/mysdd/templates/
+├─ rd.md                                             [DELETE]
+└─ bd.md                                             [DELETE]
 ```
 
 `openspec/templates/reference.docx`は`openspec/document-templates/reference.docx`へ移動する。以降、Skillと検証Scriptは移動後のパスだけを参照する。
+Schemaから外す`rd.md`と`bd.md`は、対応するSkillのAssetへ置き換える。
 
 ## 5. Artifactモデル
 
@@ -119,14 +128,14 @@ flowchart TD
     proposal --> design[design]
     specs --> tasks[tasks]
     design --> tasks
-    proposal --> rd[rd]
-    specs --> rd
-    proposal --> bd[bd]
-    specs --> bd
-    design -. "存在する場合に入力" .-> bd
     tasks --> apply[apply]
-    rd --> apply
-    bd --> apply
+    proposal --> genpd[gen-pd]
+    specs --> genpd
+    genpd --> rd[docs/rd.md + DOCX]
+    proposal --> genbd[gen-bd]
+    specs --> genbd
+    design -. "存在する場合に入力" .-> genbd
+    genbd --> bd[docs/bd.md + DOCX]
 ```
 
 | ID | 出力 | 必須依存 | 完了条件 |
@@ -135,10 +144,9 @@ flowchart TD
 | `specs` | `specs/**/*.md` | `proposal` | 検証可能なRequirementとScenarioがある |
 | `design` | `design.md` | `proposal` | 方式、判断理由、Riskがある |
 | `tasks` | `tasks.md` | `specs`、`design` | 実装と完了Evidenceが追跡できる |
-| `rd` | `docs/rd.md` | `proposal`、`specs` | `gen-pd`が要件定義書とDOCXを生成する |
-| `bd` | `docs/bd.md` | `proposal`、`specs` | `gen-bd`が基本設計書とDOCXを生成する |
 
-`apply.requires`は`[tasks, rd, bd]`、`apply.tracks`は`tasks.md`とする。`design.md`がない場合、`gen-bd`は設計固有の未確定項目を`TBD`とする。
+`apply.requires`はFork元と同じ`[tasks]`、`apply.tracks`は`tasks.md`とする。
+`rd`と`bd`はArtifact Graphに含めず、MySDDの運用手順でApply前の生成を求める。
 
 ## 6. ISO/IEC/IEEE 12207の取り込み
 
@@ -148,9 +156,9 @@ ISO/IEC/IEEE 12207:2026のソフトウェアライフサイクル観点を、Ope
 | --- | --- | --- |
 | `proposal` | ステークホルダ、移行、運用、保守、廃止への影響 | 対象者、影響範囲、前提 |
 | `specs` | ステークホルダ要求とソフトウェア要求 | 検証可能なRequirementとScenario |
-| `rd` | 要求定義、制約、Interface、受入、追跡 | 要求ID、根拠、受入条件、検証方法 |
-| `design`・`bd` | Architecture、Integration、移行、運用、保守 | 構成、Interface、代替案、Rollback |
+| `design` | Architecture、Integration、移行、運用、保守 | 構成、Interface、代替案、Rollback |
 | `tasks` | 実装、統合、検証、妥当性確認、構成管理 | Taskと完了Evidence |
+| `gen-pd`・`gen-bd` | 計画Artifactの文書化 | 要求・設計・検証の追跡表 |
 | `verify` | 完全性、正しさ、一貫性、品質保証 | 検証結果、残余Risk、Evidence |
 | `archive` | 構成管理と知識保持 | Main Specと監査可能なChange履歴 |
 
@@ -170,7 +178,7 @@ ISO/IEC 25010:2023のProduct Quality Modelが定義する9特性を、品質要�
 8. 柔軟性（Flexibility）
 9. 安全性（Safety）
 
-各Changeは9特性をレビューし、適用する品質要求を`rd.md`に次の形で記録する。非適用の特性は理由を残す。
+各Changeは9特性をレビューし、適用判定を`proposal.md`、測定可能な品質要求をDelta Specに次の形で記録する。非適用の特性は理由を残す。`gen-pd`はその内容を`rd.md`へ変換する。
 
 <!-- markdownlint-disable MD013 -->
 | ID | 品質特性 | 品質要求 | Measure | Target | Conditions | Verification Method | 参照元 |
@@ -178,11 +186,13 @@ ISO/IEC 25010:2023のProduct Quality Modelが定義する9特性を、品質要�
 | `QR-001` | `<characteristic>` | `<requirement>` | `<measure>` | `<value>` | `<environment>` | `<test>` | `<requirement-id>` |
 <!-- markdownlint-enable MD013 -->
 
-`bd.md`はQuality IDに設計方式、影響Component、監視、Evidenceを対応付ける。
+Proposeで生成する`design.md`はQuality IDに設計方式、影響Component、監視、Evidenceを対応付ける。
 `tasks.md`はTargetを確認するテスト、分析、レビューを含める。
 VerifyはQuality IDからEvidenceまで追跡する。
 
 ## 8. Template仕様
+
+8.1〜8.4はProposeが使うSchema Template、8.5〜8.6は専用Agent Skillが使うTemplate Assetである。
 
 ### 8.1 `proposal.md`
 
@@ -197,6 +207,8 @@ VerifyはQuality IDからEvidenceまで追跡する。
 ## Impact
 ## Stakeholders and Lifecycle Impact
 <!-- 利用者、移行、運用、保守、廃止への影響を記載する。 -->
+## Quality Considerations
+<!-- 適用品質特性、測定目標、条件、検証方法を記載する。 -->
 ```
 
 ### 8.2 `spec.md`
@@ -208,6 +220,7 @@ OpenSpecが解析する見出しと階層を変更しない。新規Capability�
 ## ADDED Requirements
 ### Requirement: <name>
 <system SHALL ...>
+<!-- 品質要求はQuality ID、特性、Measure、Target、条件、検証方法を含める。 -->
 #### Scenario: <name>
 - **WHEN** <condition>
 - **THEN** <observable result>
@@ -231,7 +244,7 @@ OpenSpecが解析する見出しと階層を変更しない。新規Capability�
 
 ### 8.4 `tasks.md`
 
-OpenSpec Applyが追跡できるチェックボック形式を保ち、各Taskに完了Evidenceを含める。
+OpenSpec Applyが追跡できるチェックボック形式を保ち、適用する品質目標とライフサイクル影響の完了Evidenceを各Taskに含める。
 
 ```markdown
 ## 1. <Task Group>
@@ -239,7 +252,7 @@ OpenSpec Applyが追跡できるチェックボック形式を保ち、各Task�
 - [ ] 1.1 <実装内容>を行い、<テストまたはEvidence>で完了を確認する
 ```
 
-### 8.5 `rd.md`
+### 8.5 `gen-pd/assets/rd.md`
 
 ```markdown
 # 要件定義書
@@ -257,7 +270,7 @@ OpenSpec Applyが追跡できるチェックボック形式を保ち、各Task�
 ## 12. 用語集
 ```
 
-### 8.6 `bd.md`
+### 8.6 `gen-bd/assets/bd.md`
 
 ```markdown
 # 基本設計書
@@ -279,7 +292,7 @@ OpenSpec Applyが追跡できるチェックボック形式を保ち、各Task�
 
 ## 9. 追加Agent Skills
 
-追加する呼び出し可能なSkillは`gen-pd`と`gen-bd`の2つだけとする。Propose、Apply、Verify、ArchiveはOpenSpec標準Skillを再利用し、MySDD専用の重複Skillは作らない。
+追加する呼び出し可能なSkillは`gen-pd`と`gen-bd`の2つだけとする。両SkillはProposeと分離し、利用者または後続ワークフローから明示的に実行する。Propose、Apply、Verify、ArchiveはOpenSpec標準Skillを再利用する。
 
 <!-- markdownlint-disable MD013 -->
 | Skill | Trigger | Input | Output | 失敗時の扱い |
@@ -288,37 +301,28 @@ OpenSpec Applyが追跡できるチェックボック形式を保ち、各Task�
 | `gen-bd` | MySDD Changeの基本設計書を作成・再生成 | `proposal.md`、1件以上の`specs/**/*.md`、存在する`design.md` | `docs/bd.md`と`docs/bd.docx` | 必須入力欠落は未完了。Design欠落は`TBD`。DOCX失敗は部分成功 |
 <!-- markdownlint-enable MD013 -->
 
-両Skillは[_shared/document-generation.md](../../.agents/skills/_shared/document-generation.md)を共通手順とし、`change-name`だけを呼び出しInterfaceにする。Requirement見出し、Scenario名、既存ID、参照関係を保持し、入力にない事実は補完しない。
+両Skillは[_shared/document-generation.md](../../.agents/skills/_shared/document-generation.md)を共通手順とし、`change-name`だけを呼び出しInterfaceにする。各Skillが自身の`assets/`に持つTemplateを唯一の章立てとし、Requirement見出し、Scenario名、既存ID、参照関係を保持する。
 
 ## 10. Schema定義
 
-`schema.yaml`はFork元の4 Artifact定義を保ち、次の差分を追加する。
+`schema.yaml`はFork元と同じ4 Artifactと依存関係を保ち、各Artifactの`instruction`にISO観点を追加する。
 
 ```yaml
 name: mysdd
 version: 1
 description: >-
-  MySDD, a spec-driven fork with requirements-definition and basic-design
-  documents
+  MySDD, a spec-driven fork with ISO lifecycle and product-quality viewpoints
 
 artifacts:
-  # proposal、specs、design、tasksはFork元の定義を維持する。
-  - id: rd
-    generates: docs/rd.md
-    template: rd.md
-    requires: [proposal, specs]
-
-  - id: bd
-    generates: docs/bd.md
-    template: bd.md
-    requires: [proposal, specs]
+  # proposal、specs、design、tasksの4つだけを定義する。
+  # 各instructionにISO/IEC/IEEE 12207とISO/IEC 25010の観点を加える。
 
 apply:
-  requires: [tasks, rd, bd]
+  requires: [tasks]
   tracks: tasks.md
 ```
 
-`rd`と`bd`の`instruction`には、対応Skillの使用、Markdownと同名DOCXの生成、トレーサビリティの保持、推測補完の禁止を記載する。
+`proposal`はステークホルダとライフサイクル影響、適用品質特性と測定方法を記録する。`specs`は測定可能な品質要求、`design`は品質とライフサイクルの実現方式、`tasks`は検証Evidenceを扱う。
 
 ## 11. 検証手順
 
@@ -339,15 +343,16 @@ openspec validate '<change-name>' --strict
 ./scripts/openspec/test-render-docx.ps1
 ```
 
-成功時はSchemaとChangeのValidationが通り、6つのArtifactが解決され、
+成功時はSchemaとChangeのValidationが通り、4つのArtifactが解決され、
 DOCXテストが`PASS`を返す。失敗時はSchema名、Artifact ID、Template参照、
 依存関係、Delta Spec構文、出力先を修正し、ApplyまたはArchiveへ進まない。
 
 ## 12. 受入条件
 
 - `mysdd`が`spec-driven`の4 Artifactを互換のまま維持する。
-- `rd`と`bd`がChange配下へMarkdownとDOCXを生成する。
-- Applyが`tasks`、`rd`、`bd`を必須とする。
+- ProposeがISO/IEC/IEEE 12207とISO/IEC 25010の観点を4 Artifactへ反映し、`rd`と`bd`を生成しない。
+- `gen-pd`と`gen-bd`が固有のTemplate AssetからMarkdownとDOCXを生成する。
+- Schema上のApply開始条件が`tasks`のみである。
 - 12207の適用観点がArtifact間で追跡できる。
 - 25010の適用品質特性がMeasure、Target、Verification Method、Evidenceまで追跡できる。
 - 入力にない情報は補完されず、未確定事項が`TBD`または理由付きの対象外になる。

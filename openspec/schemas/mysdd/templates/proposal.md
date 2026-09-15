@@ -27,3 +27,16 @@
 ## Impact
 
 <!-- Affected code, APIs, dependencies, systems -->
+
+## Stakeholders and Lifecycle Impact
+
+<!-- Review applicable ISO/IEC/IEEE 12207 viewpoints for stakeholders,
+     acquisition, supply, transition, operation, maintenance, and disposal.
+     Record non-applicable viewpoints with a reason. -->
+
+## Quality Considerations
+
+<!-- Review all ISO/IEC 25010 product-quality characteristics. For each
+     applicable characteristic, identify the quality ID, measurable target,
+     conditions, and verification approach. Record non-applicable
+     characteristics with a reason. -->

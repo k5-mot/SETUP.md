@@ -36,11 +36,12 @@
 - Decision: 要求、設計、検証、正式文書のMarkdownをGit管理する。DOCXはMarkdownから生成する。
 - Consequence: DOCXを直接編集せず、生成DOCXはGit管理外とする。
 
-## ADR-007: MySDDへ正式文書Artifactを追加する
+## ADR-007: MySDDの標準ArtifactへISO観点を追加する
 
 - Status: Accepted
-- Decision: `spec-driven`をForkした`mysdd` Schemaへ`rd`と`bd`を追加し、`openspec/schemas/`で管理する。
-- Consequence: 標準Artifactを維持し、要件定義書と基本設計書をChange単位で生成する。
+- Decision: `spec-driven`をForkした`mysdd` Schemaは4つの標準Artifactを維持し、
+  ISO/IEC/IEEE 12207とISO/IEC 25010の観点を追加する。
+- Consequence: Proposeは計画Artifactだけを生成し、要件定義書と基本設計書は専用Skillで別途生成する。
 
 ## ADR-008: 文書生成を`gen-pd`と`gen-bd`へ分離する
 
@@ -57,5 +58,5 @@
 ## ADR-010: 文書生成のInterfaceと変換順を固定する
 
 - Status: Accepted
-- Decision: `gen-pd`と`gen-bd`は`change-name`だけを受け取り、Schemaが解決した`docs/rd.md`または`docs/bd.md`と同名DOCXを生成する。DOCX変換は共通のPandoc処理を使う。
+- Decision: `gen-pd`と`gen-bd`は`change-name`だけを受け取り、各SkillのTemplate Assetから`docs/rd.md`または`docs/bd.md`と同名DOCXを生成する。DOCX変換は共通のPandoc処理を使う。
 - Consequence: DOCX変換に失敗してもMarkdownを保持し、部分成功として報告する。

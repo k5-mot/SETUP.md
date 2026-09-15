@@ -11,6 +11,7 @@
 #### Scenario: 必要な入力が存在する
 
 - **WHEN** 利用者が対象Changeを指定して`gen-pd`を実行する
+- **THEN** `gen-pd/assets/rd.md`をTemplateとして使う
 - **THEN** `openspec/changes/<change-name>/docs/rd.md`を生成する
 - **THEN** 同じ内容を基に`rd.docx`を生成する
 

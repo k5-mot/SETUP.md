@@ -24,8 +24,14 @@ Schema検証が成功すれば利用準備は完了。失敗した場合は、Re
 Coding Agentへ次のSkillを順に指定する。
 
 ```text
-# Changeと必要なArtifactを作成する。
+# ISO観点を含む4つの計画Artifactを作成する。
 $openspec-propose <変更内容>
+
+# 要件定義書を別途生成する。
+$gen-pd <change-name>
+
+# 基本設計書を別途生成する。
+$gen-bd <change-name>
 
 # Tasksに従って実装する。
 $openspec-apply-change <change-name>
@@ -37,16 +43,18 @@ $openspec-verify-change <change-name>
 $openspec-archive-change <change-name>
 ```
 
-MySDDはOpenSpec標準の`spec-driven`を維持し、`rd`と`bd`を追加する。Applyは`tasks`、`rd`、`bd`が揃うまでBlockedになる。
+MySDDはOpenSpec標準の4 ArtifactにISO/IEC/IEEE 12207とISO/IEC 25010の観点を追加する。
+`rd`と`bd`はSchema Artifactではなく、Propose後に専用Agent Skillで生成する。
 
 | Step | 完了結果 | 中断条件 |
 | --- | --- | --- |
-| Propose | Change配下に計画Artifactと`docs/rd.md`、`docs/bd.md`がある | Artifactが不足している |
+| Propose | ISO観点を含む4つの計画Artifactがある | ArtifactまたはISO観点が不足している |
+| 文書生成 | `gen-pd`と`gen-bd`がMarkdownとDOCXを生成している | 必須入力または正本Markdownが不足している |
 | Apply | Tasksと必要なテストが完了している | ApplyがBlocked、またはテストが失敗する |
 | Verify | CRITICALな不整合がない | CRITICALな不整合がある |
 | Archive | ChangeがArchiveされ、Delta Specが反映される | Verify未完了、またはArchiveが失敗する |
 
-## 📄 生成されるArtifact
+## 📄 ワークフロー全体で生成される成果物
 
 ```text
 openspec/changes/<change-name>/

@@ -17,11 +17,11 @@
 
 ## 4. MySDD
 
-- [x] 4.1 `spec-driven`を維持した`mysdd`へ`rd`と`bd`を追加し、Schema検証が成功することを確認する
-- [x] 4.2 `rd.md`と`bd.md`のTemplateを追加し、Artifact指示が各Skillと`docs/`配下の出力先を示すことを確認する
-- [x] 4.3 既定Schemaを`mysdd`へ変更し、`tasks`、`rd`、`bd`が揃うまでApplyがBlockedになることを確認する
+- [x] 4.1 `spec-driven`の4 Artifactと依存関係を維持し、Schema検証が成功することを確認する
+- [x] 4.2 4つのSchema TemplateへISO/IEC/IEEE 12207とISO/IEC 25010の観点を追加し、Proposeの出力に反映されることを確認する
+- [x] 4.3 `rd`と`bd`をSchema Artifactから外し、Applyの依存が`tasks`のみであることを確認する
 
 ## 5. 検証
 
-- [x] 5.1 両Skillを同じテストChangeへ実行し、`docs/rd.md`と`docs/bd.md`だけが生成されることを確認する
+- [x] 5.1 `rd.md`と`bd.md`のTemplateを各SkillのAssetへ分離し、Schemaに依存せず正式文書を生成できることを確認する
 - [x] 5.2 `openspec schema validate mysdd`と`openspec validate add-gen-pd-gen-bd --strict`を実行し、エラーがないことを確認する

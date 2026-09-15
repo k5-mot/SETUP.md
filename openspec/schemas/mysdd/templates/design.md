@@ -14,6 +14,16 @@
 
 <!-- Key design decisions with rationale and alternatives considered -->
 
+## Quality Attribute Design
+
+<!-- Map applicable ISO/IEC 25010 quality IDs to design approaches,
+     trade-offs, affected components, and verification evidence. -->
+
+## Lifecycle, Migration and Operations
+
+<!-- Address applicable ISO/IEC/IEEE 12207 viewpoints for transition,
+     rollback, operation, support, maintenance, and disposal. -->
+
 ## Risks / Trade-offs
 
 <!-- Known risks and trade-offs -->
