@@ -36,10 +36,10 @@
 - Decision: 要求、設計、検証、正式文書のMarkdownをGit管理する。DOCXはMarkdownから生成する。
 - Consequence: DOCXを直接編集せず、生成DOCXはGit管理外とする。
 
-## ADR-007: spec-drivenへ正式文書Artifactを追加する
+## ADR-007: MySDDへ正式文書Artifactを追加する
 
 - Status: Accepted
-- Decision: `spec-driven`をForkした`sdd-custom` Schemaへ`rd`と`bd`を追加し、`openspec/schemas/`で管理する。
+- Decision: `spec-driven`をForkした`mysdd` Schemaへ`rd`と`bd`を追加し、`openspec/schemas/`で管理する。
 - Consequence: 標準Artifactを維持し、要件定義書と基本設計書をChange単位で生成する。
 
 ## ADR-008: 文書生成を`gen-pd`と`gen-bd`へ分離する

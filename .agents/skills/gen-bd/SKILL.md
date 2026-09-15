@@ -1,6 +1,6 @@
 ---
 name: gen-bd
-description: sdd-custom Changeのbd Artifactとして基本設計書のMarkdownとDOCXを生成する。基本設計書の作成または再生成を依頼されたときに使用する。
+description: MySDD Changeのbd Artifactとして基本設計書のMarkdownとDOCXを生成する。基本設計書の作成または再生成を依頼されたときに使用する。
 ---
 
 # 🏛️ gen-bd

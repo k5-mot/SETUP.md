@@ -1,6 +1,6 @@
 ---
 name: gen-pd
-description: sdd-custom Changeのrd Artifactとして要件定義書のMarkdownとDOCXを生成する。要件定義書の作成または再生成を依頼されたときに使用する。
+description: MySDD Changeのrd Artifactとして要件定義書のMarkdownとDOCXを生成する。要件定義書の作成または再生成を依頼されたときに使用する。
 ---
 
 # 📋 gen-pd

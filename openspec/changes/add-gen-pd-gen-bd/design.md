@@ -1,6 +1,6 @@
 ## Context
 
-📄 `gen-pd`と`gen-bd`は、`spec-driven`を拡張した`sdd-custom` SchemaのArtifact生成を担当する。Skill名と正本の扱いは[ADR-006](../../../docs/adr/ADR.md#adr-006-openspecのmarkdownを正本とする)および[ADR-008](../../../docs/adr/ADR.md#adr-008-文書生成をgen-pdとgen-bdへ分離する)に従う。
+📄 `gen-pd`と`gen-bd`は、`spec-driven`を拡張した`mysdd` SchemaのArtifact生成を担当する。Skill名と正本の扱いは[ADR-006](../../../docs/adr/ADR.md#adr-006-openspecのmarkdownを正本とする)および[ADR-008](../../../docs/adr/ADR.md#adr-008-文書生成をgen-pdとgen-bdへ分離する)に従う。
 
 ## Goals / Non-Goals
 

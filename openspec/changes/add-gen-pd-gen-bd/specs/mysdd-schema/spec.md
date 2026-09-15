@@ -6,17 +6,17 @@
 
 ### Requirement: spec-drivenを文書Artifactで拡張する
 
-`sdd-custom`は、`spec-driven`の`proposal`、`specs`、`design`、`tasks`を維持し、`rd`と`bd`を追加しなければならない（MUST）。
+`mysdd`は、`spec-driven`の`proposal`、`specs`、`design`、`tasks`を維持し、`rd`と`bd`を追加しなければならない（MUST）。
 
 #### Scenario: Schemaから文書を生成する
 
-- **WHEN** 利用者が`sdd-custom`でChangeのArtifactを生成する
+- **WHEN** 利用者が`mysdd`でChangeのArtifactを生成する
 - **THEN** `gen-pd`を使って`docs/rd.md`を生成する
 - **THEN** `gen-bd`を使って`docs/bd.md`を生成する
 
 ### Requirement: Apply前に文書Artifactを完成させる
 
-`sdd-custom`は、`tasks`、`rd`、`bd`が存在するまでApplyを開始可能にしてはならない（MUST NOT）。
+`mysdd`は、`tasks`、`rd`、`bd`が存在するまでApplyを開始可能にしてはならない（MUST NOT）。
 
 #### Scenario: 文書Artifactが不足している
 

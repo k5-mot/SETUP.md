@@ -1,4 +1,4 @@
-schema: sdd-custom
+schema: mysdd
 
 # Project context (optional)
 # This is shown to AI when creating artifacts.

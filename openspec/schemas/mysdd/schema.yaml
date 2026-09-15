@@ -1,6 +1,6 @@
-name: sdd-custom
+name: mysdd
 version: 1
-description: spec-driven with requirements-definition and basic-design documents
+description: MySDD, a spec-driven fork with requirements-definition and basic-design documents
 artifacts:
   - id: proposal
     generates: proposal.md
