@@ -1,6 +1,6 @@
 # 🛠️ Windows開発環境とOpenSpec
 
-Windows 11の開発環境を構築し、OpenSpecの`sdd-custom` Schemaで仕様駆動開発を行うためのRepository。
+Windows 11の開発環境を構築し、OpenSpecのMySDD（`mysdd`）Schemaで仕様駆動開発を行うためのRepository。
 
 ## 🚀 セットアップ
 
@@ -14,7 +14,7 @@ Windows 11の開発環境を構築し、OpenSpecの`sdd-custom` Schemaで仕様�
 (&mise activate pwsh) | Out-String | Invoke-Expression
 
 # OpenSpecのカスタムSchemaを検証する。
-openspec schema validate sdd-custom --verbose
+openspec schema validate mysdd --verbose
 ```
 
 Schema検証が成功すれば利用準備は完了。失敗した場合は、Repositoryのルートで実行していることを確認する。
@@ -37,7 +37,7 @@ $openspec-verify-change <change-name>
 $openspec-archive-change <change-name>
 ```
 
-`sdd-custom`はOpenSpec標準の`spec-driven`を維持し、`rd`と`bd`を追加する。Applyは`tasks`、`rd`、`bd`が揃うまでBlockedになる。
+MySDDはOpenSpec標準の`spec-driven`を維持し、`rd`と`bd`を追加する。Applyは`tasks`、`rd`、`bd`が揃うまでBlockedになる。
 
 | Step | 完了結果 | 中断条件 |
 | --- | --- | --- |
@@ -79,7 +79,7 @@ $gen-bd <change-name>
 
 ## 📚 ドキュメント
 
-- [OpenSpec開発ワークフロー](docs/references/workflow.md)
-- [OpenSpecカスタマイズ](docs/references/customization.md)
-- [OpenSpecカスタマイズ実装計画](docs/plan/customization-implementation-plan.md)
+- [OpenSpec標準ワークフロー](docs/references/OpenSpec-Workflow.md)
+- [MySDDワークフロー](docs/references/MySDD-Workflow.md)
+- [MySDDカスタムSchema仕様](docs/references/MySDD-Spec.md)
 - [Architecture Decision Records](docs/adr/ADR.md)
