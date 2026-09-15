@@ -4,7 +4,10 @@
 
 - AI agents MUST respond to users in Japanese.
 - AI agents MUST follow the [contribution rules](docs/CONTRIBUTING.md) when working with branches, commits, or tags.
-- AI agents MUST follow the [OpenSpec workflow](docs/references/workflow.md) when working with OpenSpec.
+- AI agents MUST follow the
+  [OpenSpec workflow](docs/references/OpenSpec-Workflow.md) when using
+  `spec-driven` and the [MySDD workflow](docs/references/MySDD-Workflow.md)
+  when using `mysdd`.
 - If a directory contains another `AGENTS.md`, its more specific rules MUST take precedence within that directory.
 
 ## Documentation Rules
