@@ -15,6 +15,15 @@ $ErrorActionPreference = 'Stop'
 $InputFile = Get-Item -LiteralPath $InputPath -ErrorAction Stop
 $ReferenceFile = Get-Item -LiteralPath $ReferenceDoc -ErrorAction Stop
 $OutputFile = [IO.Path]::GetFullPath($OutputPath)
+$ExpectedOutput = [IO.Path]::ChangeExtension($InputFile.FullName, '.docx')
+
+if (-not $OutputFile.Equals(
+    $ExpectedOutput,
+    [StringComparison]::OrdinalIgnoreCase
+  )) {
+  throw "OutputPath must be: $ExpectedOutput"
+}
+
 $OutputDirectory = Split-Path -Parent $OutputFile
 
 $MiseCommand = Get-Command mise -CommandType Application -ErrorAction SilentlyContinue |

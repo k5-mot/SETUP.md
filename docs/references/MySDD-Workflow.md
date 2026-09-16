@@ -62,7 +62,10 @@ openspec/changes/<change-name>/docs/
 └─ bd.docx                       # 基本設計書の配布物
 ```
 
-両Skillは入力Artifactにない事実を補完せず、未確定事項を`TBD`とする。Markdownが正本、DOCXはGit管理外の配布物である。必須Markdownが欠ける場合はApplyへ進まない。DOCXだけが失敗した場合はMarkdownを保持し、再生成する。
+両Skillは入力Artifactにない事実を補完せず、未確定事項を`TBD`とする。
+Markdownが正本、DOCXはGit管理外の配布物である。Markdown生成後の
+Pandoc変換は共通Skill `md2docx`へ委譲する。必須Markdownが欠ける場合は
+Applyへ進まない。DOCXだけが失敗した場合はMarkdownを保持し、再生成する。
 
 ## 3️⃣ `/opsx:apply`; ドキュメントに従って実装
 
@@ -127,7 +130,7 @@ $gen-bd <change-name>
 
 `rd`と`bd`はMain SpecへSyncされず、Change側に残る。
 
-## 🔖 参考文献
+## References
 
 - [OpenSpec Commands](https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md)
 - [OpenSpec Customization](https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md)

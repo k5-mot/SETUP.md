@@ -5,8 +5,6 @@ description: MySDD Changeから要件定義書のMarkdownとDOCXを生成する�
 
 # 📋 gen-pd
 
-最初に[文書生成の共通手順](../_shared/document-generation.md)を読む。
-
 ## 入力
 
 - `openspec/changes/<change-name>/proposal.md`
@@ -19,9 +17,19 @@ description: MySDD Changeから要件定義書のMarkdownとDOCXを生成する�
 - `openspec/changes/<change-name>/docs/rd.md`
 - `openspec/changes/<change-name>/docs/rd.docx`
 
-品質要件にはQuality Characteristic、Requirement、Measure、Target、Conditions、Verification Methodを記載する。
-要求IDがない場合はCapability path、Requirement見出し、Scenario名をトレーサビリティの参照名として使う。
+品質要件にはQuality Characteristic、Requirement、Measure、Target、
+Conditions、Verification Methodを記載する。要求IDがない場合は
+Capability path、Requirement見出し、Scenario名をトレーサビリティの
+参照名として使う。
+
+入力にない事実を追加せず、不足情報は`TBD`とする。Requirement見出し、
+Scenario名、既存IDと参照関係は変更しない。
+
+`rd.md`の生成後、[md2docx](../md2docx/SKILL.md)を読み、`rd.md`を
+`rd.docx`へ変換する。DOCX変換に失敗した場合はMarkdownを保持し、
+部分成功と失敗理由を報告する。
 
 ## 完了条件
 
-Templateの全章を持つ`rd.md`と同名DOCXが生成され、要求と検証方法の参照関係が保たれている。
+Templateの全章を持つ`rd.md`と同名DOCXが生成され、要求と検証方法の
+参照関係が保たれている。

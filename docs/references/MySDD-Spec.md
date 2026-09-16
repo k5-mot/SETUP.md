@@ -21,10 +21,10 @@
 - [9. Agent Skills](#9-agent-skills)
   - [9.1 gen-pd](#91-gen-pd)
   - [9.2 gen-bd](#92-gen-bd)
-  - [9.3 \_md2docx](#93-_md2docx)
+  - [9.3 `md2docx`](#93-md2docx)
 - [10. 運用・保守手順](#10-運用保守手順)
 - [11. 受け入れ条件](#11-受け入れ条件)
-- [参考文献](#参考文献)
+- [References](#references)
 
 ## 1. 概要
 
@@ -35,7 +35,7 @@ ISO/IEC 25010の製品品質観点を組み込むカスタムSchemaである。
 
 | 項目 | 定義 |
 | --- | --- |
-| Status | Proposed |
+| Status | Implemented |
 | Base Schema | `spec-driven` |
 | Custom Schema | `mysdd` |
 | Standards baseline | ISO/IEC/IEEE 12207:2026、ISO/IEC 25010:2023 |
@@ -56,7 +56,7 @@ MySDDの目的は、`spec-driven`との互換性を維持しながら、Change�
 - 標準4 ArtifactへISO/IEC/IEEE 12207とISO/IEC 25010の観点を追加する
 - Requirement、Scenario、設計判断、Task、Evidenceを追跡可能にする
 - `gen-pd`で要件定義書、`gen-bd`で基本設計書を別途生成する
-- `_md2docx`で正本Markdownから配布用DOCXを再生成可能にする
+- `md2docx`で正本Markdownから配布用DOCXを再生成可能にする
 - MySDDの設定、Schema、Template、Skillおよび保守方法を本書へ集約する
 
 次は対象外とする。
@@ -133,7 +133,7 @@ Delta Spec構文を変更しない。変更点は次のとおりとする。
 | `/opsx:propose` | 標準4 Artifactを生成 | ISO観点を含む4 Artifactだけを生成する |
 | Apply開始条件 | `tasks` | `tasks`のまま維持する |
 | 正式文書 | 対象外 | `gen-pd`と`gen-bd`がOpenSpec外の後続処理として生成する |
-| DOCX変換 | 対象外 | `_md2docx`が正本MarkdownをDOCXへ変換する |
+| DOCX変換 | 対象外 | `md2docx`が正本MarkdownをDOCXへ変換する |
 | `docs/references/MySDD-Spec.md` | 存在しない | 本ファイルを修正し、設定、Schema、Template、Skill、運用、受け入れ条件の正本とする |
 <!-- markdownlint-enable MD013 -->
 
@@ -151,7 +151,6 @@ Delta Spec構文を変更しない。変更点は次のとおりとする。
 - `[維持]`: 既存実装を変更せず利用する
 - `[生成]`: OpenSpec操作またはAgent Skillが生成する
 - `[除外]`: 生成するがGit管理対象外とする
-- `[削除]`: 移管後に旧ファイルを削除する
 
 <!-- markdownlint-disable MD013 -->
 ```text
@@ -180,20 +179,17 @@ openspec/
       └─ bd.docx                            # [除外] gen-bdが作る配布文書
 
 .agents/skills/
-├─ _md2docx/
-│  └─ SKILL.md                              # [追加] MarkdownをDOCXへ変換
-├─ _shared/
-│  └─ document-generation.md                # [削除] _md2docxへ責務を移管
+├─ md2docx/
+│  ├─ SKILL.md                              # [追加] 変換手順と入出力契約
+│  └─ scripts/
+│     ├─ render-docx.ps1                    # [移動] PandocによるDOCX変換
+│     └─ test-render-docx.ps1               # [移動] DOCX変換テスト
 ├─ gen-pd/
 │  ├─ SKILL.md                              # [修正] 要件定義書生成を定義
 │  └─ assets/rd.md                          # [追加] gen-pd専用Template Asset
 └─ gen-bd/
    ├─ SKILL.md                              # [修正] 基本設計書生成を定義
    └─ assets/bd.md                          # [追加] gen-bd専用Template Asset
-
-scripts/openspec/
-├─ render-docx.ps1                          # [維持] DOCX変換処理
-└─ test-render-docx.ps1                     # [維持] DOCX変換テスト
 
 docs/references/
 ├─ OpenSpec-Workflow.md                     # [維持] 標準操作の説明
@@ -249,7 +245,7 @@ flowchart TD
 | `tasks` | `tasks.md` | `specs`、`design` | 作業とEvidenceが追跡できる |
 
 `apply.requires`は`[tasks]`、`apply.tracks`は`tasks.md`とする。
-`rd`、`bd`および`_md2docx`はArtifact Graphへ追加しない。
+`rd`、`bd`および`md2docx`はArtifact Graphへ追加しない。
 
 ### 7.2 `schema.yaml`変更例
 
@@ -363,6 +359,7 @@ Fork元のDelta Spec規則に従う。
 ## Lifecycle, Migration and Operations
 <!-- 移行、Rollback、運用、保守、廃止を記載する。 -->
 ## Risks / Trade-offs
+## Migration Plan
 ## Open Questions
 ```
 
@@ -389,7 +386,7 @@ flowchart LR
     bdasset[gen-bd/assets/bd.md] --> genbd
     genpd --> rd[docs/rd.md]
     genbd --> bd[docs/bd.md]
-    rd --> md2docx[_md2docx]
+    rd --> md2docx[md2docx]
     bd --> md2docx
     reference[reference.docx] --> md2docx
     md2docx --> docx[配布用DOCX]
@@ -406,7 +403,7 @@ flowchart LR
 - 失敗条件: 必須入力がない、または入力にない情報を確定事項として補完した
 
 `assets/rd.md`は要件定義書の章立てを定めるSkill専用Assetであり、
-OpenSpec Templateではない。Markdown生成後のDOCX変換は`_md2docx`へ委譲する。
+OpenSpec Templateではない。Markdown生成後のDOCX変換は`md2docx`へ委譲する。
 
 ### 9.2 `gen-bd`
 
@@ -420,23 +417,23 @@ OpenSpec Templateではない。Markdown生成後のDOCX変換は`_md2docx`へ�
 
 `design.md`がない場合、設計固有の未確定事項は`TBD`とする。
 `assets/bd.md`もSkill専用Assetであり、OpenSpec Templateではない。
-Markdown生成後のDOCX変換は`_md2docx`へ委譲する。
+Markdown生成後のDOCX変換は`md2docx`へ委譲する。
 
-### 9.3 `_md2docx`
+### 9.3 `md2docx`
 
-`_md2docx`は正本Markdownを同名のDOCXへ変換する共通Agent Skillである。
+`md2docx`は正本Markdownを同名のDOCXへ変換する共通Agent Skillである。
 `gen-pd`と`gen-bd`から利用し、文書内容の生成や補完は担当しない。
 
 - 入力: 変換元Markdown、出力先DOCX
 - 参照書式: `openspec/document-templates/reference.docx`
-- 実行処理: `scripts/openspec/render-docx.ps1`
+- 実行処理: `.agents/skills/md2docx/scripts/render-docx.ps1`
 - 出力: 入力Markdownと同じ場所にある同名DOCX
 - 完了条件: DOCXが生成され、変換テストを通過する
 - 失敗時: 正本Markdownを保持し、部分成功と失敗理由を呼び出し元へ返す
 
-既存の`.agents/skills/_shared/document-generation.md`が持つ変換責務は、
-`_md2docx/SKILL.md`へ移管する。`gen-pd`と`gen-bd`には、それぞれの
-入力解釈とMarkdown生成だけを残す。
+DOCX変換責務は`md2docx/`へ集約する。`SKILL.md`が入出力契約、
+`scripts/`がPandoc実行とテストを所有する。`gen-pd`と`gen-bd`には、
+それぞれの入力解釈とMarkdown生成だけを持たせる。
 
 ## 10. 運用・保守手順
 
@@ -458,7 +455,7 @@ openspec templates --schema mysdd --json
 openspec validate '<change-name>' --strict
 
 # DOCX変換と参照書式の配置を検証する。
-./scripts/openspec/test-render-docx.ps1
+./.agents/skills/md2docx/scripts/test-render-docx.ps1
 
 # MySDD仕様書のMarkdown形式を検証する。
 npx --yes markdownlint-cli2 'docs/references/MySDD-Spec.md'
@@ -490,7 +487,7 @@ OpenSpec Templateへ複製しない。
 
 更新が検証に失敗した場合は、失敗した変更だけを直前の動作版へ戻す。
 生成済みの正本MarkdownとChange Artifactは保持し、DOCXは動作版の
-`_md2docx`で再生成する。Schemaを`spec-driven`へ一時的に戻す場合は、
+`md2docx`で再生成する。Schemaを`spec-driven`へ一時的に戻す場合は、
 MySDD固有のISO観点が適用されないことを利用者へ明示する。
 
 ## 11. 受け入れ条件
@@ -502,15 +499,16 @@ MySDD固有のISO観点が適用されないことを利用者へ明示する。
 - Apply開始条件が`tasks`だけである
 - `gen-pd`が固有Assetから要件定義書のMarkdownとDOCXを生成できる
 - `gen-bd`が固有Assetから基本設計書のMarkdownとDOCXを生成できる
-- `_md2docx`が文書内容を変更せずDOCX変換を共通化している
+- `md2docx`が文書内容を変更せずDOCX変換を共通化している
 - `rd.md`と`bd.md`がOpenSpec TemplateまたはArtifactとして扱われない
 - 入力にない情報が補完されず、未確定事項が`TBD`または対象外になる
 - Markdownだけが正本としてGit管理され、DOCXを再生成できる
 - 本書がMySDDの設定、Schema、Template、Skill、運用の正本になっている
 
-## 参考文献
+## References
 
 - [OpenSpec Customization](https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md)
 - [Built-in spec-driven schema](https://github.com/Fission-AI/OpenSpec/blob/main/schemas/spec-driven/schema.yaml)
 - [ISO/IEC/IEEE 12207:2026](https://www.iso.org/standard/90219.html)
 - [ISO/IEC 25010:2023](https://www.iso.org/standard/78176.html)
+- [Agent Skills Specification](https://agentskills.io/specification)
