@@ -3,18 +3,18 @@
 ## Why
 
 `docs/references/MySDD-Spec.md`が定める構成のうち、共通DOCX変換Skill
-`_md2docx`への責務移管と一部Template項目が未実装であり、仕様書と実体が
+`md2docx`への責務移管と一部Template項目が未実装であり、仕様書と実体が
 一致していない。既存の`gen-pd`、`gen-bd`、`mysdd` Schemaを維持したまま、
 残る差分を解消してMySDDを一貫して運用可能な状態にする。
 
 ## What Changes
 
 - 正本Markdownを既存RendererでDOCXへ変換する共通Agent Skill
-  `_md2docx`を追加する。
+  `md2docx`を、Pandoc Rendererとテストを含む自己完結Packageとして追加する。
 - `gen-pd`と`gen-bd`は文書内容の生成に専念し、DOCX変換を
-  `_md2docx`へ委譲する。
+  `md2docx`へ委譲する。
 - 旧`.agents/skills/_shared/document-generation.md`を、参照を残さず
-  `_md2docx`へ置き換える。
+  `md2docx`へ置き換える。
 - MySDDの`design.md`と`tasks.md` Templateを仕様書およびSchema指示と
   照合し、不足する設計項目と検証Evidenceの記入欄を補う。
 - `MySDD-Spec.md`と`MySDD-Workflow.md`を実装後の構成、状態、検証手順へ
@@ -36,14 +36,14 @@
 
 ## Impact
 
-- `.agents/skills/_md2docx/`
+- `.agents/skills/md2docx/`
 - `.agents/skills/_shared/document-generation.md`
 - `.agents/skills/gen-pd/SKILL.md`
 - `.agents/skills/gen-bd/SKILL.md`
 - `openspec/schemas/mysdd/templates/design.md`
 - `openspec/schemas/mysdd/templates/tasks.md`
-- `scripts/openspec/render-docx.ps1`
-- `scripts/openspec/test-render-docx.ps1`
+- `.agents/skills/md2docx/scripts/render-docx.ps1`
+- `.agents/skills/md2docx/scripts/test-render-docx.ps1`
 - `docs/references/MySDD-Spec.md`
 - `docs/references/MySDD-Workflow.md`
 
@@ -59,10 +59,10 @@ MySDDの4 ArtifactおよびApply依存は変更しない。
   参照がなくなった後に削除する。利用者向けInterfaceは維持する。
 - 運用: 変換成功、入力不足、Pandoc失敗を区別して報告し、DOCX失敗時も
   正本Markdownを保持する。
-- 保守: DOCX変換規則を`_md2docx`へ一元化し、文書固有規則は各生成Skillの
+- 保守: DOCX変換規則を`md2docx`へ一元化し、文書固有規則は各生成Skillの
   Assetと`SKILL.md`に残す。
 - 廃止: `_shared/document-generation.md`は参照切れ検査後に削除する。
-- Rollback: `_md2docx`への参照変更と旧共通手順の削除を一組として戻し、
+- Rollback: `md2docx`への参照変更と旧共通手順の削除を一組として戻し、
   生成済みMarkdownは保持する。
 
 ## Quality Considerations
