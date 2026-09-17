@@ -180,18 +180,18 @@ openspec/
 │  ├─ reference.docx                        # [+] DOCXの共通書式.
 │  ├─ prd.md                                # [+] generate-prd スキルが作る要件定義書. 🤖
 │  ├─ hld.md                                # [+] generate-hld スキルが作る基本設計書. 🤖
-│  ├─ prd.docx                    # [!] generate-prdが作る配布用要件定義書. 🤖
-│  └─ hld.docx                    # [!] generate-hldが作る配布用基本設計書. 🤖
+│  ├─ prd.docx                              # [!] generate-prdが作る配布用要件定義書. 🤖
+│  └─ hld.docx                              # [!] generate-hldが作る配布用基本設計書. 🤖
 │
-└─ changes/<change-name>/                   # ... 生成物格納場所.
+└─ changes/<change-name>/                   # ... 生成物格納場所(English).
    ├─ .openspec.yaml                        # [+] Schema選択情報 🤖
    ├─ proposal.md                           # [+] 変更提案 🤖
    ├─ specs/<capability>/spec.md            # [+] Delta Spec 🤖
    ├─ design.md                             # [+] 技術設計 🤖
    └─ tasks.md                              # [+] 実装Task 🤖
 
-.agents/skills/
-├─ .gitignore                              # [+] 対象の4スキル以外を管理対象外にする.
+.agents/skills/                             # ... Agent Skills 格納場所(日本語).
+├─ .gitignore                               # [+] 対象の4スキル以外を管理対象外にする.
 ├─ markdown2docx/
 │  └─ SKILL.md                              # [+] Markdown を Docx に変換するスキル.
 ├─ generate-prd/
