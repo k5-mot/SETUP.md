@@ -1,11 +1,11 @@
-<!-- markdownlint-disable MD041 -->
+# project-setup Specification
 
 ## Purpose
 
 Define a reproducible Windows setup contract that works without elevation and
 keeps optional tools separate from the minimum project setup.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Setup uses ordinary user permissions
 
@@ -24,11 +24,11 @@ a command review and setup dry run.
 - **THEN** each supported WinGet install command includes `--scope user`
 - **THEN** the procedure does not require an elevated PowerShell session
 
-### Requirement: Setup documentation has minimum and extended levels
+### Requirement: Setup documentation separates required and optional tools
 
-The project MUST provide `docs/manual/SETUP.md` as the minimum setup and
-`docs/manual/SETUP.full.md` as the setup with additional tools. Shared
-instructions MUST treat the minimum setup as authoritative. This requirement
+The project MUST provide `docs/manual/SETUP.md` as the canonical setup
+procedure. The document MUST distinguish required setup from optional tools,
+and MUST treat the required setup as authoritative. This requirement
 incorporates ADR-002.
 
 #### Scenario: Choose the minimum setup
@@ -37,11 +37,11 @@ incorporates ADR-002.
 - **THEN** `docs/manual/SETUP.md` provides a complete minimum procedure
 - **THEN** optional tools do not become minimum prerequisites
 
-#### Scenario: Choose the extended setup
+#### Scenario: Choose optional tools
 
 - **WHEN** a contributor needs the additional supported tools
-- **THEN** `docs/manual/SETUP.full.md` identifies the additional procedure
-- **THEN** shared steps refer to the minimum setup instead of duplicating it
+- **THEN** `docs/manual/SETUP.md` identifies them in separate optional sections
+- **THEN** optional procedures do not duplicate the required setup
 
 ### Requirement: Project Agent Skills use one canonical location
 
@@ -79,8 +79,8 @@ The standard setup procedures MUST NOT install or configure a Model Context
 Protocol (MCP) integration. A consuming project MUST make its own explicit
 decision before introducing MCP. This requirement incorporates ADR-004.
 
-#### Scenario: Complete either setup level
+#### Scenario: Complete the canonical setup
 
-- **WHEN** a contributor completes the minimum or extended setup
+- **WHEN** a contributor completes the required setup or an optional procedure
 - **THEN** no MCP server or MCP client configuration is installed
 - **THEN** the setup succeeds without MCP credentials or endpoints
