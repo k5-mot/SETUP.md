@@ -1,0 +1,11 @@
+# このリポジトリ固有の4 SkillだけをGit管理する。
+*
+!.gitignore
+!generate-prd/
+!generate-prd/**
+!generate-hld/
+!generate-hld/**
+!markdown2docx/
+!markdown2docx/**
+!openspec-git-workflow/
+!openspec-git-workflow/**

@@ -1,12 +1,5 @@
 schema: mysdd
 
-context: |
-  Treat propose, apply, verify, and archive as separate commit boundaries.
-  After each operation succeeds, create a dedicated Git commit containing only
-  that operation's changes before reporting completion. Follow AGENTS.md for
-  inspection and commit-message rules. When verify succeeds without changing a
-  tracked file, create an empty verification checkpoint commit.
-
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
 # Example:

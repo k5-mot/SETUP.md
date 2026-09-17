@@ -7,8 +7,8 @@ MySDDは、OpenSpecの`spec-driven`をForkし、ISO/IEC/IEEE 12207とISO/IEC 250
 ```mermaid
 flowchart LR
     P["`/opsx:propose`<br/>ISO観点を含む4 Artifact"]
-    P --> RD["`$gen-pd`<br/>要件定義書"]
-    P --> BD["`$gen-bd`<br/>基本設計書"]
+    P --> RD["`$generate-prd`<br/>要件定義書"]
+    P --> BD["`$generate-hld`<br/>基本設計書"]
     RD --> A["`/opsx:apply`<br/>実装とテスト"]
     BD --> A
     A --> V["`/opsx:verify`<br/>実装と成果物を検証"]
@@ -17,7 +17,8 @@ flowchart LR
 ```
 
 OpenSpec Artifactは`proposal`、`specs`、`design`、`tasks`の4つである。
-`rd`と`bd`はSchema Artifactではなく、Propose完了後に専用Agent Skillで作る正式文書とする。
+PRDとHLDはSchema Artifactではなく、Propose完了後に専用Agent Skillで作る
+正式文書とする。
 
 ## 1️⃣ `/opsx:propose`; 変更分の差分仕様を作成
 
@@ -44,27 +45,27 @@ openspec/changes/<change-name>/
 
 4 Artifactの内容とISO観点が揃えばPropose完了である。未確定の重要事項が残る場合は次へ進まない。
 
-## 2️⃣ `$gen-pd` / `$gen-bd`; 正式文書を別途生成
+## 2️⃣ `$generate-prd` / `$generate-hld`; 正式文書を別途生成
 
 ```text
 # ProposalとDelta Specから要件定義書を生成する。
-$gen-pd <change-name>
+$generate-prd <change-name>
 
 # Proposal、Delta Spec、存在するDesignから基本設計書を生成する。
-$gen-bd <change-name>
+$generate-hld <change-name>
 ```
 
 ```text
-openspec/changes/<change-name>/docs/
-├─ rd.md                         # 要件定義書の正本
-├─ rd.docx                       # 要件定義書の配布物
-├─ bd.md                         # 基本設計書の正本
-└─ bd.docx                       # 基本設計書の配布物
+openspec/publics/
+├─ prd.md                        # 要件定義書の正本
+├─ prd.docx                      # 要件定義書の配布物
+├─ hld.md                        # 基本設計書の正本
+└─ hld.docx                      # 基本設計書の配布物
 ```
 
 両Skillは入力Artifactにない事実を補完せず、未確定事項を`TBD`とする。
 Markdownが正本、DOCXはGit管理外の配布物である。Markdown生成後の
-Pandoc変換は共通Skill `md2docx`へ委譲する。必須Markdownが欠ける場合は
+Pandoc変換は共通Skill `markdown2docx`へ委譲する。必須Markdownが欠ける場合は
 Applyへ進まない。DOCXだけが失敗した場合はMarkdownを保持し、再生成する。
 
 ## 3️⃣ `/opsx:apply`; ドキュメントに従って実装
@@ -74,7 +75,9 @@ Applyへ進まない。DOCXだけが失敗した場合はMarkdownを保持し、
 /opsx:apply <change-name>
 ```
 
-Schema上のApply開始条件は`tasks`である。MySDD運用では、`gen-pd`と`gen-bd`の完了を確認してからApplyを開始する。要求または設計が変わった場合は、Artifactと正式文書を先に更新する。
+Schema上のApply開始条件は`tasks`である。MySDD運用では、`generate-prd`と
+`generate-hld`の完了を確認してからApplyを開始する。要求または設計が
+変わった場合は、Artifactと正式文書を先に更新する。
 
 ## 4️⃣ `/opsx:verify`; 実装を検証
 
@@ -86,7 +89,7 @@ Schema上のApply開始条件は`tasks`である。MySDD運用では、`gen-pd`�
 次を確認する。
 
 - RequirementとScenarioが実装・テストへ追跡できる。
-- `rd.md`と`bd.md`が入力Artifactと整合する。
+- `prd.md`と`hld.md`が入力Artifactと整合する。
 - ISOの適用観点に未達のTargetまたは証跡欠落がない。
 - Schema Validation、Change Validation、Projectのテストが成功する。
 
@@ -99,7 +102,9 @@ CRITICALな不整合、参照切れ、失敗テストがある場合はArchive�
 /opsx:archive <change-name>
 ```
 
-Delta SpecがMain Specへ反映され、正式文書を含むChange全体が`openspec/changes/archive/`へ移動する。Archiveが失敗した場合は手作業で移動せず、ValidationまたはSyncの原因を解消する。
+Delta SpecがMain Specへ反映され、Changeが`openspec/changes/archive/`へ移動する。
+`openspec/publics/`の正式文書は移動しない。Archiveが失敗した場合は手作業で
+移動せず、ValidationまたはSyncの原因を解消する。
 
 ## #️⃣ そのほかのコマンド
 
@@ -117,8 +122,8 @@ Delta SpecがMain Specへ反映され、正式文書を含むChange全体が`ope
 /opsx:update <change-name> <変更内容>
 
 # 更新した計画から正式文書を再生成する。
-$gen-pd <change-name>
-$gen-bd <change-name>
+$generate-prd <change-name>
+$generate-hld <change-name>
 ```
 
 ### *️⃣ `/opsx:sync`; Delta Specの先行反映
@@ -128,7 +133,7 @@ $gen-bd <change-name>
 /opsx:sync <change-name>
 ```
 
-`rd`と`bd`はMain SpecへSyncされず、Change側に残る。
+PRDとHLDはMain SpecへSyncされず、`openspec/publics/`に残る。
 
 ## References
 

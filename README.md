@@ -4,8 +4,7 @@ Windows 11の開発環境を構築し、OpenSpecのMySDD（`mysdd`）Schemaで�
 
 ## 🚀 セットアップ
 
-- 最小構成: [SETUP.md](docs/manual/SETUP.md)
-- 拡張構成: [SETUP.full.md](docs/manual/SETUP.full.md)
+- [SETUP.md](docs/manual/SETUP.md)
 
 セットアップ後、PowerShellでmiseを有効化する。
 
@@ -28,10 +27,10 @@ Coding Agentへ次のSkillを順に指定する。
 $openspec-propose <変更内容>
 
 # 要件定義書を別途生成する。
-$gen-pd <change-name>
+$generate-prd <change-name>
 
 # 基本設計書を別途生成する。
-$gen-bd <change-name>
+$generate-hld <change-name>
 
 # Tasksに従って実装する。
 $openspec-apply-change <change-name>
@@ -44,12 +43,12 @@ $openspec-archive-change <change-name>
 ```
 
 MySDDはOpenSpec標準の4 ArtifactにISO/IEC/IEEE 12207とISO/IEC 25010の観点を追加する。
-`rd`と`bd`はSchema Artifactではなく、Propose後に専用Agent Skillで生成する。
+PRDとHLDはSchema Artifactではなく、Propose後に専用Agent Skillで生成する。
 
 | Step | 完了結果 | 中断条件 |
 | --- | --- | --- |
 | Propose | ISO観点を含む4つの計画Artifactがある | ArtifactまたはISO観点が不足している |
-| 文書生成 | `gen-pd`と`gen-bd`がMarkdownとDOCXを生成している | 必須入力または正本Markdownが不足している |
+| 文書生成 | 両生成SkillがMarkdownとDOCXを生成している | 必須入力または正本Markdownが不足している |
 | Apply | Tasksと必要なテストが完了している | ApplyがBlocked、またはテストが失敗する |
 | Verify | CRITICALな不整合がない | CRITICALな不整合がある |
 | Archive | ChangeがArchiveされ、Delta Specが反映される | Verify未完了、またはArchiveが失敗する |
@@ -61,12 +60,13 @@ openspec/changes/<change-name>/
 ├─ proposal.md
 ├─ specs/<capability>/spec.md
 ├─ design.md
-├─ tasks.md
-└─ docs/
-   ├─ rd.md
-   ├─ rd.docx
-   ├─ bd.md
-   └─ bd.docx
+└─ tasks.md
+
+openspec/publics/
+├─ prd.md
+├─ prd.docx
+├─ hld.md
+└─ hld.docx
 ```
 
 Markdownが正本。DOCXはPandocで再生成され、Git管理外となる。
@@ -77,17 +77,18 @@ Proposal、Delta Spec、Designを更新した場合は、Coding Agentへ対象Ch
 
 ```text
 # 要件定義書を再生成する。
-$gen-pd <change-name>
+$generate-prd <change-name>
 
 # 基本設計書を再生成する。
-$gen-bd <change-name>
+$generate-hld <change-name>
 ```
 
-`gen-pd`はProposalとDelta Specを使用する。`gen-bd`はそれらに加え、存在する場合はDesignも使用する。入力にない情報は補完せず、必要な箇所を`TBD`とする。
+`generate-prd`はProposalとDelta Specを使用する。`generate-hld`はそれらに加え、
+存在する場合はDesignも使用する。入力にない情報は補完せず、必要な箇所を
+`TBD`とする。
 
 ## 📚 ドキュメント
 
 - [OpenSpec標準ワークフロー](docs/references/OpenSpec-Workflow.md)
 - [MySDDワークフロー](docs/references/MySDD-Workflow.md)
 - [MySDDカスタムSchema仕様](docs/references/MySDD-Spec.md)
-- [Architecture Decision Records](docs/adr/ADR.md)
