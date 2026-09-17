@@ -168,14 +168,14 @@ openspec/
 │
 ├─ schemas/
 │  └─ mysdd/                                # ... spec-driven を fork する.
-│     ├─ schema.yaml                        # [+] カスタム Schema.
-│     └─ templates/
+│     ├─ schema.yaml                        # [+] カスタム Schema(日本語).
+│     └─ templates/                         # ... OpenSpec Templates(English).
 │        ├─ proposal.md                     # [+] 計画時のISO観点を追加.
 │        ├─ spec.md                         # [+] 測定可能な品質要求を追加.
 │        ├─ design.md                       # [+] 品質・運用設計欄を追加.
 │        └─ tasks.md                        # [+] 検証の証跡を追加.
 │
-├─ publics/                                 # ... 生成物格納場所.
+├─ publics/                                 # ... 生成物格納場所(日本語).
 │  ├─ .gitignore                            # [+] gitignore.
 │  ├─ reference.docx                        # [+] DOCXの共通書式.
 │  ├─ prd.md                                # [+] generate-prd スキルが作る要件定義書. 🤖
