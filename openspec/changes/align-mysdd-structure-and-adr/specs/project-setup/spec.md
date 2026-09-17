@@ -55,6 +55,24 @@ ADR-003.
 - **THEN** the skill exists under `.agents/skills/<skill-name>/`
 - **THEN** no duplicate copy is added under `.github/` or `.roo/`
 
+### Requirement: Only repository-owned skills are tracked
+
+The repository MUST track exactly `generate-prd`, `generate-hld`,
+`markdown2docx`, and `openspec-git-workflow` under `.agents/skills/`, plus the
+local `.gitignore`. Every other locally installed Skill MUST be ignored and
+MUST NOT be removed from a developer's working directory merely to untrack it.
+
+#### Scenario: A third-party skill exists locally
+
+- **WHEN** Git evaluates a Skill outside the four repository-owned names
+- **THEN** `.agents/skills/.gitignore` excludes it from repository tracking
+- **THEN** the local Skill remains available on the developer's filesystem
+
+#### Scenario: A repository-owned skill changes
+
+- **WHEN** a maintainer edits one of the four repository-owned Skills
+- **THEN** Git reports that change as trackable
+
 ### Requirement: Standard setup excludes MCP
 
 The standard setup procedures MUST NOT install or configure a Model Context

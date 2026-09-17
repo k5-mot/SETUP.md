@@ -16,6 +16,8 @@ The user approved `markdown2docx` in place of the invalid
 
 - Make live documentation, OpenSpec assets, Agent Skills, and tests use the
   target names and paths consistently.
+- Track only the four MySDD-specific Skills in this repository while keeping
+  locally installed third-party Skills available but ignored.
 - Retain the existing behavior contracts while moving every accepted ADR
   decision into validated OpenSpec specifications.
 - Make removal of the standalone ADR and obsolete live change contingent on
@@ -54,6 +56,17 @@ Alternative: keep forwarding aliases or the existing scripts. Rejected because
 both would contradict the target layout and the zero-old-live-name acceptance
 criterion.
 
+### Track only the four repository-specific skills
+
+Add `.agents/skills/.gitignore` with an ignore-all rule and explicit
+exceptions for itself, `generate-prd`, `generate-hld`, `markdown2docx`, and
+`openspec-git-workflow`. Remove every other Skill from the Git index without
+deleting local installed copies.
+
+Alternative: continue tracking every locally installed Skill. Rejected because
+those packages are external developer tooling rather than repository-owned
+MySDD behavior.
+
 ### Make `openspec/publics/` the document boundary
 
 Move `reference.docx` to `openspec/publics/reference.docx`. Add a local
@@ -65,6 +78,19 @@ untracked.
 Alternative: keep documents inside each change. Rejected because the target
 layout defines one public output location and the generating skills accept a
 change name only as input, not as their output root.
+
+### Centralize phase commits in a wrapper skill
+
+Add `openspec-git-workflow` as a thin wrapper around the installed propose,
+apply, verify, and archive workflows. It records the pre-existing worktree,
+invokes exactly one phase, refuses overlapping or conflicted changes, stages
+only paths created by that phase, and commits only after success. Verify uses
+an empty commit when no tracked file changed. The wrapper never pushes,
+amends, or reimplements OpenSpec behavior.
+
+Alternative: duplicate Git steps in every OpenSpec skill or schema template.
+Rejected because that scatters one operational policy across multiple sources
+and makes pre-existing user changes harder to protect.
 
 ### Replace ADR prose with capability requirements
 
@@ -78,11 +104,11 @@ The following traceability map is the deletion gate for `docs/adr/ADR.md`:
 | ADR-003 | `project-setup`: Project Agent Skills use one canonical location |
 | ADR-004 | `project-setup`: Standard setup excludes MCP |
 | ADR-005 | `mysdd-workflow`: Daily changes use the four-command workflow |
-| ADR-006 | `mysdd-workflow`: Markdown is the document source of truth; `md2docx`: same-name conversion |
+| ADR-006 | `mysdd-workflow`: Markdown is the document source of truth; `markdown2docx`: same-name conversion |
 | ADR-007 | `mysdd-schema`: four standard artifacts and ISO viewpoints |
 | ADR-008 | `generate-prd` and `generate-hld`: faithful document generation |
 | ADR-009 | `mysdd-workflow`: Verification gates archive |
-| ADR-010 | `generate-prd`, `generate-hld`, and `md2docx`: fixed interface and conversion behavior |
+| ADR-010 | `generate-prd`, `generate-hld`, and `markdown2docx`: fixed interface and conversion behavior |
 <!-- markdownlint-enable MD013 -->
 
 Delete the ADR only after strict validation confirms these Delta Specs and a
@@ -139,12 +165,17 @@ duplicate decisions rather than convert them into testable behavior contracts.
    only the approved `markdown2docx` correction inside section 5.
 2. Create `openspec/publics/`, move the reference DOCX, and establish local
    tracking rules for Markdown and generated DOCX.
-3. Move and rewrite the three Agent Skills and their PRD/HLD template assets.
-4. Update MySDD schema instructions, templates, configuration guidance, links,
+3. Move and rewrite the three document Skills and their PRD/HLD assets.
+4. Add the `openspec-git-workflow` wrapper and `.agents/skills/.gitignore`,
+   then validate clean, dirty,
+   empty-verify, failure, and conflict behavior.
+5. Update MySDD schema instructions, templates, configuration guidance, links,
    and tests to the new contract.
-5. Validate the six Delta Specs, the schema, skills, document conversion, and
+6. Validate the seven Delta Specs, the schema, skills, document conversion, and
    live-name search.
-6. Confirm all ten ADR mappings and no remaining live ADR links, then delete
+7. Confirm all ten ADR mappings and no remaining live ADR links, then delete
    `docs/adr/ADR.md` and the superseded `add-gen-pd-gen-bd` live change.
-7. Roll back by reverting this operation commit, which restores all moved
+8. Remove directories made obsolete by the migration and verify no unexpected
+   files remain within them.
+9. Roll back by reverting this operation commit, which restores all moved
    paths, the prior Skill names, the ADR, and the old live change together.

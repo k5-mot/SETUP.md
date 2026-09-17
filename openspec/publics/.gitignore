@@ -1,0 +1,5 @@
+# 配布用DOCXは正本Markdownから再生成する。
+*.docx
+
+# 共通参照書式は再生成できないためGit管理する。
+!reference.docx

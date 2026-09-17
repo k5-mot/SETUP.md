@@ -16,6 +16,10 @@ before the standalone ADR file is removed.
 - Rename the live document skills to `generate-prd`, `generate-hld`, and
   `markdown2docx`; rename their template assets and generated documents to
   `prd` and `hld`.
+- Add `openspec-git-workflow` as the single wrapper that invokes an existing
+  OpenSpec phase and creates only that phase's required Git commit.
+- Add `.agents/skills/.gitignore` so only `generate-prd`, `generate-hld`,
+  `markdown2docx`, and `openspec-git-workflow` are repository-managed skills.
 - Move the shared reference DOCX and generated documents to
   `openspec/publics/`, tracking Markdown and excluding generated DOCX files.
 - Align the MySDD schema instructions, templates, configuration guidance,
@@ -41,10 +45,12 @@ before the standalone ADR file is removed.
   DOCX from MySDD change artifacts without inventing facts.
 - `generate-hld`: Generates `openspec/publics/hld.md` and its distributable
   DOCX from MySDD change artifacts without inventing facts.
+- `openspec-git-workflow`: Runs one existing OpenSpec phase and records its
+  result in an isolated, policy-compliant Git commit.
 
 ### Modified Capabilities
 
-- `md2docx`: Renames the shared skill to `markdown2docx` and changes its
+- `markdown2docx`: Renames the former `md2docx` capability and changes its
   reference document and allowed outputs to `openspec/publics/`.
 
 ## Impact
@@ -56,6 +62,8 @@ before the standalone ADR file is removed.
   `openspec/publics/`, and non-archived `openspec/changes/`
 - `.agents/skills/gen-pd/`, `.agents/skills/gen-bd/`, and
   `.agents/skills/md2docx/`, which migrate to the approved skill names
+- `.agents/skills/openspec-git-workflow/`
+- `.agents/skills/.gitignore` and previously tracked third-party Skill copies
 - Links, tests, ignore rules, and commands that use the old names or paths
 
 ## Stakeholders and Lifecycle Impact

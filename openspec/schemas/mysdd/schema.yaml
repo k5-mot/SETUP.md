@@ -26,8 +26,8 @@ artifacts:
         characteristics with a reason.
 
       Keep these ISO viewpoints at planning level. Requirements-definition and
-      basic-design documents are generated later by the separate gen-pd and
-      gen-bd skills, not by the propose workflow.
+      basic-design documents are generated later by the separate generate-prd
+      and generate-hld skills, not by the propose workflow.
 
       IMPORTANT: The Capabilities section is critical. It creates the contract between
       proposal and specs phases. Research existing specs before filling this in:

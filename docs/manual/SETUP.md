@@ -1,5 +1,7 @@
 # 🚀 Windows開発環境セットアップ 2026年度版
 
+<!-- markdownlint-disable MD013 -->
+
 ## 1️⃣ wingetで開発ツールをインストールする
 
 ```powershell
@@ -22,32 +24,7 @@ foreach ($PackageId in $PackageIds) {
 }
 ```
 
-<details>
-<summary>そのほかのおすすめツール</summary>
-
-```powershell
-$PackageIds = @(
-  'GitHub.cli'
-  'Microsoft.WindowsTerminal'
-  'twpayne.chezmoi'
-  'JanDeDobbeleer.OhMyPosh'
-  'jdx.mise'
-  'sharkdp.bat'
-  'Clement.bottom'
-  'dandavison.delta'
-  'bootandy.dust'
-  'sharkdp.fd'
-  'sharkdp.hyperfine'
-  'ajeetdsouza.zoxide'
-  'lsd-rs.lsd'
-  'Dystroy.broot'
-  'ducaale.xh'
-  'chmln.sd'
-  'svenstaro.genact'
-)
-```
-
-</details>
+そのほかのおすすめToolは[拡張セットアップ](SETUP.full.md)で扱う。
 
 ## 2️⃣ VSCode 拡張機能をインストールする
 
@@ -251,16 +228,20 @@ foreach ($ExtensionId in $ExtensionIds) {
 1. `Settings`(⚙️)を開く
 2. `Providers` タブを開く
 3. 以下を入力する
-  - Ollamaの場合
-    - `API Provider`: `Ollama`
-    - `Base URL`: `http://localhost:11434`
-    - `API Key`: `EMPTY`
-    - `Model Name`: `<model-name>`
-  - vLLMの場合
-    - `API Provider`: `OpenAI Compatible`
-    - `Base URL`: `http://localhost:8000/v1`
-    - `API Key`: `local`
-    - `Model ID`: `<model-id>`
+
+#### Ollamaの場合
+
+- `API Provider`: `Ollama`
+- `Base URL`: `http://localhost:11434`
+- `API Key`: `EMPTY`
+- `Model Name`: `<model-name>`
+
+#### vLLMの場合
+
+- `API Provider`: `OpenAI Compatible`
+- `Base URL`: `http://localhost:8000/v1`
+- `API Key`: `local`
+- `Model ID`: `<model-id>`
 
 ## 5️⃣ OpenSpecをプロジェクトに導入する
 
@@ -290,72 +271,9 @@ rg --version
 openspec --version
 ```
 
+追加Toolと任意のAgent Skillsも[拡張セットアップ](SETUP.full.md)で扱う。
 
-<details>
-<summary>その他のAgent Skillsを導入する</summary>
-
-## #️⃣. その他のAgent Skillsを導入する (任意)
-
-### Matt Pocock Skills
-
-```powershell
-### Matt Pocock Skills を導入.
-npx skills@latest add mattpocock/skills --agent universal --yes ask-matt code-review codebase-design diagnosing-bugs domain-modeling grill-me grill-with-docs grilling handoff implement improve-codebase-architecture prototype research resolving-merge-conflicts setup-matt-pocock-skills tdd teach to-questionnaire to-spec to-tickets triage wait-what wayfinder wizard writing-great-skills
-```
-
-### Graphify
-
-```powershell
-### Graphify をインストール.
-uv tool install graphifyy
-### Graphify を導入.
-graphify agents install --project
-```
-
-### agent-browser
-
-```powershell
-### agent-browser をインストール.
-npm install -g agent-browser
-### agent-browser を導入.
-npx agent-browser install
-```
-
-### プログラミング系スキル
-
-```powershell
-### React
-npx skills@latest add vercel-labs/agent-skills --agent universal --yes react-best-practices
-### Python
-npx skills@latest add trailofbits/skills --agent universal --yes modern-python codeql insecure-defaults
-### Java / Spring Boot
-npx skills@latest add github/awesome-copilot --agent universal --yes java-springboot spring-boot-testing
-### Ponytail; Tight coding
-npx skills@latest add DietrichGebert/ponytail --agent universal --yes ponytail ponytail-review ponytail-audit
-```
-
-</details>
-
-
-<details>
-<summary>craneを導入する</summary>
-
-## #️⃣. craneを導入する (任意)
-
-```powershell
-### インストール先を作成.
-$BinDir = "$HOME\.local\bin"
-New-Item -ItemType Directory -Force $BinDir | Out-Null
-
-### crane をダウンロード・展開・インストール.
-Invoke-WebRequest `
-    'https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Windows_x86_64.tar.gz' `
-    -OutFile "$env:TEMP\crane.tar.gz"
-tar.exe -xf "$env:TEMP\crane.tar.gz" -C $BinDir crane.exe
-Remove-Item "$env:TEMP\crane.tar.gz"
-```
-
-</details>
+<!-- markdownlint-enable MD013 -->
 
 ## 🔖 参考文献
 
