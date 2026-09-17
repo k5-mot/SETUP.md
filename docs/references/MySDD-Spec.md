@@ -152,51 +152,50 @@ Delta Spec構文を変更しない。変更点は次のとおりとする。
 - `[生成]`: OpenSpec操作またはAgent Skillが生成する
 - `[除外]`: 生成するがGit管理対象外とする
 
-<!-- markdownlint-disable MD013 -->
-```text
+```bash
+# [+] 追加
+# [-] 削除
+# [~] 修正
+# [→] 移動
+# [!] 管理対象外
+# 🤖 AI生成
 openspec/
-├─ config.yaml                              # [修正] mysddを既定Schemaに指定
+├─ config.yaml                              # [~] カスタム Schema を指定.
+│
 ├─ schemas/
-│  └─ mysdd/                                # [追加] spec-drivenのFork
-│     ├─ schema.yaml                        # [追加] ISO観点をArtifact指示へ追加
+│  └─ mysdd/                                # ... spec-driven を fork する.
+│     ├─ schema.yaml                        # [+] カスタム Schema.
 │     └─ templates/
-│        ├─ proposal.md                     # [追加] 計画時のISO観点を追加
-│        ├─ spec.md                         # [追加] 測定可能な品質要求を追加
-│        ├─ design.md                       # [追加] 品質・運用設計欄を追加
-│        └─ tasks.md                        # [追加] 検証Evidenceを追加
-├─ document-templates/
-│  └─ reference.docx                       # [移動] DOCXの共通書式
-└─ changes/<change-name>/
-   ├─ .openspec.yaml                        # [生成] Schema選択情報
-   ├─ proposal.md                           # [生成] 変更提案
-   ├─ specs/<capability>/spec.md            # [生成] Delta Spec
-   ├─ design.md                             # [生成] 技術設計
-   ├─ tasks.md                              # [生成] 実装Task
-   └─ docs/
-      ├─ rd.md                              # [生成] gen-pdが作る要件定義書
-      ├─ rd.docx                            # [除外] gen-pdが作る配布文書
-      ├─ bd.md                              # [生成] gen-bdが作る基本設計書
-      └─ bd.docx                            # [除外] gen-bdが作る配布文書
+│        ├─ proposal.md                     # [+] 計画時のISO観点を追加.
+│        ├─ spec.md                         # [+] 測定可能な品質要求を追加.
+│        ├─ design.md                       # [+] 品質・運用設計欄を追加.
+│        └─ tasks.md                        # [+] 検証の証跡を追加.
+│
+├─ publics/                                 # ... 生成物格納場所.
+│  ├─ .gitignore                            # [+] gitignore.
+│  ├─ reference.docx                        # [+] DOCXの共通書式.
+│  ├─ prd.md                                # [+] generate-prd スキルが作る要件定義書. 🤖
+│  ├─ hld.md                                # [+] generate-hld スキルが作る基本設計書. 🤖
+│  ├─ prd.docx                              # [!] generate-prd スキルが作る配布用の要件定義書. 🤖
+│  └─ hld.docx                              # [!] generate-prd スキルが作る配布用の基本設計書. 🤖
+│
+└─ changes/<change-name>/                   # ... 生成物格納場所.
+   ├─ .openspec.yaml                        # [+] Schema選択情報 🤖
+   ├─ proposal.md                           # [+] 変更提案 🤖
+   ├─ specs/<capability>/spec.md            # [+] Delta Spec 🤖
+   ├─ design.md                             # [+] 技術設計 🤖
+   └─ tasks.md                              # [+] 実装Task 🤖
 
 .agents/skills/
-├─ md2docx/
-│  ├─ SKILL.md                              # [追加] 変換手順と入出力契約
-│  └─ scripts/
-│     ├─ render-docx.ps1                    # [移動] PandocによるDOCX変換
-│     └─ test-render-docx.ps1               # [移動] DOCX変換テスト
-├─ gen-pd/
-│  ├─ SKILL.md                              # [修正] 要件定義書生成を定義
-│  └─ assets/rd.md                          # [追加] gen-pd専用Template Asset
-└─ gen-bd/
-   ├─ SKILL.md                              # [修正] 基本設計書生成を定義
-   └─ assets/bd.md                          # [追加] gen-bd専用Template Asset
-
-docs/references/
-├─ OpenSpec-Workflow.md                     # [維持] 標準操作の説明
-├─ MySDD-Workflow.md                        # [修正] MySDDの利用手順
-└─ MySDD-Spec.md                            # [修正] 本カスタム仕様の正本
+├─ _markdown2docx/
+│  └─ SKILL.md                              # [+] Markdown を Docx に変換するスキル.
+├─ generate-prd/
+│  ├─ SKILL.md                              # [+] 要件定義書 を作るスキル.
+│  └─ assets/prd.md                         # [+] 要件定義書テンプレート.
+└─ generate-hld/
+   ├─ SKILL.md                              # [+] 基本設計書 を作るスキル.
+   └─ assets/hld.md                         # [+] 基本設計書テンプレート.
 ```
-<!-- markdownlint-enable MD013 -->
 
 Schemaが参照するTemplateは`openspec/schemas/mysdd/templates/`の4ファイル
 だけである。`rd.md`と`bd.md`は第9章で定義するAgent SkillのAssetである。
