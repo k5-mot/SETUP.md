@@ -57,10 +57,9 @@
 
 ## 5. Implement the setup and workflow decisions
 
-- [x] 5.1 Reconcile `docs/manual/SETUP.md`, create or repair
-  `docs/manual/SETUP.full.md`, and verify the minimum procedure uses ordinary
-  PowerShell with user-scoped WinGet while the extended procedure reuses the
-  minimum steps.
+- [x] 5.1 Reconcile `docs/manual/SETUP.md` and verify the required procedure
+  uses ordinary PowerShell with user-scoped WinGet while optional tools remain
+  in separate sections.
 - [x] 5.2 Verify project-specific skills exist only under `.agents/skills/`,
   standard setup contains no MCP installation, the documented daily workflow
   is propose/apply/verify/archive, and failed verification prevents archive.

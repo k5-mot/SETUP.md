@@ -265,41 +265,41 @@ Fork元の既存指示も維持する。
 name: mysdd
 version: 1
 description: >-
-  MySDD, a spec-driven fork with ISO lifecycle and product-quality viewpoints
+  ISOライフサイクルおよび製品品質の観点を追加したspec-drivenのMySDD Fork
 
 artifacts:
   - id: proposal
     generates: proposal.md
     template: proposal.md
     instruction: |
-      Record applicable ISO/IEC/IEEE 12207 lifecycle impacts.
-      Review all ISO/IEC 25010 product-quality characteristics.
-      Record non-applicable viewpoints with reasons.
-      Do not generate requirements-definition or basic-design documents.
+      適用可能なISO/IEC/IEEE 12207ライフサイクル影響を記録する。
+      ISO/IEC 25010のすべての製品品質特性を確認する。
+      適用しない観点には理由を記録する。
+      要件定義書および基本設計書は生成しない。
     requires: []
 
   - id: specs
     generates: "specs/**/*.md"
     template: spec.md
     instruction: |
-      Define testable requirements and scenarios.
-      For each applicable quality requirement, record its quality ID,
-      characteristic, measure, target, conditions, and verification method.
+      検証可能なRequirementとScenarioを定義する。
+      適用する品質要求ごとに、品質ID、特性、測定量、目標値、条件および
+      検証方法を記録する。
     requires: [proposal]
 
   - id: design
     generates: design.md
     template: design.md
     instruction: |
-      Map quality IDs to design decisions, trade-offs, and evidence.
-      Address applicable transition, operation, maintenance, and disposal.
+      品質IDを設計判断、Trade-offおよびEvidenceへ対応付ける。
+      適用可能な移行、運用、保守および廃止を扱う。
     requires: [proposal]
 
   - id: tasks
     generates: tasks.md
     template: tasks.md
     instruction: |
-      Include implementation, integration, verification, and evidence tasks.
+      実装、統合、検証およびEvidenceのTaskを含める。
     requires: [specs, design]
 
 apply:

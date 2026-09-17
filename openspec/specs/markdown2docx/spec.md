@@ -19,7 +19,8 @@ be non-empty and MUST contain the source headings, body, tables, and
 identifiers. The measure is output existence, non-zero size, and representative
 identifier matches; the target is 100% for both PRD and HLD; the condition is
 that every required input exists; and the verification method is the
-conversion test.
+conversion test. This requirement incorporates the shared Pandoc decisions in
+ADR-006 and ADR-010.
 
 #### Scenario: 要件定義書を変換する
 
