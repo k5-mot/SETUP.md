@@ -1,34 +1,34 @@
 ---
 name: generate-prd
-description: Generate or regenerate the MySDD product requirements document in Markdown and DOCX from one OpenSpec change.
+description: 1つのOpenSpec ChangeからMySDDの要件定義書をMarkdownおよびDOCXで生成または再生成する場合に使用する。
 ---
 
-# Generate PRD
+# 要件定義書を生成する
 
-Accept exactly one `change-name`.
+`change-name`を1つだけ受け取る。
 
-## Read
+## 入力を読み込む
 
 - `openspec/changes/<change-name>/proposal.md`
-- One or more `openspec/changes/<change-name>/specs/**/spec.md`
-- [PRD template](assets/prd.md)
+- 1つ以上の`openspec/changes/<change-name>/specs/**/spec.md`
+- [要件定義書テンプレート](assets/prd.md)
 
-Stop if the proposal or every Delta Spec is missing. Preserve capability
-paths, requirement headings, scenario names, IDs, and their traceability.
-Never turn an unstated fact into a requirement; write `TBD` for missing input.
+`proposal.md`が存在しない場合、またはDelta Specが1件も存在しない場合は停止する。
+Capability path、Requirement見出し、Scenario名、IDおよびそれらのトレーサビリティを
+維持する。明記されていない事実を要求に変換せず、入力が不足している箇所には`TBD`と
+記載する。
 
-## Write
+## 文書を生成する
 
-Render the template to `openspec/publics/prd.md`. Include each applicable
-quality characteristic, measure, target, condition, and verification method.
-Do not create an OpenSpec artifact or modify the source change.
+テンプレートを使用して`openspec/publics/prd.md`を生成する。適用する各品質特性、
+測定量、目標値、条件および検証方法を含める。OpenSpec Artifactを新規作成せず、
+入力元のChangeを変更しない。
 
-After the Markdown is complete, read
-[markdown2docx](../markdown2docx/SKILL.md) and delegate conversion of
-`openspec/publics/prd.md` to `openspec/publics/prd.docx`.
+Markdownの完成後に[markdown2docx](../markdown2docx/SKILL.md)を読み、
+`openspec/publics/prd.md`から`openspec/publics/prd.docx`への変換を委譲する。
 
-## Report
+## 完了を報告する
 
-Success requires a complete PRD Markdown file with preserved traceability and
-a non-empty DOCX. If DOCX conversion fails, keep the Markdown and report
-partial success with the conversion failure.
+トレーサビリティを維持した完全な要件定義書Markdownと、空でないDOCXの両方が
+存在する場合に成功とする。DOCX変換に失敗した場合はMarkdownを保持し、変換失敗を
+添えて部分成功として報告する。

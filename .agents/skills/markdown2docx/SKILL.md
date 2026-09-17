@@ -1,35 +1,34 @@
 ---
 name: markdown2docx
-description: Convert a canonical MySDD Markdown document under openspec/publics to a same-name DOCX with Pandoc. Do not use this skill to author content.
+description: openspec/publics配下のMySDD正本MarkdownをPandocで同名のDOCXへ変換する場合に使用する。本文の作成には使用しない。
 ---
 
-# Convert Markdown to DOCX
+# MarkdownをDOCXへ変換する
 
-Accept one Markdown path under `openspec/publics/`. The output MUST be the
-same directory and basename with the `.docx` extension. Use
-`openspec/publics/reference.docx` as the reference document.
+`openspec/publics/`配下のMarkdownパスを1つ受け取る。出力先は同じディレクトリと
+ベース名を使用し、拡張子を`.docx`とする。参照文書には
+`openspec/publics/reference.docx`を使用する。
 
-## Validate
+## 入力を検証する
 
-Resolve all paths literally from the repository root. Stop before rendering
-when the input or reference document is missing, the input is outside
-`openspec/publics/`, or the output contract is not satisfied. Record the
-input SHA-256 hash before conversion.
+すべてのパスをRepository RootからLiteral Pathとして解決する。入力または参照文書が
+存在しない場合、入力が`openspec/publics/`の外部にある場合、または出力条件を
+満たせない場合は変換前に停止する。変換前に入力のSHA-256 Hashを記録する。
 
-## Convert
+## DOCXへ変換する
 
 <!-- markdownlint-disable MD013 -->
 
 ```powershell
-# Run the pinned Pandoc through mise and apply the shared reference document.
+# miseで固定したPandocを実行し、共通の参照文書を適用する。
 mise exec pandoc@3.11 --command "pandoc '<input.md>' --from=gfm --to=docx --reference-doc='openspec/publics/reference.docx' --output='<same-basename.docx>'"
 ```
 
 <!-- markdownlint-enable MD013 -->
 
-## Verify and report
+## 検証して報告する
 
-Confirm that Pandoc exited successfully, the DOCX exists and is non-empty,
-and the input SHA-256 hash is unchanged. Return the absolute DOCX path on
-success. On any failure, keep the source Markdown and report partial success
-to the caller; never report a usable DOCX without all checks passing.
+Pandocが正常終了したこと、DOCXが存在して空でないこと、入力のSHA-256 Hashが
+変化していないことを確認する。成功時はDOCXの絶対パスを返す。いずれかに失敗した
+場合は入力Markdownを保持し、呼び出し元へ部分成功として報告する。すべての確認に
+合格していないDOCXを利用可能として報告しない。

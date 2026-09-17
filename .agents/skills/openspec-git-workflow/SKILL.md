@@ -1,48 +1,48 @@
 ---
 name: openspec-git-workflow
-description: Run one OpenSpec propose, apply, verify, or archive workflow and commit only that successful phase without absorbing pre-existing changes.
+description: OpenSpecのpropose、apply、verify、archiveのいずれか1 Phaseを実行し、既存変更を含めず成功したPhaseだけをCommitする場合に使用する。
 ---
 
-# OpenSpec Git Workflow
+# OpenSpec Gitワークフローを実行する
 
-Accept exactly one phase (`propose`, `apply`, `verify`, or `archive`) and one
-`change-name`. Reject every other phase without changing the repository.
+Phase（`propose`、`apply`、`verify`、`archive`のいずれか）と`change-name`を
+それぞれ1つだけ受け取る。それ以外のPhaseはRepositoryを変更せず拒否する。
 
-## Establish the boundary
+## 変更境界を記録する
 
-From the repository root, record the current branch, `HEAD`, porcelain status
-including untracked files, and unresolved paths. Treat this snapshot as the
-pre-existing worktree. Stop immediately if Git already reports a conflict.
+Repository Rootで現在のBranch、`HEAD`、未追跡ファイルを含むPorcelain Status、
+未解決Pathを記録する。このSnapshotを既存Worktreeとして扱う。GitがすでにConflictを
+報告している場合は直ちに停止する。
 
-## Delegate the phase
+## Phaseを委譲する
 
-Invoke the installed OpenSpec workflow matching the requested phase. Follow
-that workflow completely; do not reproduce or bypass its instructions. The
-delegated workflow's success or failure is authoritative.
+指定されたPhaseに対応する、インストール済みのOpenSpecワークフローを呼び出す。
+そのワークフローの指示を完全に実行し、指示を再実装したり迂回したりしない。
+委譲先ワークフローの成功または失敗を最終判定とする。
 
-- `propose`: use `openspec-propose`
-- `apply`: use `openspec-apply-change`
-- `verify`: use `openspec-verify-change`
-- `archive`: use `openspec-archive-change`
+- `propose`: `openspec-propose`を使用する
+- `apply`: `openspec-apply-change`を使用する
+- `verify`: `openspec-verify-change`を使用する
+- `archive`: `openspec-archive-change`を使用する
 
-If the delegated workflow fails, report its failure and create no commit.
+委譲先ワークフローが失敗した場合は、その失敗を報告してCommitを作成しない。
 
-## Isolate and inspect the result
+## 結果を分離して検査する
 
-After success, compare the new porcelain status with the baseline. Stop
-without staging or committing if a phase-touched path was already changed at
-baseline, Git reports a conflict, or phase ownership cannot be established.
-Preserve every unrelated pre-existing change.
+成功後、新しいPorcelain StatusをBaselineと比較する。Phaseが変更したPathにBaseline
+時点の変更がある場合、GitがConflictを報告する場合、またはPhaseによる変更だと
+確定できない場合は、StageもCommitも行わず停止する。無関係な既存変更をすべて
+保持する。
 
-Stage only paths owned by this phase. Inspect the staged diff, tests, generated
-files, and possible secrets as required by `AGENTS.md`. If the inspection
-fails, unstage only the phase paths and report the reason.
+このPhaseが所有するPathだけをStageする。`AGENTS.md`に従い、Staged Diff、Test、
+生成ファイルおよびSecret混入の可能性を検査する。検査に失敗した場合はPhaseの
+PathだけをUnstageし、理由を報告する。
 
-## Commit the phase
+## PhaseをCommitする
 
-Create exactly one Japanese Conventional Commit with gitmoji and the required
-AI-assistance trailer. The subject MUST identify the phase and change. Use an
-empty commit only when a successful `verify` phase changed no tracked file.
+gitmojiを含む日本語のConventional Commitを、必須のAI支援Trailer付きで1件だけ
+作成する。SubjectでPhaseとChangeを識別できるようにする。成功した`verify` Phaseが
+追跡対象ファイルを変更しなかった場合に限り、Empty Commitを使用する。
 
-Never push, amend, reset, clean, rewrite history, or commit unresolved
-conflicts. Report the commit ID and leave all pre-existing changes untouched.
+Push、Amend、Reset、Clean、履歴の書き換え、未解決ConflictのCommitは行わない。
+Commit IDを報告し、すべての既存変更を変更せず残す。
