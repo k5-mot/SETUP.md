@@ -24,8 +24,6 @@ foreach ($PackageId in $PackageIds) {
 }
 ```
 
-そのほかのおすすめToolは[拡張セットアップ](SETUP.full.md)で扱う。
-
 ## 2️⃣ VSCode 拡張機能をインストールする
 
 ```powershell
@@ -270,8 +268,6 @@ pandoc --version
 rg --version
 openspec --version
 ```
-
-追加Toolと任意のAgent Skillsも[拡張セットアップ](SETUP.full.md)で扱う。
 
 <!-- markdownlint-enable MD013 -->
 

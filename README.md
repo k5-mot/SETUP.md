@@ -4,8 +4,7 @@ Windows 11の開発環境を構築し、OpenSpecのMySDD（`mysdd`）Schemaで�
 
 ## 🚀 セットアップ
 
-- 最小構成: [SETUP.md](docs/manual/SETUP.md)
-- 拡張構成: [SETUP.full.md](docs/manual/SETUP.full.md)
+- [SETUP.md](docs/manual/SETUP.md)
 
 セットアップ後、PowerShellでmiseを有効化する。
 
