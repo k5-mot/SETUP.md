@@ -1,246 +1,178 @@
 name: mysdd
 version: 1
-description: MySDD, a spec-driven fork with ISO lifecycle and product-quality viewpoints
+description: ISOライフサイクルおよび製品品質の観点を追加したspec-drivenのMySDD Fork
 artifacts:
   - id: proposal
     generates: proposal.md
-    description: Initial proposal document outlining the change
+    description: 変更の概要を示す初期提案文書
     template: proposal.md
     instruction: |
-      Create the proposal document that establishes WHY this change is needed.
+      この変更が必要な理由（WHY）を示すProposalを作成する。
 
-      Sections:
-      - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
-      - **What Changes**: Bullet list of changes. Be specific about new capabilities, modifications, or removals. Mark breaking changes with **BREAKING**.
-      - **Capabilities**: Identify which specs will be created or modified:
-        - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<capability-path>/spec.md`. Use kebab-case for path segments you introduce (e.g., `user-auth` or `identity/user-auth`) and follow the project's existing spec organization.
-        - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Use the exact existing path under `openspec/specs/`. Leave empty if no requirement changes.
-      - **Impact**: Affected code, APIs, dependencies, or systems.
-      - **Stakeholders and Lifecycle Impact**: Review acquisition, supply,
-        transition, operation, maintenance, and disposal using the applicable
-        ISO/IEC/IEEE 12207 viewpoints. Record non-applicable viewpoints with a
-        reason.
-      - **Quality Considerations**: Review the ISO/IEC 25010 product-quality
-        characteristics. Identify applicable characteristics, measurable
-        targets, and verification approaches; record non-applicable
-        characteristics with a reason.
+      セクション:
+      - **Why**: 問題または機会を1～2文で記載する。何を解決するのか、なぜ今なのかを明確にする。
+      - **What Changes**: 変更内容を箇条書きにする。新規Capability、変更、削除を具体的に記載し、破壊的変更には**BREAKING**を付ける。
+      - **Capabilities**: 作成または変更するSpecを特定する。
+        - **New Capabilities**: 導入するCapabilityを列挙する。各項目から `specs/<capability-path>/spec.md` を新規作成する。新たに導入するPath Segmentにはkebab-caseを使用し（例: `user-auth` または `identity/user-auth`）、Projectの既存Spec構成に従う。
+        - **Modified Capabilities**: REQUIREMENTSを変更する既存Capabilityを列挙する。実装詳細ではなくSpec Levelの振る舞いが変わる場合だけ含め、各項目にDelta Specを作成する。`openspec/specs/` 配下の既存Pathを正確に使用し、Requirement変更がなければ空にする。
+      - **Impact**: 影響を受けるCode、API、DependencyまたはSystemを記載する。
+      - **Stakeholders and Lifecycle Impact**: ISO/IEC/IEEE 12207の適用可能な観点を用い、取得、供給、移行、運用、保守および廃止を確認する。適用しない観点には理由を記載する。
+      - **Quality Considerations**: ISO/IEC 25010の製品品質特性を確認する。適用する特性、測定可能な目標および検証方法を特定し、適用しない特性には理由を記載する。
 
-      Keep these ISO viewpoints at planning level. Requirements-definition and
-      basic-design documents are generated later by the separate generate-prd
-      and generate-hld skills, not by the propose workflow.
+      ISOの観点は計画Levelに留める。要件定義書および基本設計書はproposeワークフローでは生成せず、後続のgenerate-prd Skillおよびgenerate-hld Skillで生成する。
 
-      IMPORTANT: The Capabilities section is critical. It creates the contract between
-      proposal and specs phases. Research existing specs before filling this in:
-      run `openspec list --specs` for the project's capability inventory, then
-      `openspec show "<spec-id>" --type spec --json --no-scenarios` for any that
-      look related - that returns a capability's purpose and requirement texts
-      without pulling whole spec files into context. Append `--store "<id>"` to
-      both commands only for a registered standalone store, and keep `--type
-      spec`: a change and a spec sharing a name is otherwise an ambiguous-item
-      error. `openspec list` without `--specs` lists in-flight changes, not
-      specs - it never shows what the project already covers. Reuse an existing
-      capability's exact path instead of introducing a near-duplicate name.
-      The filtered read is only an overview. Before deciding what is already
-      covered or what should change, read each relevant spec in full, including
-      scenarios, with `openspec show "<spec-id>" --type spec` (same `--store` rule).
-      Each capability listed here will need a corresponding spec file.
+      重要: CapabilitiesセクションはProposal PhaseとSpecs PhaseのContractになる。記載前に既存Specを調査する。ProjectのCapability一覧には `openspec list --specs` を使用し、関連しそうな項目には `openspec show "<spec-id>" --type spec --json --no-scenarios` を使用する。このCommandはCapabilityのPurposeとRequirement本文をScenarioなしで返す。登録済みStandalone Storeを使用する場合に限り、両Commandへ `--store "<id>"` を追加する。ChangeとSpecが同名の場合に曖昧な項目として扱われるため、`--type spec` を維持する。`--specs` のない `openspec list` は進行中のChangeだけを表示し、Projectがすでに扱うSpecは表示しない。類似名のCapabilityを新設せず、既存Capabilityの正確なPathを再利用する。この絞り込み結果は概要にすぎない。既存範囲または変更対象を判断する前に、関連する各Specを `openspec show "<spec-id>" --type spec` でScenarioを含めて最後まで読む。Store指定の規則は同じとする。ここに列挙した各Capabilityには、対応するSpec Fileが必要になる。
 
-      Every change must either declare at least one capability (new or
-      modified) or explicitly opt out of specs: `openspec validate` rejects a
-      change with zero deltas unless the change's `.openspec.yaml` sets
-      `skip_specs: true`. Use `skip_specs: true` only when no spec-level
-      behavior changes (pure refactor, tooling, docs) - specs describe
-      behavior, so if behavior does not change, no spec should change either.
-      Do not invent a requirement just to satisfy validation.
+      各Changeでは、新規または変更対象のCapabilityを1つ以上宣言するか、Specを作成しないことを明示する。Deltaが0件でChangeの `.openspec.yaml` に `skip_specs: true` がない場合、`openspec validate` はChangeを拒否する。`skip_specs: true` は、純粋なRefactor、Tooling、Document変更など、Spec Levelの振る舞いが変わらない場合に限り使用する。Specは振る舞いを記述するため、振る舞いが変わらなければSpecも変更しない。検証を通すためだけにRequirementを作らない。
 
-      Keep it concise (1-2 pages). Focus on the "why" not the "how" -
-      implementation details belong in design.md.
+      1～2 Pageの簡潔な内容にする。実装詳細はdesign.mdに記載し、Proposalでは「how」ではなく「why」に集中する。
 
-      This is the foundation - specs, design, and tasks all build on this.
+      このProposalを基礎として、Specs、DesignおよびTasksを作成する。
     requires: []
 
   - id: specs
     generates: "specs/**/*.md"
-    description: Detailed specifications for the change
+    description: 変更の詳細仕様
     template: spec.md
     instruction: |
-      Create specification files that define WHAT the system should do.
+      Systemが実現すべき内容（WHAT）を定義するSpec Fileを作成する。
 
-      A spec is a behavior contract, not an implementation plan.
+      Specは実装計画ではなく、振る舞いのContractである。
 
-      Good spec content:
-      - Observable behavior users or downstream systems rely on
-      - Inputs, outputs, and error conditions
-      - External constraints (security, privacy, reliability, compatibility)
-      - Scenarios that can be tested or explicitly validated
-      - For applicable ISO/IEC 25010 quality requirements: a quality ID,
-        characteristic, measure, target, conditions, and verification method
+      Specに含める内容:
+      - UserまたはDownstream Systemが依存する観測可能な振る舞い
+      - Input、OutputおよびError Condition
+      - Security、Privacy、Reliability、Compatibilityなどの外部制約
+      - Testまたは明示的な検証が可能なScenario
+      - 適用するISO/IEC 25010品質要求について、品質ID、特性、測定量、目標値、条件および検証方法
 
-      Avoid in specs:
-      - Internal class/function names
-      - Library or framework choices
-      - Step-by-step implementation details
-      - Detailed execution plans (those belong in design.md or tasks.md)
+      Specに含めない内容:
+      - 内部Class名またはFunction名
+      - LibraryまたはFrameworkの選択
+      - 手順形式の実装詳細
+      - 詳細な実行計画（design.mdまたはtasks.mdに記載する）
 
-      Quick test: if the implementation can change without changing externally
-      visible behavior, it likely does not belong in the spec.
+      簡易判定: 外部から観測できる振る舞いを変えずに実装を変更できる内容は、通常Specには含めない。
 
-      Create one spec file per capability listed in the proposal's Capabilities section.
-      `<capability-path>` is the spec directory relative to `specs/` (for example,
-      `user-auth` or `identity/user-auth`). Preserve the full path:
-      - New capabilities: use the exact path from the proposal at `specs/<capability-path>/spec.md`. Any path segment newly introduced in the proposal must be kebab-case. Follow the project's existing organization; do not add a new domain level when the project uses a flat layout.
-      - Modified capabilities: use the exact existing path from `openspec/specs/<capability-path>/` when creating the delta at `specs/<capability-path>/spec.md`. Run `openspec list --specs` to confirm that path before writing the delta, appending `--store "<id>"` only for a registered standalone store - a mistyped or invented path targets a capability that does not exist rather than the one you meant. Do not move or rename the capability.
+      ProposalのCapabilitiesセクションに列挙されたCapabilityごとに、Spec Fileを1つ作成する。`<capability-path>` は `specs/` からの相対Spec Directoryである（例: `user-auth` または `identity/user-auth`）。完全なPathを維持する。
+      - New Capabilities: Proposalの正確なPathを使用して `specs/<capability-path>/spec.md` を作成する。Proposalで新たに導入する各Path Segmentにはkebab-caseを使用する。Projectの既存構成に従い、ProjectがFlat Layoutを使用している場合は新しいDomain Levelを追加しない。
+      - Modified Capabilities: `openspec/specs/<capability-path>/` の正確な既存Pathを使用して、`specs/<capability-path>/spec.md` にDeltaを作成する。作成前に `openspec list --specs` でPathを確認する。登録済みStandalone Storeを使用する場合に限り `--store "<id>"` を追加する。Pathの入力ミスや新設したPathは、意図した既存Capabilityではなく存在しないCapabilityを対象にするため、Capabilityを移動または改名しない。
 
-      There must be at least one spec file unless the change's `.openspec.yaml`
-      sets `skip_specs: true` (no spec-level behavior change) - `openspec validate`
-      rejects a zero-delta change without that marker. If the proposal lists no
-      capabilities and `skip_specs` is not set, revisit the proposal first.
+      Changeの `.openspec.yaml` に `skip_specs: true`（Spec Levelの振る舞いを変更しない）が設定されている場合を除き、Spec Fileを1つ以上作成する。Deltaが0件でこのMarkerがない場合、`openspec validate` はChangeを拒否する。ProposalにCapabilityがなく `skip_specs` も設定されていない場合は、先にProposalを見直す。
 
-      Delta operations (use ## headers):
-      - **ADDED Requirements**: New capabilities
-      - **MODIFIED Requirements**: Changed behavior - MUST include full updated content
-      - **REMOVED Requirements**: Deprecated features - MUST include **Reason** and **Migration**
-      - **RENAMED Requirements**: Name changes only - use FROM:/TO: format
+      Delta操作（`##` 見出しを使用する）:
+      - **ADDED Requirements**: 新しいCapability
+      - **MODIFIED Requirements**: 変更する振る舞い。更新後の内容を完全な形で含める
+      - **REMOVED Requirements**: 廃止する機能。**Reason**および**Migration**を含める
+      - **RENAMED Requirements**: 名称だけの変更。FROM:/TO:形式を使用する
 
-      Format requirements:
-      - Each requirement: `### Requirement: <name>` followed by description
-      - Use SHALL/MUST for normative requirements (avoid should/may)
-      - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
-      - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
-      - Every requirement MUST have at least one scenario.
+      Format要件:
+      - 各Requirement: `### Requirement: <name>` の後にRequirement本文を記載する
+      - 規範的なRequirementにはSHALLまたはMUSTを使用し、shouldまたはmayは使用しない
+      - 各Scenario: `#### Scenario: <name>` の後にWHEN/THEN形式で記載する
+      - 重要: Scenarioには正確に4つのHash（`####`）を使用する。3つのHashまたは箇条書きを使用すると検出されない
+      - すべてのRequirementに1つ以上のScenarioを含める
 
-      New capabilities only: start the delta spec with a `## Purpose` section -
-      one or two sentences (50+ characters, or `openspec validate --strict`
-      reports it as too brief) describing what the capability is for. Archive
-      copies it into the main spec it creates; without it the new main spec is
-      left with a `TBD ... Update Purpose after archive` placeholder to fill in
-      by hand. Do NOT add `## Purpose` to a delta for an existing capability -
-      that spec already has one and the delta's is ignored. To change an
-      existing capability's Purpose - including a leftover `TBD` placeholder -
-      edit `<planningHome.root>/openspec/specs/<capability-path>/spec.md`
-      directly. `planningHome.root` comes from the `openspec instructions ...
-      --json` response. Always use it rather than a repo-relative path: it
-      resolves to the store whenever the change lives in one - whether that
-      came from `--store`, a project `store:` pointer, or a global default
-      store - and to the current repository otherwise. Do not try to work out
-      which case applies; the field already has.
+      New Capabilitiesの場合に限り、Delta Specの先頭へ `## Purpose` セクションを設ける。Capabilityの目的を1～2文かつ50文字以上で記載する。短すぎる場合、`openspec validate --strict` はErrorを報告する。Archive時にこの内容が新しいMain Specへ複製される。記載しない場合、Main Specには手動更新が必要な `TBD ... Update Purpose after archive` Placeholderが残る。既存CapabilityのDeltaには `## Purpose` を追加しない。既存SpecにはすでにPurposeがあり、Delta側のPurposeは無視される。残存する `TBD` を含め、既存CapabilityのPurposeを変更する場合は、`<planningHome.root>/openspec/specs/<capability-path>/spec.md` を直接編集する。`planningHome.root` は `openspec instructions ... --json` Responseから取得する。Repository相対Pathを推測せず、常にこの値を使用する。Changeが `--store`、Projectの `store:` Pointer、またはGlobal Default Storeに置かれている場合はStoreを指し、それ以外の場合は現在のRepositoryを指す。どのCaseかを独自に判定せず、取得済みFieldを使用する。
 
-      MODIFIED requirements workflow:
-      1. Locate the existing requirement in `<planningHome.root>/openspec/specs/<capability-path>/spec.md` (the same store-aware root as above)
-      2. Copy the ENTIRE requirement block (from `### Requirement:` through all scenarios)
-      3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
-      4. Ensure header text matches exactly (whitespace-insensitive)
+      MODIFIED Requirementsの手順:
+      1. `<planningHome.root>/openspec/specs/<capability-path>/spec.md` で既存Requirementを特定する。`planningHome.root` には上記のStore対応Rootを使用する
+      2. `### Requirement:` からすべてのScenarioまで、Requirement Block全体を複製する
+      3. `## MODIFIED Requirements` の下へ貼り付け、新しい振る舞いに合わせて編集する
+      4. 見出しTextが既存Requirementと正確に一致することを確認する。空白の差異は無視される
 
-      Common pitfall: Using MODIFIED with partial content loses detail at archive time.
-      If adding new concerns without changing existing behavior, use ADDED instead.
+      よくある失敗: MODIFIEDへ一部分だけを記載すると、Archive時に既存の詳細が失われる。既存の振る舞いを変更せず新しい関心事を追加する場合は、MODIFIEDではなくADDEDを使用する。
 
-      Example (a new capability, so it opens with `## Purpose`):
+      例（New Capabilityのため `## Purpose` から始める）:
       ```
       ## Purpose
 
-      Lets users take their data out of the product in a portable format.
+      利用者が製品内のデータを移植可能な形式で取り出せるようにする。
 
       ## ADDED Requirements
 
-      ### Requirement: User can export data
-      The system SHALL allow users to export their data in CSV format.
+      ### Requirement: 利用者がデータをエクスポートできる
+      Systemは、利用者がすべてのデータをCSV形式でエクスポートできるようにしなければならない（SHALL）。
 
-      #### Scenario: Successful export
-      - **WHEN** user clicks "Export" button
-      - **THEN** system downloads a CSV file with all user data
+      #### Scenario: エクスポートに成功する
+      - **WHEN** 利用者が「Export」Buttonを押す
+      - **THEN** SystemがすべてのUser Dataを含むCSV FileをDownloadする
 
       ## REMOVED Requirements
 
-      ### Requirement: Legacy export
-      **Reason**: Replaced by new export system
-      **Migration**: Use new export endpoint at /api/v2/export
+      ### Requirement: 旧エクスポート機能
+      **Reason**: 新しいExport Systemへ置き換えるため
+      **Migration**: 新しいEndpoint `/api/v2/export` を使用する
       ```
 
-      Specs should be testable - each scenario is a potential test case.
+      各ScenarioをTest Caseとして使用できるよう、Specを検証可能な内容にする。
     requires:
       - proposal
 
   - id: design
     generates: design.md
-    description: Technical design document with implementation details
+    description: 実装詳細を含む技術設計文書
     template: design.md
     instruction: |
-      Create the design document that explains HOW to implement the change.
+      変更の実装方法（HOW）を説明するDesignを作成する。
 
-      When to include design.md (create only if any apply):
-      - Cross-cutting change (multiple services/modules) or new architectural pattern
-      - New external dependency or significant data model changes
-      - Security, performance, or migration complexity
-      - Ambiguity that benefits from technical decisions before coding
+      design.mdを作成する条件（いずれかに該当する場合だけ作成する）:
+      - 複数のServiceまたはModuleにまたがる変更、もしくは新しいArchitecture Pattern
+      - 新しい外部Dependencyまたは重要なData Model変更
+      - Security、PerformanceまたはMigrationの複雑性
+      - 実装前に技術判断を行うことで解消できる曖昧さ
 
-      Sections:
-      - **Context**: Only the current state and constraints needed to explain the approach. Reference the proposal for motivation instead of restating it (e.g., "See proposal.md - Why").
-      - **Goals / Non-Goals**: What this design achieves and explicitly excludes. Don't restate the proposal's scope - add only design-level boundaries.
-      - **Decisions**: Key technical choices with rationale (why X over Y?). Include alternatives considered for each decision.
-      - **Quality Attribute Design**: Map applicable ISO/IEC 25010 quality IDs
-        to design approaches, trade-offs, and verification evidence.
-      - **Lifecycle, Migration and Operations**: Address applicable
-        ISO/IEC/IEEE 12207 viewpoints for transition, operation, maintenance,
-        support, and disposal.
-      - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation
-      - **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
-      - **Open Questions**: Unknowns that can safely be answered later without
-        changing the specs, the approach, or the task breakdown. Omit if none.
+      セクション:
+      - **Context**: Approachの説明に必要な現在の状態および制約だけを記載する。動機を繰り返さず、Proposalを参照する（例: 「proposal.mdのWhyを参照」）。
+      - **Goals / Non-Goals**: Designが達成する内容と、明示的に対象外とする内容を記載する。ProposalのScopeを繰り返さず、Design Levelの境界だけを追加する。
+      - **Decisions**: 主要な技術選択、根拠（なぜXをYより選ぶのか）および検討した代替案を記載する。
+      - **Quality Attribute Design**: 適用するISO/IEC 25010品質IDをDesign Approach、Trade-offおよび検証Evidenceへ対応付ける。
+      - **Lifecycle, Migration and Operations**: ISO/IEC/IEEE 12207の適用可能な観点に基づき、移行、運用、保守、Supportおよび廃止を記載する。
+      - **Risks / Trade-offs**: 既知の制約および問題になり得る事項を `[Risk] → Mitigation` 形式で記載する。
+      - **Migration Plan**: 該当する場合、DeployまたはMigrationの手順とRollback Strategyを記載する。
+      - **Open Questions**: Spec、選択したApproachまたはTask分解を変更せずに後で回答できる未知事項を記載する。該当しなければ省略する。
 
-      Open questions are for genuinely deferrable unknowns, not decisions you
-      skipped. If a question would change the specs, the chosen approach, or
-      the task breakdown, resolve it now - ask the user instead of guessing.
+      Open Questionsには、先送りできる未知事項だけを記載し、未判断のDecisionを置かない。回答によってSpec、選択するApproachまたはTask分解が変わる場合は、その場でUserへ確認して解決し、推測しない。
 
-      Focus on architecture and approach, not line-by-line implementation.
-      The proposal covers why and what; design covers how. Reference the
-      proposal for motivation and, once written, the specs for requirements -
-      if a section would only restate them, point to them instead.
+      行単位の実装ではなく、ArchitectureおよびApproachに集中する。Proposalはwhyとwhat、Designはhowを扱う。動機はProposalを、Requirementは作成済みのSpecを参照する。既存内容を繰り返すだけのセクションは、元文書への参照に置き換える。
 
-      Good design docs explain the "why" behind technical decisions.
+      良いDesignは技術判断の「why」を説明する。
     requires:
       - proposal
 
   - id: tasks
     generates: tasks.md
-    description: Implementation checklist with trackable tasks
+    description: 追跡可能な実装Checklist
     template: tasks.md
     instruction: |
-      Create the task list that breaks down the implementation work.
+      実装作業を分割したTask Listを作成する。
 
-      Before writing tasks, check design.md for Open Questions. If any of them
-      would change what gets built, resolve them with the user first - do not
-      bake an unstated assumption into the task list.
+      Tasksの作成前に、design.mdのOpen Questionsを確認する。構築対象が変わるQuestionは、Task Listへ明記されていない仮定を埋め込まず、先にUserと解決する。
 
-      **IMPORTANT: Follow the template below exactly.** The apply phase parses
-      checkbox format to track progress. Tasks not using `- [ ]` won't be tracked.
+      重要: 次のTemplateへ正確に従う。Apply PhaseはCheckbox形式を解析して進捗を追跡する。`- [ ]` を使用しないTaskは追跡されない。
 
       Guidelines:
-      - Group related tasks under ## numbered headings
-      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
-      - Tasks should be small enough to complete in one session
-      - Order tasks by dependency (what must be done first?)
-      - Each task MUST state how to verify completion (a test, command,
-        observable behavior, or delivered artifact). Put the verification in
-        that task's checkbox description. Use a separate verification task only
-        when it checks broader integration or system behavior that spans
-        multiple implementation tasks.
-      - Include tasks and evidence for applicable ISO/IEC 25010 quality targets
-        and ISO/IEC/IEEE 12207 lifecycle impacts.
+      - 関連するTaskを番号付きの `##` 見出しでGroup化する
+      - 各Taskは `- [ ] X.Y Task description` 形式のCheckboxにする
+      - 各Taskを1 Sessionで完了できる大きさにする
+      - Dependency順に並べる
+      - 各Taskに、Test、Command、観測可能な振る舞いまたは納品Artifactによる完了確認方法を記載する。検証方法はTaskのCheckbox説明に含める。複数の実装TaskにまたがるIntegrationまたはSystem全体の振る舞いを確認する場合に限り、独立した検証Taskを使用する
+      - 適用するISO/IEC 25010品質目標およびISO/IEC/IEEE 12207ライフサイクル影響について、TaskとEvidenceを含める
 
-      Example:
+      例:
       ```
       ## 1. Setup
 
-      - [ ] 1.1 Create new module structure and verify expected files are present
-      - [ ] 1.2 Add dependencies to package.json and verify package installation succeeds
+      - [ ] 1.1 新しいModule構成を作成し、想定したFileが存在することを確認する
+      - [ ] 1.2 Dependencyをpackage.jsonへ追加し、Package Installationが成功することを確認する
 
       ## 2. Core Implementation
 
-      - [ ] 2.1 Implement data export function and verify the export test passes
-      - [ ] 2.2 Add CSV formatting utilities and verify unit tests cover quoting and delimiters
+      - [ ] 2.1 Data Export Functionを実装し、Export Testが成功することを確認する
+      - [ ] 2.2 CSV Formatting Utilityを追加し、Unit TestでQuoteとDelimiterを網羅する
       ```
 
-      Reference specs for what needs to be built, design for how to build it.
+      構築対象はSpecsを、構築方法はDesignを参照する。
     requires:
       - specs
       - design
@@ -249,5 +181,5 @@ apply:
   requires: [ tasks ]
   tracks: tasks.md
   instruction: |
-    Read context files, work through pending tasks, mark complete as you go.
-    Pause if you hit blockers or need clarification.
+    Context Fileを読み、未完了Taskを順に実施して、完了時にCheckboxを更新する。
+    Blockerまたは確認が必要な事項が発生した場合は作業を停止する。
