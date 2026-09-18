@@ -12,7 +12,7 @@ source document on both success and failure.
 
 The `markdown2docx` skill MUST generate a DOCX beside a specified source
 Markdown file under `openspec/publics/`, using the same base name and
-`openspec/publics/reference.docx` as the reference document.
+`openspec/publics/template.docx` as the reference document.
 
 For quality requirements QR-001, QR-003, and QR-008, the generated DOCX MUST
 be non-empty and MUST contain the source headings, body, tables, and
@@ -52,7 +52,7 @@ request, and the verification method is path review plus negative tests.
 
 #### Scenario: 必須入力が存在しない
 
-- **WHEN** the source Markdown or `openspec/publics/reference.docx` is absent
+- **WHEN** the source Markdown or `openspec/publics/template.docx` is absent
 - **THEN** the skill reports the missing path
 - **THEN** it does not report successful DOCX generation
 
@@ -78,3 +78,38 @@ input hash comparison plus negative tests.
 - **WHEN** the renderer generates a non-empty DOCX
 - **THEN** the skill returns the generated DOCX path
 - **THEN** the source Markdown remains unchanged
+
+### Requirement: 技術文書のページ構成と版面を統一する
+
+The `markdown2docx` skill MUST format generated DOCX body text at 10 points,
+MUST NOT repeat a table header row on a following page, and MUST arrange the
+document as a one-page cover followed by a table of contents and the body.
+Each level-one body heading MUST begin on a new page. Every table MUST be
+centered on the page. The document MUST otherwise use a monochrome palette,
+while note blocks MAY use restrained colors to distinguish their roles.
+
+#### Scenario: 表紙と目次を生成する
+
+- **WHEN** the source begins with a document-title heading followed by body
+  sections
+- **THEN** the document title occupies the cover page
+- **THEN** a table of contents follows the cover and the body starts on the
+  next page
+
+#### Scenario: 本文の章を改ページする
+
+- **WHEN** a level-one body section follows preceding content
+- **THEN** the level-one heading starts on a new page
+
+#### Scenario: 本文と表を印刷向けに整形する
+
+- **WHEN** the DOCX is generated with the shared template
+- **THEN** body text uses 10-point type
+- **THEN** every table is centered on the page
+- **THEN** table header rows do not repeat after a page break
+
+#### Scenario: 注意ブロックを識別する
+
+- **WHEN** the DOCX contains a note, tip, important, warning, or caution block
+- **THEN** the block may use a restrained role-specific color
+- **THEN** content outside note blocks remains monochrome
