@@ -177,7 +177,7 @@ openspec/
 │
 ├─ publics/                                 # ... 生成物格納場所(日本語).
 │  ├─ .gitignore                            # [+] gitignore.
-│  ├─ reference.docx                        # [+] DOCXの共通書式.
+│  ├─ template.docx                         # [+] DOCXの共通書式.
 │  ├─ prd.md                                # [+] generate-prd スキルが作る要件定義書. 🤖
 │  ├─ hld.md                                # [+] generate-hld スキルが作る基本設計書. 🤖
 │  ├─ prd.docx                              # [!] generate-prdが作る配布用要件定義書. 🤖
@@ -193,7 +193,8 @@ openspec/
 .agents/skills/                             # ... Agent Skills 格納場所(日本語).
 ├─ .gitignore                               # [+] 対象の4スキル以外を管理対象外にする.
 ├─ markdown2docx/
-│  └─ SKILL.md                              # [+] Markdown を Docx に変換するスキル.
+│  ├─ SKILL.md                              # [+] Markdown を DOCX に変換するスキル.
+│  └─ scripts/format_docx.py                # [+] 共通の版面とページ構成を適用する.
 ├─ generate-prd/
 │  ├─ SKILL.md                              # [+] 要件定義書 を作るスキル.
 │  └─ assets/prd.md                         # [+] 要件定義書テンプレート.
@@ -397,7 +398,7 @@ flowchart LR
     genhld --> hld[openspec/publics/hld.md]
     prd --> convert[markdown2docx]
     hld --> convert
-    reference[openspec/publics/reference.docx] --> convert
+    template[openspec/publics/template.docx] --> convert
     convert --> docx[配布用DOCX]
 ```
 
@@ -437,15 +438,19 @@ Markdown生成後のDOCX変換は`markdown2docx`へ委譲する。
 `generate-prd`と`generate-hld`から利用し、文書内容の生成や補完は担当しない。
 
 - 入力: `openspec/publics/`配下の変換元Markdown
-- 参照書式: `openspec/publics/reference.docx`
-- 実行処理: `SKILL.md`に定義したmise管理のPandocコマンド
+- 参照書式: `openspec/publics/template.docx`
+- 実行処理: mise管理のPandocで変換後、Skill内Scriptで共通版面を適用する
 - 出力: 入力Markdownと同じ場所にある同名のDOCX
+- 版面: 本文10pt、表はPage中央、表見出しは灰色、Header行は次Pageで反復しない
+- 配色: 原則白黒とし、注意ブロックだけは識別用の抑制した色を使用できる
+- Page構成: 1 Pageの表紙、目次、改Page、本文の順とする
+- 章構成: 文書名を表紙Titleとし、本文の見出しLevel 1は改Pageして開始する
 - 完了条件: 非ゼロサイズのDOCXが生成され、入力Hashが変化していない
 - 失敗時: 正本Markdownを保持し、部分成功と失敗理由を呼び出し元へ返す
 
 DOCX変換責務は`markdown2docx/`へ集約する。`SKILL.md`が入出力契約と
-Pandoc実行手順を所有し、専用Scriptは置かない。文書生成Skillには、
-それぞれの入力解釈とMarkdown生成だけを持たせる。
+Pandoc実行手順を所有し、`scripts/format_docx.py`が変換後の版面とPage構成を
+適用する。文書生成Skillには、それぞれの入力解釈とMarkdown生成だけを持たせる。
 
 ### 9.4 `openspec-git-workflow`
 
@@ -495,10 +500,16 @@ openspec validate '<change-name>' --strict
 git check-ignore -v '.agents/skills/openspec-propose/SKILL.md'
 
 # PRDをmise管理のPandocで共通書式のDOCXへ変換できることを確認する。
-mise exec pandoc@3.11 --command "pandoc 'openspec/publics/prd.md' --from=gfm --to=docx --reference-doc='openspec/publics/reference.docx' --output='openspec/publics/prd.docx'"
+mise exec pandoc@3.11 -- pandoc 'openspec/publics/prd.md' --from=gfm --to=docx --reference-doc='openspec/publics/template.docx' --output='openspec/publics/prd.docx'
+
+# PRDへ共通の版面とPage構成を適用できることを確認する。
+mise exec python@3.12 -- python '.agents/skills/markdown2docx/scripts/format_docx.py' generated 'openspec/publics/prd.docx'
 
 # HLDをmise管理のPandocで共通書式のDOCXへ変換できることを確認する。
-mise exec pandoc@3.11 --command "pandoc 'openspec/publics/hld.md' --from=gfm --to=docx --reference-doc='openspec/publics/reference.docx' --output='openspec/publics/hld.docx'"
+mise exec pandoc@3.11 -- pandoc 'openspec/publics/hld.md' --from=gfm --to=docx --reference-doc='openspec/publics/template.docx' --output='openspec/publics/hld.docx'
+
+# HLDへ共通の版面とPage構成を適用できることを確認する。
+mise exec python@3.12 -- python '.agents/skills/markdown2docx/scripts/format_docx.py' generated 'openspec/publics/hld.docx'
 
 # MySDD仕様書のMarkdown形式を検証する。
 npx --yes markdownlint-cli2 'docs/references/MySDD-Spec.md'
@@ -544,7 +555,7 @@ MySDD固有のISO観点が適用されないことを利用者へ明示する。
 - Apply開始条件が`tasks`だけである
 - `generate-prd`が固有Assetから`openspec/publics/prd.md`とDOCXを生成できる
 - `generate-hld`が固有Assetから`openspec/publics/hld.md`とDOCXを生成できる
-- `markdown2docx`が文書内容を変更せずPandoc変換を共通化している
+- `markdown2docx`が本文10pt、表紙、目次、章改Page、表中央配置および注意ブロック配色を共通化している
 - `openspec-git-workflow`が成功したPhaseの変更だけをcommitできる
 - `prd.md`と`hld.md`がOpenSpec TemplateまたはArtifactとして扱われない
 - 入力にない情報が補完されず、未確定事項が`TBD`または対象外になる

@@ -247,7 +247,7 @@ QR-007の定義は入力Artifactに存在しないため`TBD`とする。新し�
 | OpenSpec Change | `proposal.md`、`specs/**/spec.md`、任意の`design.md` | PRD／HLD生成の唯一の事実Source |
 | PRD Template | `.agents/skills/generate-prd/assets/prd.md` | `openspec/publics/prd.md` |
 | HLD Template | `.agents/skills/generate-hld/assets/hld.md` | `openspec/publics/hld.md` |
-| DOCX Reference | `openspec/publics/reference.docx` | PRD／HLD共通の書式Source |
+| DOCX Template | `openspec/publics/template.docx` | PRD／HLD共通の書式Source |
 | Pandoc変換 | `openspec/publics/*.md` | 同一Directoryの同名`.docx`のみ許可 |
 | Git | Phase前後のWorktree、Staged Diff | Phase固有Commitだけを作成 |
 | WinGet | Package ID | 対応Packageでは`--scope user`を使用 |
@@ -332,7 +332,7 @@ CIの具体的なJob名、Test Fixtureおよび自動化Script Pathは入力Arti
 | PRD | Product Requirements Document。本書に相当する要件定義書 |
 | HLD | High-Level Design。基本設計書 |
 | 正本Markdown | Git管理され、文書内容のSource of TruthとなるMarkdown |
-| Reference DOCX | Pandocが書式参照に使用する`openspec/publics/reference.docx` |
+| Template DOCX | Pandocが書式参照に使用する`openspec/publics/template.docx` |
 | Phase | propose、apply、verify、archiveのいずれか1工程 |
 | Evidence | Requirementまたは品質目標を満たしたことを示す検証結果 |
 | TBD | 入力Artifactに必要情報がなく、確定できない項目 |

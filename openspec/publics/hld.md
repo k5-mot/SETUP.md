@@ -99,7 +99,7 @@ PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書
 #### `markdown2docx`
 
 - Input：`openspec/publics/`直下のMarkdown
-- Reference：`openspec/publics/reference.docx`
+- Template：`openspec/publics/template.docx`
 - Output：Inputと同一Directory、同一Base NameのDOCX
 - Path処理：Repository RootからLiteral Pathとして解決
 - 成功条件：Process成功、DOCX存在、非Zero Size、Source Hash不変
@@ -158,7 +158,7 @@ Package取得時のNetwork要件、Proxy、MirrorおよびOffline Setup方式は
 | `openspec/changes/<change>/design.md` | Artifact | Read | HLDでは存在時に使用する |
 | `openspec/publics/prd.md` | 正本 | Write | PRD Output |
 | `openspec/publics/hld.md` | 正本 | Write | HLD Output |
-| `openspec/publics/reference.docx` | Reference | Read | DOCX共通書式 |
+| `openspec/publics/template.docx` | Template | Read | DOCX共通書式 |
 | `openspec/publics/prd.docx` | 配布物 | Write | Git管理対象外 |
 | `openspec/publics/hld.docx` | 配布物 | Write | Git管理対象外 |
 
@@ -209,7 +209,7 @@ ProposalではRuntime Performance Pathを追加しないため、Performance eff
 - DOCX変換に失敗しても完成済みMarkdownを保持する。
 - Archive済みChangeとMain SpecをGitで保持する。
 - Migration失敗時はOperation CommitのRevertで旧構成を復元する。
-- `reference.docx`は再生成不能な共通資産としてGit管理する。
+- `template.docx`は再生成不能な共通資産としてGit管理する。
 
 Recovery Time Objective、Recovery Point Objective、Backup媒体およびRetention期間は
 入力Artifactに定義されていないため`TBD`とする。
