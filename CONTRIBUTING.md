@@ -53,7 +53,9 @@
 タグ命名規則は、Semantic Versioning 2.0.0 をベースとした以下のルールに従うこと
 
 - MUST; `v<MAJOR>.<MINOR>.<PATCH>`形式のタグを付けること
-- MUST; `main`ブランチへマージし、CIをパスしてからタグを付与すること
+- MUST; 対象の`main` CommitでGitHub Actionsの`quality` Jobが成功してから
+  Maintainerが手動でタグを付与すること
+- MUST NOT; CIから自動でRelease Tagを作成しないこと
 - MUST NOT; 公開済みタグの移動、削除、上書きを禁止する
 - MUST; バージョンのアップグレードは以下の基準に従うこと
   - `MAJOR` 後方互換性を壊す変更

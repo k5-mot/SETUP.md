@@ -1,0 +1,68 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.6"
+
+      - name: Install document and OpenSpec tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes pandoc
+          npm install --global @fission-ai/openspec@1.13.0
+
+      - name: Validate OpenSpec
+        run: |
+          openspec schema validate mysdd --verbose
+          openspec validate --all --strict --no-interactive
+          openspec validate --archived --strict --no-interactive
+
+      - name: Lint tracked Markdown
+        shell: bash
+        run: |
+          mapfile -d '' markdown_files < <(git ls-files -z '*.md')
+          npx --yes markdownlint-cli2@0.23.2 "${markdown_files[@]}"
+
+      - name: Check local Markdown links
+        run: python scripts/check_markdown_links.py
+
+      - name: Check Python quality
+        shell: bash
+        run: |
+          mapfile -d '' python_files < <(git ls-files -z '*.py')
+          uvx --from ruff==0.16.4 ruff check "${python_files[@]}"
+          uvx --from ruff==0.16.4 ruff format --check "${python_files[@]}"
+
+      - name: Test quality scripts
+        run: python tests/test_quality.py
+
+      - name: Test DOCX conversion
+        run: python tests/test_markdown2docx.py

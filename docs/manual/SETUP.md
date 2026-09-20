@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 MD033 -->
+
 # 🚀 Windows開発環境セットアップ 2026年度版
 
 ## 1️⃣ wingetで開発ツールをインストールする
@@ -251,16 +253,17 @@ foreach ($ExtensionId in $ExtensionIds) {
 1. `Settings`(⚙️)を開く
 2. `Providers` タブを開く
 3. 以下を入力する
-  - Ollamaの場合
-    - `API Provider`: `Ollama`
-    - `Base URL`: `http://localhost:11434`
-    - `API Key`: `EMPTY`
-    - `Model Name`: `<model-name>`
-  - vLLMの場合
-    - `API Provider`: `OpenAI Compatible`
-    - `Base URL`: `http://localhost:8000/v1`
-    - `API Key`: `local`
-    - `Model ID`: `<model-id>`
+
+   - Ollamaの場合
+     - `API Provider`: `Ollama`
+     - `Base URL`: `http://localhost:11434`
+     - `API Key`: `EMPTY`
+     - `Model Name`: `<model-name>`
+   - vLLMの場合
+     - `API Provider`: `OpenAI Compatible`
+     - `Base URL`: `http://localhost:8000/v1`
+     - `API Key`: `local`
+     - `Model ID`: `<model-id>`
 
 ## 5️⃣ OpenSpecをプロジェクトに導入する
 
@@ -289,7 +292,6 @@ pandoc --version
 rg --version
 openspec --version
 ```
-
 
 <details>
 <summary>その他のAgent Skillsを導入する</summary>
@@ -335,7 +337,6 @@ npx skills@latest add DietrichGebert/ponytail --agent universal --yes ponytail p
 ```
 
 </details>
-
 
 <details>
 <summary>craneを導入する</summary>

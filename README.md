@@ -87,6 +87,15 @@ $generate-hld <change-name>
 存在する場合はDesignも使用する。入力にない情報は補完せず、必要な箇所を
 `TBD`とする。
 
+## ✅ 継続的インテグレーション
+
+Pull Requestおよび`main`へのPushでは、GitHub Actionsの`quality` Jobを
+`ubuntu-latest`で実行する。OpenSpec、Markdown、Local Link、Python品質および
+DOCX変換を検証する。
+
+Windows向けセットアップはCI実行対象ではない。`docs/manual/SETUP.md`を
+Review済み手順書として管理する。
+
 ## 📚 ドキュメント
 
 - [OpenSpec標準ワークフロー](docs/references/OpenSpec-Workflow.md)
