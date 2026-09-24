@@ -33,11 +33,13 @@ jobs:
         with:
           version: "0.12.6"
 
-      - name: Install document and OpenSpec tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes pandoc
-          npm install --global @fission-ai/openspec@1.13.0
+      - name: Set up Pandoc
+        uses: pandoc/actions/setup@v1
+        with:
+          version: "3.11"
+
+      - name: Install OpenSpec
+        run: npm install --global @fission-ai/openspec@1.13.0
 
       - name: Validate OpenSpec
         run: |
