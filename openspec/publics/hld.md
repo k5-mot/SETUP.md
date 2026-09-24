@@ -1,8 +1,10 @@
-<!-- markdownlint-disable MD013 -->
+---
+title: "🏛️ 基本設計書"
+---
 
-# 🏛️ 基本設計書
+<!-- markdownlint-disable MD013 MD025 -->
 
-## 1. 文書概要と適用範囲
+# 1. 文書概要と適用範囲
 
 | 項目 | 内容 |
 | --- | --- |
@@ -27,7 +29,7 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 - Windows向けProject Setup
 - ADR-001～ADR-010から移管した設計判断
 
-## 2. 関連文書
+# 2. 関連文書
 
 - [Proposal](../changes/archive/2026-09-18-align-mysdd-structure-and-adr/proposal.md)
 - [Design](../changes/archive/2026-09-18-align-mysdd-structure-and-adr/design.md)
@@ -37,9 +39,9 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 - `openspec/changes/archive/2026-09-18-align-mysdd-structure-and-adr/specs/**/spec.md`
 - `openspec/specs/**/spec.md`
 
-## 3. システム全体構成
+# 3. システム全体構成
 
-### 3.1 論理構成
+## 3.1 論理構成
 
 | Layer | Component | 責務 |
 | --- | --- | --- |
@@ -53,7 +55,7 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 | 公開境界 | `openspec/publics/` | 正本Markdown、Reference DOCX、配布DOCXを配置する |
 | Setup | `docs/manual/SETUP.md` | 必須手順と任意Toolを分離して案内する |
 
-### 3.2 処理Flow
+## 3.2 処理Flow
 
 1. MaintainerまたはAI AgentがMySDD Changeをproposeする。
 2. `proposal`、`specs`、`design`、`tasks`を完成させる。
@@ -68,9 +70,9 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書生成の成否を
 分離し、OpenSpecの標準4 Artifactとの互換性を保つ。
 
-## 4. アプリケーション・ソフトウェア構成
+# 4. アプリケーション・ソフトウェア構成
 
-### 4.1 MySDD Schema
+## 4.1 MySDD Schema
 
 | Artifact | Output | Dependency | 主な設計責務 |
 | --- | --- | --- | --- |
@@ -81,9 +83,9 @@ PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書
 
 `apply.requires`は`[tasks]`、進捗追跡対象は`tasks.md`とする。
 
-### 4.2 文書生成Skill
+## 4.2 文書生成Skill
 
-#### `generate-prd`
+### `generate-prd`
 
 - Input：Change名、`proposal.md`、1件以上のDelta Spec
 - Template：`.agents/skills/generate-prd/assets/prd.md`
@@ -92,7 +94,7 @@ PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書
 - 停止条件：Proposal欠落またはDelta Specが0件
 - 不足情報：`TBD`として明示
 
-#### `generate-hld`
+### `generate-hld`
 
 - Input：Change名、`proposal.md`、1件以上のDelta Spec、存在する`design.md`
 - Template：`.agents/skills/generate-hld/assets/hld.md`
@@ -100,16 +102,18 @@ PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書
 - 後続処理：`markdown2docx`へ`hld.docx`生成を委譲
 - Design欠落時：ProposalとDelta Specから生成し、設計固有の不足情報を`TBD`とする
 
-#### `markdown2docx`
+### `markdown2docx`
 
 - Input：`openspec/publics/`直下のMarkdown
-- Template：`openspec/publics/template.docx`
+- Template：`.agents/skills/markdown2docx/references/template.docx`
+- Title：先頭YAML Metadataの空でない`title`
+- 処理：Pandoc 3.11を直接1回実行し、変換後処理を行わない
 - Output：Inputと同一Directory、同一Base NameのDOCX
 - Path処理：Repository RootからLiteral Pathとして解決
 - 成功条件：Process成功、DOCX存在、非Zero Size、Source Hash不変
 - 失敗条件：Input／Reference欠落、不許可Path、Process非Zero、空DOCX、Source変更
 
-### 4.3 Git PolicyとOperation Timing
+## 4.3 Git PolicyとOperation Timing
 
 `CONTRIBUTING.md`はBranch、Commit、Stage、Conflict、履歴保護、Push、Pull Request
 およびMergeの規則を所有する。本書では個別規則を複製せず、同文書を参照する。
@@ -118,7 +122,7 @@ PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書
 Verifyは成功または失敗をCheckpoint化し、追跡対象変更がなければEmpty Commitを作成する。
 Archiveは専用Commit後に、`CONTRIBUTING.md`のGateを満たした`feature/*`を`main`へ統合する。
 
-### 4.4 Skill追跡境界
+## 4.4 Skill追跡境界
 
 `.agents/skills/.gitignore`はIgnore-Allと明示的な例外を使用し、次だけを追跡する。
 
@@ -129,9 +133,9 @@ Archiveは専用Commit後に、`CONTRIBUTING.md`のGateを満たした`feature/*
 
 Third-party SkillはLocal環境へ残し、Git Indexへ追加しない。
 
-## 5. インフラ・ネットワーク方式
+# 5. インフラ・ネットワーク方式
 
-### 5.1 実行環境
+## 5.1 実行環境
 
 - Setup手順の対象PlatformはWindows 11である。
 - Setupは非昇格PowerShellで実行する。
@@ -143,16 +147,16 @@ Third-party SkillはLocal環境へ残し、Git Indexへ追加しない。
 CIのCPU、MemoryおよびDisk容量はGitHub-hosted Runnerの提供条件に従い、固定値を
 Project要件として定義しない。
 
-### 5.2 Network
+## 5.2 Network
 
 MySDD Schema、文書生成およびDOCX変換にRuntime Network Interfaceは定義されていない。
 標準SetupはMCP Server／Client、CredentialまたはEndpointを導入しない。
 
 Package取得時のNetwork要件、Proxy、MirrorおよびOffline Setup方式は`TBD`とする。
 
-## 6. データ・外部インタフェース方式
+# 6. データ・外部インタフェース方式
 
-### 6.1 File Interface
+## 6.1 File Interface
 
 | Path | 種別 | Read／Write | 制約 |
 | --- | --- | --- | --- |
@@ -164,14 +168,14 @@ Package取得時のNetwork要件、Proxy、MirrorおよびOffline Setup方式は
 | `openspec/changes/<change>/design.md` | Artifact | Read | HLDでは存在時に使用する |
 | `openspec/publics/prd.md` | 正本 | Write | PRD Output |
 | `openspec/publics/hld.md` | 正本 | Write | HLD Output |
-| `openspec/publics/template.docx` | Template | Read | DOCX共通書式 |
+| `.agents/skills/markdown2docx/references/template.docx` | Template | Read | DOCX共通書式 |
 | `openspec/publics/prd.docx` | 配布物 | Write | Git管理対象外 |
 | `openspec/publics/hld.docx` | 配布物 | Write | Git管理対象外 |
 
 Archive済みChangeを入力とする場合は、Change名に`archive/<archive-name>`を指定し、
 同じ`openspec/changes/<change-name>/`契約でArtifactを解決する。
 
-### 6.2 Data Integrity
+## 6.2 Data Integrity
 
 - Source Markdownの変換前SHA-256 Hashを記録する。
 - 変換後もHashが同一であることを確認する。
@@ -181,7 +185,7 @@ Archive済みChangeを入力とする場合は、Change名に`archive/<archive-n
 
 Database Schema、Message FormatおよびNetwork APIは対象外である。
 
-## 7. 認証・認可・セキュリティ方式
+# 7. 認証・認可・セキュリティ方式
 
 Identity、AuthenticationおよびAuthorizationの新規機能は設計対象外である。
 本変更のSecurity／IntegrityはFile PathとGit変更境界で扱う。
@@ -199,9 +203,9 @@ Identity、AuthenticationおよびAuthorizationの新規機能は設計対象外
 Secret Scanner、Credential Storeおよび署名方式は入力Artifactに定義されていないため
 `TBD`とする。
 
-## 8. 性能・容量・可用性・復旧方式
+# 8. 性能・容量・可用性・復旧方式
 
-### 8.1 性能・容量
+## 8.1 性能・容量
 
 ProposalではRuntime Performance Pathを追加しないため、Performance efficiencyは
 非適用とされている。変換時間、最大Markdown Size、最大画像数および同時変換数は
@@ -213,7 +217,7 @@ ProposalではRuntime Performance Pathを追加しないため、Performance eff
 するだけとし、合否Thresholdは設けない。実運用の代表文書と許容時間が決まった時点で、
 基準値、上限値および測定条件を同じChangeで定義する。
 
-### 8.2 可用性・復旧
+## 8.2 可用性・復旧
 
 - Markdownを正本とし、DOCXを再生成可能にする。
 - DOCX変換に失敗しても完成済みMarkdownを保持する。
@@ -224,9 +228,9 @@ ProposalではRuntime Performance Pathを追加しないため、Performance eff
 Recovery Time Objective、Recovery Point Objective、Backup媒体およびRetention期間は
 入力Artifactに定義されていないため`TBD`とする。
 
-## 9. ログ・監視・運用・保守方式
+# 9. ログ・監視・運用・保守方式
 
-### 9.1 観測対象
+## 9.1 観測対象
 
 | 対象 | Evidence |
 | --- | --- |
@@ -237,7 +241,7 @@ Recovery Time Objective、Recovery Point Objective、Backup媒体およびRetent
 | Git Phase | Baseline、Porcelain Status、Staged Diff、Commit ID |
 | Migration | 旧Live Name／Path検索、ADR対応表 |
 
-### 9.2 Error Handling
+## 9.2 Error Handling
 
 - Artifact不足時は不足Pathを報告して文書生成成功としない。
 - Reference DOCX不足時は変換を開始しない。
@@ -249,16 +253,16 @@ Recovery Time Objective、Recovery Point Objective、Backup媒体およびRetent
 CI LogはGitHub Actionsの標準Job Logへ出力し、保持期間はRepository設定に従う。
 専用Dashboard、外部Alert通知先およびOn-call手順は導入しない。
 
-### 9.3 保守
+## 9.3 保守
 
 - `spec-driven`更新時に4 Artifact GraphとTemplate見出しを比較する。
 - Skill名、Asset名、Output PathおよびMain Specの整合を確認する。
 - Generated DOCXをGitへ追加しない。
 - Third-party SkillをRepository更新のために削除しない。
 
-## 10. 移行・デプロイ・リリース・構成管理方式
+# 10. 移行・デプロイ・リリース・構成管理方式
 
-### 10.1 移行順序
+## 10.1 移行順序
 
 1. `MySDD-Spec.md`のAuthorityを確認する。
 2. `openspec/publics/`を文書境界として作成する。
@@ -269,7 +273,7 @@ CI LogはGitHub Actionsの標準Job Logへ出力し、保持期間はRepository�
 7. ADR-001～ADR-010の移管後に独立ADR文書と旧Live Changeを廃止する。
 8. 不要Directoryを削除し、ChangeをArchiveする。
 
-### 10.2 構成管理
+## 10.2 構成管理
 
 - Configは`openspec/config.yaml`の`schema: mysdd`でSchemaを選択する。
 - Phase CommitとArchive後MergeのTimingは`openspec/config.yaml`で管理する。
@@ -280,7 +284,7 @@ CI LogはGitHub Actionsの標準Job Logへ出力し、保持期間はRepository�
 - Verifyで追跡対象変更がない場合はEmpty CommitをCheckpointとする。
 - Archive Commit後はGateを満たして`feature/*`を`main`へMergeする。
 
-### 10.3 Rollback
+## 10.3 Rollback
 
 移行を所有するOperation CommitをRevertし、旧Path、旧Skill名、独立ADRおよび旧Changeを
 復元する。Rollbackでも公開済み履歴をReset、AmendまたはRewriteしない。
@@ -289,7 +293,7 @@ Release TagはSemantic Versioningの`v<MAJOR>.<MINOR>.<PATCH>`形式とする。
 `main` Commitで`quality` Jobが成功した後、Maintainerが手動でTagを作成する。
 自動Deployment Pipelineは導入せず、`quality`成功とMaintainer判断を承認Gateとする。
 
-## 11. ISO/IEC 25010品質特性への対応
+# 11. ISO/IEC 25010品質特性への対応
 
 | 品質ID | 特性 | Design対応 | Evidence |
 | --- | --- | --- | --- |
@@ -314,7 +318,7 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 - Safety：安全関連Behaviorがない。
 - SecurityのIdentity領域：認証・認可・Secret処理を追加しない。
 
-## 12. ADR
+# 12. ADR
 
 | ADR | Design判断 | 実装先 |
 | --- | --- | --- |
@@ -329,7 +333,7 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 | ADR-009 | Verification成功をArchive条件にする | `mysdd-workflow` |
 | ADR-010 | 文書生成と同名DOCX変換のInterface／失敗時動作を固定する | 文書生成3 Skill |
 
-### 12.1 主要Trade-off
+## 12.1 主要Trade-off
 
 - Compatibility Aliasを残さないため旧Callerは更新が必要だが、Skill名の正本を一意にできる。
 - DOCXを追跡しないため配布時に再生成が必要だが、DOCXだけの変更を防止できる。
@@ -338,7 +342,7 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 - Archive内容を歴史的Evidenceとして保持するため旧名称がArchive内に残り得るが、
   Live Contractとの混同を避けるため検索時にArchiveを区別する。
 
-## 13. 要求・設計・検証トレーサビリティ
+# 13. 要求・設計・検証トレーサビリティ
 
 | Capability／Requirement | Design判断 | 検証Evidence |
 | --- | --- | --- |
@@ -364,7 +368,7 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 | `markdown2docx`／`変換先を安全に制限する` | Literal Pathと同名Output | Path Negative Test |
 | `markdown2docx`／`変換失敗時に正本を保持する` | SourceをRead-only Contractとして扱う | Hash比較、Failure報告 |
 
-### 13.1 Scenario Traceability
+## 13.1 Scenario Traceability
 
 | Capability | Source Scenario |
 | --- | --- |
@@ -405,14 +409,14 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 全RequirementのScenario名は対応するArchive済みDelta Specを正本とし、Test Case作成時に
 省略せず使用する。
 
-## 14. 未決事項・リスク
+# 14. 未決事項・リスク
 
-### 14.1 未決事項
+## 14.1 未決事項
 
 - 文書変換の性能・容量上限：代表文書と許容時間の合意後に定義するため`TBD`
 - QR-007の定義：対応する品質要求が生じるまで`TBD`
 
-### 14.2 確定した運用方針
+## 14.2 確定した運用方針
 
 - CI：GitHub Actionsの`.github/workflows/quality.yml`にある`quality` Job
 - CI Platform：`ubuntu-latest`。Windows SetupはReview済み手順書としてCI対象外
@@ -420,7 +424,7 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 - 監視：専用Dashboard、外部AlertおよびOn-callは導入しない
 - Release：`quality`成功後にMaintainerがSemVer Tagを手動作成する
 
-### 14.3 リスクと軽減策
+## 14.3 リスクと軽減策
 
 - **廃止済みSkillを使用するCallerが残る** → Repository全体を検索し、Live Callerを同一変更で更新する。
 - **Reference DOCX移動で変換が失敗する** → 成功TestとReference欠落Testを実行する。

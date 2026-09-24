@@ -1,8 +1,10 @@
-<!-- markdownlint-disable MD013 -->
+---
+title: "📋 要件定義書"
+---
 
-# 📋 要件定義書
+<!-- markdownlint-disable MD013 MD025 -->
 
-## 1. 文書概要
+# 1. 文書概要
 
 | 項目 | 内容 |
 | --- | --- |
@@ -22,7 +24,7 @@
 本書は入力Artifactに記載された事実を整理したものであり、入力にない製品機能、
 組織、担当者または外部Serviceを要求として追加しない。
 
-## 2. 背景・目的
+# 2. 背景・目的
 
 `docs/references/MySDD-Spec.md`の想定Directory構成と、従来のSkill名、文書名、
 出力先およびOpenSpec資産に不一致があった。また、独立したADR文書に記録されていた
@@ -37,9 +39,9 @@
 - OpenSpecの各Phaseを独立した安全なGit Commitとして記録する。
 - Windows Setup、Skill配置、追跡対象およびMCP非導入方針を一意にする。
 
-## 3. 対象システムとスコープ
+# 3. 対象システムとスコープ
 
-### 3.1 対象システム
+## 3.1 対象システム
 
 対象は、このRepositoryで運用するMySDDおよび関連するOpenSpec／Agent Skill群である。
 
@@ -51,7 +53,7 @@
 | Setup | `docs/manual/SETUP.md`と`.agents/skills/.gitignore` |
 | 成果物 | `openspec/publics/prd.md`、`hld.md`および同名DOCX |
 
-### 3.2 対象範囲
+## 3.2 対象範囲
 
 - Skill名と出力Pathの統一
 - `openspec/publics/`への文書境界の集約
@@ -63,7 +65,7 @@
 - Repository固有SkillだけをGit管理するIgnore規則
 - ADR-001～ADR-010のRequirementへの取り込み
 
-### 3.3 対象外
+## 3.3 対象外
 
 - PRD、HLDまたはDOCX変換をMySDD Artifact Graphへ追加すること
 - `spec-driven`のDelta Spec文法やArtifact依存関係の変更
@@ -73,7 +75,7 @@
 - Archive済みの歴史的Changeを一般的に書き換えること
 - Runtime性能経路、安全関連機能または認証機能の追加
 
-## 4. ステークホルダ
+# 4. ステークホルダ
 
 | ステークホルダ | 関心事項 |
 | --- | --- |
@@ -85,7 +87,7 @@
 
 具体的な個人名、承認者および運用責任者は入力Artifactに定義されていないため`TBD`とする。
 
-## 5. 前提条件・制約
+# 5. 前提条件・制約
 
 - MySDDは`proposal`、`specs`、`design`、`tasks`の4 Artifactを維持する。
 - `apply.requires`は`[tasks]`とする。
@@ -100,9 +102,9 @@
 - Verify完了時は成功または失敗をCheckpoint Commitへ記録する。
 - 具体的なCI Provider、Workflow Fileおよび実行環境は入力Artifactにないため`TBD`とする。
 
-## 6. 業務・システム・機能要求
+# 6. 業務・システム・機能要求
 
-### 6.1 `project-setup`
+## 6.1 `project-setup`
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -122,7 +124,7 @@
 - `A repository-owned skill changes`
 - `Complete the canonical setup`
 
-### 6.2 `mysdd-workflow`
+## 6.2 `mysdd-workflow`
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -142,7 +144,7 @@
 - `Archive completes on a feature branch`
 - `A workflow operation fails`
 
-### 6.3 `mysdd-schema`
+## 6.3 `mysdd-schema`
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -156,7 +158,7 @@
 - `Propose a MySDD change`
 - `Complete the proposal workflow`
 
-### 6.4 `generate-prd`
+## 6.4 `generate-prd`
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -171,7 +173,7 @@
 - `A required section lacks source information`
 - `DOCX conversion fails`
 
-### 6.5 `generate-hld`
+## 6.5 `generate-hld`
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -186,7 +188,7 @@
 - `A required section lacks source information`
 - `DOCX conversion fails`
 
-### 6.6 `markdown2docx`
+## 6.6 `markdown2docx`
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -203,7 +205,7 @@
 - `Rendererが失敗する`
 - `変換が成功する`
 
-## 7. ISO/IEC 25010品質要求
+# 7. ISO/IEC 25010品質要求
 
 | 品質ID | 品質特性 | 測定量 | 目標値 | 条件 | 検証方法 |
 | --- | --- | --- | --- | --- | --- |
@@ -226,23 +228,23 @@ QR-007の定義は入力Artifactに存在しないため`TBD`とする。新し�
 - Security：Identity／Authorization／Secret処理は追加しない。ただしPathとCommitの
   IntegrityはQR-006で扱う
 
-## 8. 外部インタフェース・データ要求
+# 8. 外部インタフェース・データ要求
 
 | Interface／Data | Input | Output／制約 |
 | --- | --- | --- |
 | OpenSpec Change | `proposal.md`、`specs/**/spec.md`、任意の`design.md` | PRD／HLD生成の唯一の事実Source |
 | PRD Template | `.agents/skills/generate-prd/assets/prd.md` | `openspec/publics/prd.md` |
 | HLD Template | `.agents/skills/generate-hld/assets/hld.md` | `openspec/publics/hld.md` |
-| DOCX Template | `openspec/publics/template.docx` | PRD／HLD共通の書式Source |
+| DOCX Template | `.agents/skills/markdown2docx/references/template.docx` | PRD／HLD共通の書式Source |
 | Pandoc変換 | `openspec/publics/*.md` | 同一Directoryの同名`.docx`のみ許可 |
 | Git | `CONTRIBUTING.md`、Config Timing、Staged Diff | Phase固有CommitとGate済みArchive後Merge |
 | WinGet | Package ID | 対応Packageでは`--scope user`を使用 |
 
 Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに定義されていない。
 
-## 9. 移行・運用・保守・廃止要求
+# 9. 移行・運用・保守・廃止要求
 
-### 9.1 移行
+## 9.1 移行
 
 - 旧`gen-pd`、`gen-bd`、`md2docx`を、それぞれ`generate-prd`、`generate-hld`、
   `markdown2docx`へ移行する。
@@ -250,7 +252,7 @@ Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに
 - ADR-001～ADR-010を検証可能なCapability Requirementへ移管する。
 - 旧Live Changeと不要Directoryは、代替Contractの確認後に廃止する。
 
-### 9.2 運用
+## 9.2 運用
 
 - 日常Workflowはpropose→apply→verify→archiveとする。
 - 各Phaseは`openspec/config.yaml`のTimingで独立Commitとして記録する。
@@ -259,20 +261,20 @@ Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに
 - Archive Commit後はPull RequestとCI条件を満たして`feature/*`を`main`へMergeする。
 - DOCXは配布の都度、正本Markdownから再生成する。
 
-### 9.3 保守
+## 9.3 保守
 
 - `spec-driven`更新時も4 Artifact Graphを維持する。
 - Skill名、Path、Template、Specおよび文書参照の整合を検査する。
 - Third-party SkillはRepositoryで追跡せず、Local環境から削除もしない。
 
-### 9.4 廃止・Rollback
+## 9.4 廃止・Rollback
 
 - 旧Skill Aliasは競合する正本を作るため保持しない。
 - Archiveは歴史的Evidenceとして保持する。
 - MigrationのRollbackは該当Operation CommitのRevertで行う。
 - Source Markdownは変換失敗時にも削除または変更しない。
 
-## 10. 受入条件と検証方法
+# 10. 受入条件と検証方法
 
 | 受入条件 | 合格基準 | 検証方法 |
 | --- | --- | --- |
@@ -291,7 +293,7 @@ Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに
 
 CIの具体的なJob名、Test Fixtureおよび自動化Script Pathは入力Artifactにないため`TBD`とする。
 
-## 11. 要求トレーサビリティ
+# 11. 要求トレーサビリティ
 
 | ADR | Capability／Requirement | 主な品質ID |
 | --- | --- | --- |
@@ -309,7 +311,7 @@ CIの具体的なJob名、Test Fixtureおよび自動化Script Pathは入力Arti
 すべての機能要求は、対応するCapability Path、Requirement見出しおよびScenario名を
 第6章に保持している。検証時はArchive済みDelta SpecをSourceとして比較する。
 
-## 12. 用語集
+# 12. 用語集
 
 | 用語 | 定義 |
 | --- | --- |
@@ -320,7 +322,7 @@ CIの具体的なJob名、Test Fixtureおよび自動化Script Pathは入力Arti
 | PRD | Product Requirements Document。本書に相当する要件定義書 |
 | HLD | High-Level Design。基本設計書 |
 | 正本Markdown | Git管理され、文書内容のSource of TruthとなるMarkdown |
-| Template DOCX | Pandocが書式参照に使用する`openspec/publics/template.docx` |
+| Template DOCX | Pandocが書式参照に使用する`.agents/skills/markdown2docx/references/template.docx` |
 | Phase | propose、apply、verify、archiveのいずれか1工程 |
 | Evidence | Requirementまたは品質目標を満たしたことを示す検証結果 |
 | TBD | 入力Artifactに必要情報がなく、確定できない項目 |
