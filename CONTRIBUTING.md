@@ -9,6 +9,9 @@
 - MUST; 日本語でメッセージを記述すること
 - MUST; 修正の理由と内容をセットで記述すること
 - MUST; 1コミットには1つの論理変更のみを含めること
+- MUST; AIを使用したコミットには、本文末尾へ汎用Trailer
+  `AI-Assisted: true`を記載すること
+- MUST NOT; AI Serviceの名称またはEmail AddressをCommit Authorに使用しないこと
 - MUST; 変更目的に合う以下の type を使うこと
   - `🐛 fix:` バグ修正
   - `✨ feat:` 新機能
@@ -21,6 +24,20 @@
   - `👷 ci:` CIビルドシステムの追加・更新
   - `🔧 chore:` 設定ファイルなどの追加・更新
 - SHOULD; `git-cz` の使用することを推奨する
+
+### 変更境界と履歴保護
+
+- MUST; 作業開始前のBranch、HEAD、未追跡Fileを含むWorktree Statusおよび
+  未解決Conflictを確認すること
+- MUST; 1つの論理変更が所有するPathだけをStageし、無関係な既存変更を
+  Unstageのまま保持すること
+- MUST; Commit前にStaged Diff、必要なTest、生成FileおよびSecret混入の可能性を
+  確認すること
+- MUST NOT; 変更対象Pathが作業開始前の変更と重複する場合、所有権を確認せずに
+  StageまたはCommitしないこと
+- MUST NOT; 未解決Conflictが存在する状態でCommitまたはMergeしないこと
+- MUST NOT; 公開済み履歴をAmend、Reset、RebaseまたはForce Pushで書き換えないこと
+- MUST NOT; 無関係な既存変更を削除する目的でCleanまたはRestoreを実行しないこと
 
 ```text
 <gitmoji> <type>[optional scope][!]: <変更理由>のため、<変更内容>
@@ -42,11 +59,14 @@
 ブランチ戦略は、GitHub Flowをベースとした以下のルールに従うこと
 
 - MUST; 最新の`main`ブランチから各作業用ブランチ`feature/<作業内容>`を作成すること
+- MUST; 同一のOpenSpec Changeは同一の作業用ブランチで完結させること
 - MUST; 作業用ブランチ`feature/<作業内容>`はPull RequestでCIを完了してから`main`へマージすること
 - SHOULD; 作業用ブランチ`feature/<作業内容>`はPull Requestでレビューを完了してから`main`へマージすることを推奨する
 - SHOULD; マージ後、作業用ブランチ`feature/<作業内容>`は削除を推奨する
 - MUST; 作業用ブランチ`feature/<作業内容>`は、Pull Requestとマージ前に
   `git pull --rebase origin main`で Fast-Forward すること
+- MUST; 通常のPushは作業用ブランチとPull Requestの更新に限定すること
+- MUST NOT; `main`へ直接Pushしないこと
 
 ## 🏷️ Git タグ命名規則
 

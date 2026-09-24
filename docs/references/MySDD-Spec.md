@@ -22,7 +22,6 @@
   - [9.1 generate-prd](#91-generate-prd)
   - [9.2 generate-hld](#92-generate-hld)
   - [9.3 `markdown2docx`](#93-markdown2docx)
-  - [9.4 `openspec-git-workflow`](#94-openspec-git-workflow)
 - [10. 運用・保守手順](#10-運用保守手順)
 - [11. 受け入れ条件](#11-受け入れ条件)
 - [References](#references)
@@ -58,7 +57,7 @@ MySDDの目的は、`spec-driven`との互換性を維持しながら、Change�
 - Requirement、Scenario、設計判断、Task、Evidenceを追跡可能にする
 - `generate-prd`で要件定義書、`generate-hld`で基本設計書を別途生成する
 - `markdown2docx`で正本Markdownから配布用DOCXを再生成可能にする
-- `openspec-git-workflow`でOpenSpecの各Phaseを独立したcommitにする
+- `openspec/config.yaml`のTimingでOpenSpecの各Phaseを独立したCommitにする
 - MySDDの設定、Schema、Template、Skillおよび保守方法を本書へ集約する
 
 次は対象外とする。
@@ -136,7 +135,7 @@ Delta Spec構文を変更しない。変更点は次のとおりとする。
 | Apply開始条件 | `tasks` | `tasks`のまま維持する |
 | 正式文書 | 対象外 | `generate-prd`と`generate-hld`がOpenSpec外の後続処理として生成する |
 | DOCX変換 | 対象外 | `markdown2docx`が正本MarkdownをDOCXへ変換する |
-| Phaseごとのcommit | 対象外 | `openspec-git-workflow`が既存Workflowの成功結果だけをcommitする |
+| PhaseごとのCommit | 対象外 | ConfigがCommit Timingを、`CONTRIBUTING.md`がGit規則を定義する |
 | `docs/references/MySDD-Spec.md` | 存在しない | 本ファイルを修正し、設定、Schema、Template、Skill、運用、受け入れ条件の正本とする |
 <!-- markdownlint-enable MD013 -->
 
@@ -191,18 +190,16 @@ openspec/
    └─ tasks.md                              # [+] 実装Task 🤖
 
 .agents/skills/                             # ... Agent Skills 格納場所(日本語).
-├─ .gitignore                               # [+] 対象の4スキル以外を管理対象外にする.
+├─ .gitignore                               # [+] 対象の3スキル以外を管理対象外にする.
 ├─ markdown2docx/
 │  ├─ SKILL.md                              # [+] Markdown を DOCX に変換するスキル.
 │  └─ scripts/format_docx.py                # [+] 共通の版面とページ構成を適用する.
 ├─ generate-prd/
 │  ├─ SKILL.md                              # [+] 要件定義書 を作るスキル.
 │  └─ assets/prd.md                         # [+] 要件定義書テンプレート.
-├─ generate-hld/
-│  ├─ SKILL.md                              # [+] 基本設計書 を作るスキル.
-│  └─ assets/hld.md                         # [+] 基本設計書テンプレート.
-└─ openspec-git-workflow/
-   └─ SKILL.md                              # [+] OpenSpec処理後のcommitを作るスキル.
+└─ generate-hld/
+   ├─ SKILL.md                              # [+] 基本設計書 を作るスキル.
+   └─ assets/hld.md                         # [+] 基本設計書テンプレート.
 ```
 
 Schemaが参照するTemplateは`openspec/schemas/mysdd/templates/`の4ファイル
@@ -217,10 +214,13 @@ schema: mysdd
 ```
 
 Project固有の技術構成、規約およびDomain知識は`context`へ記載できる。
-Artifact固有の補足は`rules`、ApplyやArchiveの運用上の補足は
-`operations`へ記載する。ISO観点の共通ルールはConfigへ重複させず、
-SchemaとTemplateを正本とする。PhaseごとのGit操作もConfigへ記載せず、
-`openspec-git-workflow`だけが所有する。
+Artifact固有の補足は`rules`へ記載する。ISO観点の共通ルールはConfigへ
+重複させず、SchemaとTemplateを正本とする。
+
+GitのBranch、Commit、Stage、履歴保護、Pull RequestおよびMerge規則は
+`CONTRIBUTING.md`を正本とする。`context`はPropose、Apply、Verify、Archiveの
+Commit Timingと、Archive Commit後に`feature/*`を`main`へ統合するTimingだけを
+定義する。統合時は`CONTRIBUTING.md`のPull RequestとCI条件を満たす。
 
 期待結果は、新規Changeが明示的な上書きなしに`mysdd`を使用することである。
 `openspec instructions`が別Schemaを返す場合は設定失敗と判断する。
@@ -253,8 +253,7 @@ flowchart TD
 | `tasks` | `tasks.md` | `specs`、`design` | 作業とEvidenceが追跡できる |
 
 `apply.requires`は`[tasks]`、`apply.tracks`は`tasks.md`とする。
-`prd`、`hld`、`markdown2docx`および`openspec-git-workflow`は
-Artifact Graphへ追加しない。
+`prd`、`hld`および`markdown2docx`はArtifact Graphへ追加しない。
 
 ### 7.2 `schema.yaml`変更例
 
@@ -385,8 +384,8 @@ OpenSpec Applyが追跡できる形式を維持し、適用する品質目標と
 
 ## 9. Agent Skills
 
-正式文書の生成とPhase単位のGit commitはOpenSpec Templateから分離し、
-4つのAgent Skillsで扱う。
+正式文書の生成とDOCX変換はOpenSpec Templateから分離し、3つのAgent Skillsで扱う。
+Phase単位のCommit Timingは`openspec/config.yaml`で扱う。
 
 ```mermaid
 flowchart LR
@@ -452,29 +451,6 @@ DOCX変換責務は`markdown2docx/`へ集約する。`SKILL.md`が入出力契�
 Pandoc実行手順を所有し、`scripts/format_docx.py`が変換後の版面とPage構成を
 適用する。文書生成Skillには、それぞれの入力解釈とMarkdown生成だけを持たせる。
 
-### 9.4 `openspec-git-workflow`
-
-`openspec-git-workflow`はOpenSpecの`propose`、`apply`、`verify`、
-`archive`実行後にGit commitを作成する共通Agent Skillである。各処理自体は
-再実装せず、既存のOpenSpec Workflowを呼び出し、その前後のGit操作だけを
-担当する。
-
-- 入力: OpenSpec phase（`propose` / `apply` / `verify` / `archive`）、change名
-- 事前処理: 実行前のGit working tree状態を記録する
-- 実行処理: 対応するWorkflowを実行し、成功後に今回の変更だけをstageする
-- commit形式: PhaseとChange名からRepository規約準拠のMessageを生成する
-- `verify`時: ファイル変更がない場合は`--allow-empty`でcommitする
-- 完了条件: Workflowが正常終了し、対応するGit commitが作成される
-- 失敗時: commitせず、既存の未commit変更を保持して失敗理由を返す
-
-Git commit責務は`openspec-git-workflow/`へ集約する。`SKILL.md`がphaseごとの実行契約、
-stage対象、commit条件を所有する。OpenSpec側のschema、template、configにはGit操作を持たせず、
-`propose`、`apply`、`verify`、`archive`の各処理は既存のOpenSpec workflowへ委譲する。
-
-また、実行前から存在する未commit変更をcommitへ混在させず、今回のPhaseで
-発生した変更だけを対象とする。自動`push`、既存commitの`amend`、
-Historyの書き換えおよび競合状態でのcommitは行わない。
-
 ## 10. 運用・保守手順
 
 ### 10.1 検証手順
@@ -496,7 +472,7 @@ openspec templates --schema mysdd --json
 # 対象ChangeとDelta Specを厳格に検証する。
 openspec validate '<change-name>' --strict
 
-# 4つのProject固有SkillだけがGit管理対象になることを確認する。
+# 3つのProject固有SkillだけがGit管理対象になることを確認する。
 git check-ignore -v '.agents/skills/openspec-propose/SKILL.md'
 
 # PRDをmise管理のPandocで共通書式のDOCXへ変換できることを確認する。
@@ -519,7 +495,7 @@ npx --yes markdownlint-cli2 'docs/references/MySDD-Spec.md'
 
 期待結果は、SchemaとChangeのValidation、DOCX変換、Markdownlintがすべて
 成功し、OpenSpecが解決するTemplateが第8章の4ファイルだけになり、
-Git管理対象のProject固有Skillが第9章の4件だけになることである。
+Git管理対象のProject固有Skillが第9章の3件だけになることである。
 
 次のいずれかに該当する場合は失敗とし、ApplyまたはArchiveへ進まない。
 
@@ -556,11 +532,12 @@ MySDD固有のISO観点が適用されないことを利用者へ明示する。
 - `generate-prd`が固有Assetから`openspec/publics/prd.md`とDOCXを生成できる
 - `generate-hld`が固有Assetから`openspec/publics/hld.md`とDOCXを生成できる
 - `markdown2docx`が本文10pt、表紙、目次、章改Page、表中央配置および注意ブロック配色を共通化している
-- `openspec-git-workflow`が成功したPhaseの変更だけをcommitできる
+- Configが4 PhaseのCommit TimingとArchive後のMerge Timingを提供する
+- Git操作が`CONTRIBUTING.md`の規則に従う
 - `prd.md`と`hld.md`がOpenSpec TemplateまたはArtifactとして扱われない
 - 入力にない情報が補完されず、未確定事項が`TBD`または対象外になる
 - Markdownだけが正本としてGit管理され、DOCXを再生成できる
-- `.agents/skills/`では第9章の4 SkillだけがGit管理される
+- `.agents/skills/`では第9章の3 SkillだけがGit管理される
 - 本書がMySDDの設定、Schema、Template、Skill、運用の正本になっている
 
 ## References

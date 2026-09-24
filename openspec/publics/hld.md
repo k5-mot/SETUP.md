@@ -9,7 +9,7 @@
 | 対象Change | `archive/2026-09-18-align-mysdd-structure-and-adr` |
 | Schema | `mysdd` |
 | Change状態 | Archive済み |
-| 設計対象 | MySDD Schema、文書生成Skill、Git Workflow Skill、Setup構成 |
+| 設計対象 | MySDD Schema、文書生成Skill、Git運用、Setup構成 |
 | 正本 | 本Markdown |
 | 配布形式 | `openspec/publics/hld.docx` |
 
@@ -21,7 +21,7 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 
 - `spec-driven`互換のMySDD Artifact Graph
 - `generate-prd`、`generate-hld`、`markdown2docx`
-- `openspec-git-workflow`
+- `openspec/config.yaml`のOperation Timingと`CONTRIBUTING.md`のGit規則
 - `.agents/skills/`の追跡境界
 - `openspec/publics/`の文書境界
 - Windows向けProject Setup
@@ -44,7 +44,8 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 | Layer | Component | 責務 |
 | --- | --- | --- |
 | Workflow | OpenSpec Phase Skills | propose、apply、verify、archiveを実行する |
-| Commit境界 | `openspec-git-workflow` | 1 Phaseの結果だけを安全にCommitする |
+| Operation Timing | `openspec/config.yaml` | Phase CommitとArchive後Mergeの時点を定義する |
+| Git Policy | `CONTRIBUTING.md` | Commit、Stage、履歴、Push、PRおよびMerge規則を定義する |
 | Planning | `mysdd` Schema | 4 ArtifactとISO観点を提供する |
 | Specification | Delta Specs／Main Specs | 観測可能なBehaviorとScenarioを保持する |
 | 文書生成 | `generate-prd`／`generate-hld` | Change Artifactから正本Markdownを生成する |
@@ -61,7 +62,8 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 5. 文書生成SkillがMarkdownを`openspec/publics/`へ書き出す。
 6. `markdown2docx`がReference DOCXを適用して同名DOCXを生成する。
 7. verify成功後にChangeをarchiveし、Delta SpecをMain Specへ同期する。
-8. `openspec-git-workflow`を使用する場合、各Phaseを独立Commitとして記録する。
+8. Config Timingに従い、各Phaseを独立Commitとして記録する。
+9. Archive Commit後、Pull RequestとCI条件を満たして`feature/*`を`main`へMergeする。
 
 PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書生成の成否を
 分離し、OpenSpecの標準4 Artifactとの互換性を保つ。
@@ -107,14 +109,14 @@ PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書
 - 成功条件：Process成功、DOCX存在、非Zero Size、Source Hash不変
 - 失敗条件：Input／Reference欠落、不許可Path、Process非Zero、空DOCX、Source変更
 
-### 4.3 Git Workflow Skill
+### 4.3 Git PolicyとOperation Timing
 
-`openspec-git-workflow`はPhaseとChange名を各1件受け取り、対応するインストール済み
-OpenSpec Workflowへ委譲する。独自にOpenSpec Behaviorを再実装しない。
+`CONTRIBUTING.md`はBranch、Commit、Stage、Conflict、履歴保護、Push、Pull Request
+およびMergeの規則を所有する。本書では個別規則を複製せず、同文書を参照する。
 
-Phase実行前にBranch、HEAD、未追跡Fileを含むStatusとConflict状態をBaselineとして
-記録する。成功後はBaselineとの差分からPhase所有PathだけをStageする。既存変更と
-重複するPath、帰属不明の差分またはConflictがある場合はCommitを中止する。
+`openspec/config.yaml`はPropose、Apply、VerifyおよびArchiveのCommit Timingを所有する。
+Verifyは成功または失敗をCheckpoint化し、追跡対象変更がなければEmpty Commitを作成する。
+Archiveは専用Commit後に、`CONTRIBUTING.md`のGateを満たした`feature/*`を`main`へ統合する。
 
 ### 4.4 Skill追跡境界
 
@@ -123,7 +125,6 @@ Phase実行前にBranch、HEAD、未追跡Fileを含むStatusとConflict状態�
 - `generate-prd`
 - `generate-hld`
 - `markdown2docx`
-- `openspec-git-workflow`
 - `.agents/skills/.gitignore`
 
 Third-party SkillはLocal環境へ残し、Git Indexへ追加しない。
@@ -155,7 +156,8 @@ Package取得時のNetwork要件、Proxy、MirrorおよびOffline Setup方式は
 
 | Path | 種別 | Read／Write | 制約 |
 | --- | --- | --- | --- |
-| `openspec/config.yaml` | Config | Read | `schema: mysdd`を選択する |
+| `openspec/config.yaml` | Config | Read | `schema: mysdd`とOperation Timingを提供する |
+| `CONTRIBUTING.md` | Policy | Read | Git操作の共通規則を提供する |
 | `openspec/schemas/mysdd/schema.yaml` | Schema | Read | 4 Artifact Graphを維持する |
 | `openspec/changes/<change>/proposal.md` | Artifact | Read | PRD／HLD必須Input |
 | `openspec/changes/<change>/specs/**/spec.md` | Artifact | Read | 1件以上を必須とする |
@@ -190,10 +192,8 @@ Identity、AuthenticationおよびAuthorizationの新規機能は設計対象外
 | Output制限 | `openspec/publics/`の同一Base Name DOCXだけを許可する |
 | 不許可書込 | 別Directoryまたは別Base Name要求を変換前に拒否する |
 | Source保護 | DOCX失敗時もMarkdownを変更・削除しない |
-| Commit分離 | Phase実行前Baselineと実行後Statusを比較する |
-| Conflict保護 | 未解決ConflictがあればStage／Commitしない |
-| Remote保護 | Wrapper SkillはPushしない |
-| 履歴保護 | Amend、Reset、履歴書換えを行わない |
+| Git Policy | Git操作時に`CONTRIBUTING.md`を参照する |
+| Operation Timing | Phase完了時に`openspec/config.yaml`を参照する |
 | Secret | MCP CredentialやEndpointを標準Setupへ追加しない |
 
 Secret Scanner、Credential Storeおよび署名方式は入力Artifactに定義されていないため
@@ -242,7 +242,8 @@ Recovery Time Objective、Recovery Point Objective、Backup媒体およびRetent
 - Artifact不足時は不足Pathを報告して文書生成成功としない。
 - Reference DOCX不足時は変換を開始しない。
 - Renderer失敗または空DOCXでは利用可能なDOCXとして報告しない。
-- Phase失敗時はCommitを作成せず、失敗理由を報告する。
+- Propose、ApplyまたはArchiveの失敗時はCommitを作成せず、失敗理由を報告する。
+- Verify完了時は成功または失敗をCheckpoint Commitへ記録する。
 - Existing WorktreeとPhase Outputが重複する場合はStageせず停止する。
 
 CI LogはGitHub Actionsの標準Job Logへ出力し、保持期間はRepository設定に従う。
@@ -262,24 +263,27 @@ CI LogはGitHub Actionsの標準Job Logへ出力し、保持期間はRepository�
 1. `MySDD-Spec.md`のAuthorityを確認する。
 2. `openspec/publics/`を文書境界として作成する。
 3. 旧文書Skillを`generate-prd`、`generate-hld`、`markdown2docx`へ移行する。
-4. `openspec-git-workflow`とSkill用`.gitignore`を追加する。
+4. Git規則を`CONTRIBUTING.md`、Operation Timingを`openspec/config.yaml`へ集約する。
 5. Schema、Template、Config、LinkおよびTestを新Contractへ合わせる。
-6. 7件のDelta Spec、Schema、Skill、変換および旧Path残存を検証する。
+6. 対象Delta Spec、Schema、Skill、変換および旧Path残存を検証する。
 7. ADR-001～ADR-010の移管後に独立ADR文書と旧Live Changeを廃止する。
 8. 不要Directoryを削除し、ChangeをArchiveする。
 
 ### 10.2 構成管理
 
 - Configは`openspec/config.yaml`の`schema: mysdd`でSchemaを選択する。
+- Phase CommitとArchive後MergeのTimingは`openspec/config.yaml`で管理する。
+- Git操作の規則は`CONTRIBUTING.md`で管理する。
 - Schema、Template、Main Spec、Skill、Markdown正本をGit管理する。
 - DOCX配布物は`.gitignore`で除外する。
-- Phaseごとにgitmoji付き日本語Conventional Commitを作成する。
+- PhaseごとにRepository規則準拠のCommitを作成する。
 - Verifyで追跡対象変更がない場合はEmpty CommitをCheckpointとする。
+- Archive Commit後はGateを満たして`feature/*`を`main`へMergeする。
 
 ### 10.3 Rollback
 
 移行を所有するOperation CommitをRevertし、旧Path、旧Skill名、独立ADRおよび旧Changeを
-復元する。Wrapper Skillは自動でReset、AmendまたはHistory Rewriteを行わない。
+復元する。Rollbackでも公開済み履歴をReset、AmendまたはRewriteしない。
 
 Release TagはSemantic Versioningの`v<MAJOR>.<MINOR>.<PATCH>`形式とする。対象の
 `main` Commitで`quality` Jobが成功した後、Maintainerが手動でTagを作成する。
@@ -291,7 +295,7 @@ Release TagはSemantic Versioningの`v<MAJOR>.<MINOR>.<PATCH>`形式とする。
 | --- | --- | --- | --- |
 | QR-001 | Functional suitability | ID／Requirement／Scenarioを生成文書へ保持し、VerifyをArchive Gateにする | 10/10 ADR対応、生成文書比較、Verification結果 |
 | QR-002 | Compatibility | 4 Artifact Graph維持、非昇格User Scope Setup | Schema Validation、Template確認、Setup Dry Run |
-| QR-003 | Maintainability | Markdown正本、DOCX非追跡、4 Skillだけを追跡 | `git status`、Source／Output比較、旧Path検索 |
+| QR-003 | Maintainability | Markdown正本、DOCX非追跡、3 Skillだけを追跡 | `git status`、Source／Output比較、旧Path検索 |
 | QR-004 | Reliability | 変換失敗時もSource Markdownを保持 | 変換前後SHA-256 Hash比較 |
 | QR-005 | Reliability | 失敗理由をCallerへ返す | Negative Test結果 |
 | QR-006 | Security and integrity | Literal Path、Output制限、Phase差分分離 | Path Negative Test、Staged Diff Review |
@@ -329,8 +333,8 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 
 - Compatibility Aliasを残さないため旧Callerは更新が必要だが、Skill名の正本を一意にできる。
 - DOCXを追跡しないため配布時に再生成が必要だが、DOCXだけの変更を防止できる。
-- Wrapper Skillは既存変更との重複時にCommitを拒否するため自動化が停止し得るが、
-  User変更の混入を防止できる。
+- Config Contextは実行ProgramではなくAgent向けInstructionだが、Git規則とTimingの正本を
+  分離して重複を防止できる。
 - Archive内容を歴史的Evidenceとして保持するため旧名称がArchive内に残り得るが、
   Live Contractとの混同を避けるため検索時にArchiveを区別する。
 
@@ -341,12 +345,12 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 | `project-setup`／`Setup uses ordinary user permissions` | 非昇格PowerShell、`--scope user` | Command Review、Setup Dry Run |
 | `project-setup`／`Setup documentation separates required and optional tools` | 単一正本内のSection分離 | 文書Review |
 | `project-setup`／`Project Agent Skills use one canonical location` | `.agents/skills/`へ集約 | Repository検索 |
-| `project-setup`／`Only repository-owned skills are tracked` | Ignore-All＋4 Skill例外 | `git status`、Ignore確認 |
+| `project-setup`／`Only repository-owned skills are tracked` | Ignore-All＋3 Skill例外 | `git status`、Ignore確認 |
 | `project-setup`／`Standard setup excludes MCP` | MCP設定を標準手順に含めない | Setup文書検索 |
 | `mysdd-workflow`／`Daily changes use the four-command workflow` | 4 Phase直列Flow | Workflow文書Review |
 | `mysdd-workflow`／`Markdown is the document source of truth` | DOCXを派生物として除外 | Git Status、Source比較 |
 | `mysdd-workflow`／`Verification gates archive` | Verify成功をGate化 | Verification Report、CI結果 |
-| `mysdd-workflow`／`Workflow operations have separate commit boundaries` | Phase単位Commit | Git Log、Empty Verify Commit |
+| `mysdd-workflow`／`Workflow operations have separate commit boundaries` | Config Timingと共通Git Policy | Git Log、Empty Verify Commit、PR状態 |
 | `mysdd-schema`／`MySDD preserves the four standard artifacts` | Fork元Graphを維持 | Verbose Schema Validation |
 | `mysdd-schema`／`MySDD adds ISO viewpoints to planning artifacts` | Instruction／TemplateへISO観点追加 | Resolved Template確認 |
 | `mysdd-schema`／`Formal document generation remains outside the artifact graph` | 文書生成を独立Skill化 | Planning完了状態確認 |
@@ -359,10 +363,6 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 | `markdown2docx`／`正本Markdownを同名DOCXへ変換する` | 共通Reference DOCXを使用 | 非空DOCX、代表ID確認 |
 | `markdown2docx`／`変換先を安全に制限する` | Literal Pathと同名Output | Path Negative Test |
 | `markdown2docx`／`変換失敗時に正本を保持する` | SourceをRead-only Contractとして扱う | Hash比較、Failure報告 |
-| `openspec-git-workflow`／`Delegate each phase to the existing workflow` | Thin Wrapper | Delegation結果 |
-| `openspec-git-workflow`／`Commit only successful isolated phase changes` | Baseline差分からStage | Isolated Repository Test |
-| `openspec-git-workflow`／`Use project commit policy and verify checkpoints` | 日本語Conventional Commit、Empty Verify | Commit Message／Git Log |
-| `openspec-git-workflow`／`Preserve repository history and remotes` | Push／Amend／Rewrite禁止 | Failure／Conflict Test |
 
 ### 13.1 Scenario Traceability
 
@@ -374,12 +374,16 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 | `project-setup` | `Add or migrate a project skill` |
 | `project-setup` | `A third-party skill exists locally` |
 | `project-setup` | `A repository-owned skill changes` |
+| `project-setup` | `The retired Git wrapper remains installed locally` |
 | `project-setup` | `Complete the canonical setup` |
 | `mysdd-workflow` | `Complete a normal change` |
 | `mysdd-workflow` | `Publish a distributable document` |
 | `mysdd-workflow` | `Verification succeeds` |
 | `mysdd-workflow` | `Verification fails` |
+| `mysdd-workflow` | `A workflow operation succeeds` |
 | `mysdd-workflow` | `Verification changes no tracked files` |
+| `mysdd-workflow` | `Archive completes on a feature branch` |
+| `mysdd-workflow` | `A workflow operation fails` |
 | `mysdd-schema` | `Inspect a MySDD change` |
 | `mysdd-schema` | `Propose a MySDD change` |
 | `mysdd-schema` | `Complete the proposal workflow` |
@@ -397,14 +401,6 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 | `markdown2docx` | `必須入力が存在しない` |
 | `markdown2docx` | `Rendererが失敗する` |
 | `markdown2docx` | `変換が成功する` |
-| `openspec-git-workflow` | `Run an accepted phase` |
-| `openspec-git-workflow` | `Reject an unsupported phase` |
-| `openspec-git-workflow` | `Unrelated changes predate the phase` |
-| `openspec-git-workflow` | `Phase output overlaps a pre-existing path` |
-| `openspec-git-workflow` | `Apply changes tracked files` |
-| `openspec-git-workflow` | `Verify changes no tracked files` |
-| `openspec-git-workflow` | `OpenSpec phase fails` |
-| `openspec-git-workflow` | `Repository is conflicted` |
 
 全RequirementのScenario名は対応するArchive済みDelta Specを正本とし、Test Case作成時に
 省略せず使用する。
@@ -426,7 +422,7 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 
 ### 14.3 リスクと軽減策
 
-- **旧Skill名を使用するCallerが残る** → Repository全体を検索し、Live Callerを同一変更で更新する。
+- **廃止済みSkillを使用するCallerが残る** → Repository全体を検索し、Live Callerを同一変更で更新する。
 - **Reference DOCX移動で変換が失敗する** → 成功TestとReference欠落Testを実行する。
 - **ADR内容が削除時に失われる** → ADR-001～ADR-010の対応表とStrict ValidationをDeletion Gateにする。
 - **Archive内の旧名称をLive不整合と誤認する** → Live Path検索ではArchiveを歴史的Evidenceとして区別する。
