@@ -55,7 +55,7 @@ verification method is the verification report and CI result.
 - **WHEN** OpenSpec verification and every required CI check pass
 - **THEN** the change is eligible for archive
 
-#### Scenario: Verification fails
+#### Scenario: Workflow verification fails
 
 - **WHEN** OpenSpec verification or a required CI check fails
 - **THEN** the change is not archived
