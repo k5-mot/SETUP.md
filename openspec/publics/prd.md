@@ -9,7 +9,7 @@
 | 対象Change | `archive/2026-09-18-align-mysdd-structure-and-adr` |
 | Schema | `mysdd` |
 | Change状態 | Archive済み |
-| 文書目的 | MySDDの構成、文書生成、Git WorkflowおよびSetupに関する要求を定義する |
+| 文書目的 | MySDDの構成、文書生成、Git運用およびSetupに関する要求を定義する |
 | 正本 | 本Markdown |
 | 配布形式 | `openspec/publics/prd.docx` |
 
@@ -47,7 +47,7 @@
 | --- | --- |
 | OpenSpec | `mysdd` Schema、Template、Main Spec、Change Artifact |
 | 文書生成 | `generate-prd`、`generate-hld`、`markdown2docx` |
-| Git運用 | `openspec-git-workflow` |
+| Git運用 | `CONTRIBUTING.md`、`openspec/config.yaml` |
 | Setup | `docs/manual/SETUP.md`と`.agents/skills/.gitignore` |
 | 成果物 | `openspec/publics/prd.md`、`hld.md`および同名DOCX |
 
@@ -94,9 +94,10 @@
 - 文書生成時はChange Artifactにない事実を補完しない。
 - 不足情報は`TBD`として可視化する。
 - Project固有Skillは`.agents/skills/`だけに配置する。
-- Repositoryが追跡するSkillは4件と`.gitignore`に限定する。
+- Repositoryが追跡するSkillは3件と`.gitignore`に限定する。
 - 標準SetupはMCP CredentialまたはEndpointを要求しない。
-- OpenSpec Phaseが失敗した場合、そのPhaseのCommitを作成しない。
+- Propose、ApplyまたはArchiveが失敗した場合、そのPhaseのCommitを作成しない。
+- Verify完了時は成功または失敗をCheckpoint Commitへ記録する。
 - 具体的なCI Provider、Workflow Fileおよび実行環境は入力Artifactにないため`TBD`とする。
 
 ## 6. 業務・システム・機能要求
@@ -108,7 +109,7 @@
 | `Setup uses ordinary user permissions` | 非昇格PowerShellを使用し、対応Packageを`--scope user`で導入する |
 | `Setup documentation separates required and optional tools` | `docs/manual/SETUP.md`を正本とし、必須手順と任意手順を分離する |
 | `Project Agent Skills use one canonical location` | Project固有Skillを`.agents/skills/`だけに配置する |
-| `Only repository-owned skills are tracked` | 自作4 Skillと`.gitignore`だけを追跡する |
+| `Only repository-owned skills are tracked` | 自作3 Skillと`.gitignore`だけを追跡する |
 | `Standard setup excludes MCP` | 標準SetupでMCPを導入・設定しない |
 
 保持対象Scenario：
@@ -128,7 +129,7 @@
 | `Daily changes use the four-command workflow` | propose→apply→verify→archiveの順序を標準とする |
 | `Markdown is the document source of truth` | Requirement、Design、Evidence、PRD、HLDの正本をMarkdownとする |
 | `Verification gates archive` | OpenSpecと必須CIの検証成功をArchive条件とする |
-| `Workflow operations have separate commit boundaries` | 各Phaseを独立Commitとし、変更のないVerifyもCheckpoint化する |
+| `Workflow operations have separate commit boundaries` | ConfigのTimingで各Phaseを独立Commitとし、Archive後はGateを満たして`main`へ統合する |
 
 保持対象Scenario：
 
@@ -136,7 +137,10 @@
 - `Publish a distributable document`
 - `Verification succeeds`
 - `Verification fails`
+- `A workflow operation succeeds`
 - `Verification changes no tracked files`
+- `Archive completes on a feature branch`
+- `A workflow operation fails`
 
 ### 6.3 `mysdd-schema`
 
@@ -199,26 +203,6 @@
 - `Rendererが失敗する`
 - `変換が成功する`
 
-### 6.7 `openspec-git-workflow`
-
-| Requirement | 要求概要 |
-| --- | --- |
-| `Delegate each phase to the existing workflow` | 対応するインストール済みOpenSpec Workflowへ委譲する |
-| `Commit only successful isolated phase changes` | 成功したPhaseが所有する変更だけをCommitする |
-| `Use project commit policy and verify checkpoints` | gitmoji付き日本語Conventional CommitとAI支援Trailerを使用する |
-| `Preserve repository history and remotes` | Push、Amend、履歴書換え、Conflict中のCommitを行わない |
-
-保持対象Scenario：
-
-- `Run an accepted phase`
-- `Reject an unsupported phase`
-- `Unrelated changes predate the phase`
-- `Phase output overlaps a pre-existing path`
-- `Apply changes tracked files`
-- `Verify changes no tracked files`
-- `OpenSpec phase fails`
-- `Repository is conflicted`
-
 ## 7. ISO/IEC 25010品質要求
 
 | 品質ID | 品質特性 | 測定量 | 目標値 | 条件 | 検証方法 |
@@ -251,7 +235,7 @@ QR-007の定義は入力Artifactに存在しないため`TBD`とする。新し�
 | HLD Template | `.agents/skills/generate-hld/assets/hld.md` | `openspec/publics/hld.md` |
 | DOCX Template | `openspec/publics/template.docx` | PRD／HLD共通の書式Source |
 | Pandoc変換 | `openspec/publics/*.md` | 同一Directoryの同名`.docx`のみ許可 |
-| Git | Phase前後のWorktree、Staged Diff | Phase固有Commitだけを作成 |
+| Git | `CONTRIBUTING.md`、Config Timing、Staged Diff | Phase固有CommitとGate済みArchive後Merge |
 | WinGet | Package ID | 対応Packageでは`--scope user`を使用 |
 
 Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに定義されていない。
@@ -269,8 +253,10 @@ Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに
 ### 9.2 運用
 
 - 日常Workflowはpropose→apply→verify→archiveとする。
+- 各Phaseは`openspec/config.yaml`のTimingで独立Commitとして記録する。
 - PRD／HLDはPlanning完了後に必要に応じて個別生成する。
 - Archive前にOpenSpec Verificationと設定済みCIを成功させる。
+- Archive Commit後はPull RequestとCI条件を満たして`feature/*`を`main`へMergeする。
 - DOCXは配布の都度、正本Markdownから再生成する。
 
 ### 9.3 保守
@@ -291,14 +277,14 @@ Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに
 | 受入条件 | 合格基準 | 検証方法 |
 | --- | --- | --- |
 | Schema互換性 | 4 Artifact、依存関係、Apply条件が維持される | MySDD Schema Verbose Validation |
-| Delta Spec妥当性 | 7 CapabilityがStrict Validationを通過する | OpenSpec Strict Validation |
+| Delta Spec妥当性 | 対象CapabilityがStrict Validationを通過する | OpenSpec Strict Validation |
 | ADR移管 | ADR-001～ADR-010の10/10がRequirementへ対応する | Traceability表Review |
 | PRD生成 | Source見出し、Scenario、IDを保持した非空Markdownが生成される | 生成文書比較 |
 | HLD生成 | SourceとDesignのID、ADR、Risk関係を保持する | 生成文書比較 |
 | DOCX生成 | PRD／HLDの同名DOCXが存在し、非Zero Sizeで代表IDを含む | Conversion Test |
 | 変換失敗 | Markdown Hashが不変で、失敗理由が報告される | Negative TestとHash比較 |
 | Safe Path | 不許可Directory／Base Nameへ書き込まない | Negative Test |
-| Skill追跡 | 自作4 Skill以外をGit追跡しない | `git status`とIgnore規則確認 |
+| Skill追跡 | 自作3 Skill以外をGit追跡しない | `git status`とIgnore規則確認 |
 | Phase分離 | 無関係な既存変更をCommitへ含めない | Baseline比較とStaged Diff Review |
 | Verify Gate | 検証失敗時にArchiveしない | Verify失敗Scenario確認 |
 | Setup | 必須手順が非昇格PowerShellで完了する | Command ReviewとSetup Dry Run |

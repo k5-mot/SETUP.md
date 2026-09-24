@@ -2,21 +2,12 @@ schema: mysdd
 
 context: |
   - MUST; 計画、提案、新機能、破壊的変更、アーキテクチャ変更は OpenSpec ワークフローに従うこと
-  - MUST; `/opsx:*` コマンドによる変更は `CONTRIBUTING.md` に準拠した作業用ブランチで実行し、メインブランチ上では変更しないこと
-  - MUST; 同一の OpenSpec change は、原則として同一の作業用ブランチで完結させること
-  - MUST; `/opsx:*` による変更は操作完了後にコミットし、無関係な変更や空コミットを含めないこと
-  - MUST; verify の検証結果はコミットし、成功または失敗をコミットメッセージに明示すること
-  - MUST; ブランチ、コミット、Pull Request は `CONTRIBUTING.md` の規則に従うこと
-
-operations:
-  apply:
-    guidance:
-      - MUST; 変更を、`CONTRIBUTING.md` に従ってコミットすること
-
-  archive:
-    guidance:
-      - MUST; 変更を、`CONTRIBUTING.md` に従ってコミットすること
-      - SHOULD; その他作業がなければ、checkout元のブランチにマージすること
+  - MUST; Git操作は `CONTRIBUTING.md` の規則に従うこと
+  - MUST; proposeは必要な計画Artifactがすべて完成し、検証に成功した直後に、そのPhaseが所有する変更だけをCommitすること
+  - MUST; applyは依頼されたTaskがすべて完成し、検証に成功した直後に、そのPhaseが所有する変更だけをCommitすること
+  - MUST; verifyは検証完了直後に結果をCommitし、成功または失敗をCommit Messageへ明示すること。追跡対象Fileに変更がない場合はEmpty Commitを作成すること
+  - MUST; archiveは必要なSpec同期、Change移動および検証に成功した直後に、そのPhaseが所有する変更だけをCommitすること
+  - MUST; archiveのCommit後、`CONTRIBUTING.md` のPull RequestおよびCI条件を満たし、対象の `feature/*` Branchを `main` へMergeすること
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
@@ -27,15 +18,3 @@ operations:
 #       - Always include a "Non-goals" section
 #     tasks:
 #       - Break tasks into chunks of max 2 hours
-
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
