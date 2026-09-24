@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import tempfile
+import time
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from zipfile import ZIP_DEFLATED, ZipFile
 
+LOGGER = logging.getLogger(__name__)
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 XML_NS = "http://www.w3.org/XML/1998/namespace"
 W = f"{{{W_NS}}}"
@@ -386,6 +389,7 @@ def check_docx(path: Path, mode: str) -> None:
 
 
 def main() -> None:
+    started = time.perf_counter()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("generated", "reference"))
     parser.add_argument("docx", type=Path)
@@ -398,6 +402,13 @@ def main() -> None:
     else:
         format_docx(path, arguments.mode)
         check_docx(path, arguments.mode)
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    LOGGER.info(
+        "docx mode=%s check=%s elapsed_seconds=%.3f",
+        arguments.mode,
+        arguments.check,
+        time.perf_counter() - started,
+    )
 
 
 if __name__ == "__main__":

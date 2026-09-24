@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 -->
+
 # 📋 要件定義書
 
 ## 1. 文書概要

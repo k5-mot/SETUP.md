@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 -->
+
 # 🏛️ 基本設計書
 
 ## 1. 文書概要と適用範囲
@@ -130,13 +132,15 @@ Third-party SkillはLocal環境へ残し、Git Indexへ追加しない。
 
 ### 5.1 実行環境
 
-- 対象PlatformはWindowsである。
+- Setup手順の対象PlatformはWindows 11である。
 - Setupは非昇格PowerShellで実行する。
 - 対応PackageはWinGetの`--scope user`で導入する。
 - Git Repository内のOpenSpec Rootを処理単位とする。
+- CI検証PlatformはGitHub Actionsの`ubuntu-latest`である。
+- Windows SetupはReview済み手順書とし、CIでは実行しない。
 
-Supported Windows Version、CPU、Memory、Disk容量および同時実行数は入力Artifactに
-定義されていないため`TBD`とする。
+CIのCPU、MemoryおよびDisk容量はGitHub-hosted Runnerの提供条件に従い、固定値を
+Project要件として定義しない。
 
 ### 5.2 Network
 
@@ -203,6 +207,12 @@ ProposalではRuntime Performance Pathを追加しないため、Performance eff
 非適用とされている。変換時間、最大Markdown Size、最大画像数および同時変換数は
 入力Artifactに定義されていないため`TBD`とする。
 
+性能・容量は、どの大きさの文書を、何秒以内に、何件同時に処理できれば利用者が
+困らないかを定める品質目標である。代表文書のSize分布、許容待ち時間および同時実行の
+必要性が未定のため、現時点で数値を置くと根拠のない制限になる。CIでは変換時間を記録
+するだけとし、合否Thresholdは設けない。実運用の代表文書と許容時間が決まった時点で、
+基準値、上限値および測定条件を同じChangeで定義する。
+
 ### 8.2 可用性・復旧
 
 - Markdownを正本とし、DOCXを再生成可能にする。
@@ -235,7 +245,8 @@ Recovery Time Objective、Recovery Point Objective、Backup媒体およびRetent
 - Phase失敗時はCommitを作成せず、失敗理由を報告する。
 - Existing WorktreeとPhase Outputが重複する場合はStageせず停止する。
 
-Log Format、保存先、監視Dashboard、Alert通知先およびOn-call手順は`TBD`とする。
+CI LogはGitHub Actionsの標準Job Logへ出力し、保持期間はRepository設定に従う。
+専用Dashboard、外部Alert通知先およびOn-call手順は導入しない。
 
 ### 9.3 保守
 
@@ -270,7 +281,9 @@ Log Format、保存先、監視Dashboard、Alert通知先およびOn-call手順�
 移行を所有するOperation CommitをRevertし、旧Path、旧Skill名、独立ADRおよび旧Changeを
 復元する。Wrapper Skillは自動でReset、AmendまたはHistory Rewriteを行わない。
 
-具体的なRelease Tag、Version、Deployment Pipelineおよび承認Gateは`TBD`とする。
+Release TagはSemantic Versioningの`v<MAJOR>.<MINOR>.<PATCH>`形式とする。対象の
+`main` Commitで`quality` Jobが成功した後、Maintainerが手動でTagを作成する。
+自動Deployment Pipelineは導入せず、`quality`成功とMaintainer判断を承認Gateとする。
 
 ## 11. ISO/IEC 25010品質特性への対応
 
@@ -284,7 +297,10 @@ Log Format、保存先、監視Dashboard、Alert通知先およびOn-call手順�
 | QR-006 | Security and integrity | Literal Path、Output制限、Phase差分分離 | Path Negative Test、Staged Diff Review |
 | QR-008 | Functional completeness | 非空DOCXと代表ID包含を要求 | PRD／HLD Conversion Test |
 
-QR-007はSource Artifactに定義されていないため`TBD`とする。
+Quality IDはTraceability用の識別子であり、連番の欠番自体は機能欠落を意味しない。
+QR-007に対応する品質要求はSource Artifactに存在しないため、既存要求から内容を推測して
+追加しない。将来、独立した品質要求が必要になったChangeで、QR-007を使用するか予約欠番
+として維持するかを決定する。
 
 非適用または独立目標を設けない観点：
 
@@ -397,14 +413,18 @@ QR-007はSource Artifactに定義されていないため`TBD`とする。
 
 ### 14.1 未決事項
 
-- CI Provider、Workflow File、Job名および必須Check：`TBD`
-- Supported Windows VersionとHardware前提：`TBD`
-- 文書変換の性能・容量上限：`TBD`
-- Log保存先、Retention、Alert通知先：`TBD`
-- Release Tag、Versioningおよび承認者：`TBD`
-- QR-007の定義：`TBD`
+- 文書変換の性能・容量上限：代表文書と許容時間の合意後に定義するため`TBD`
+- QR-007の定義：対応する品質要求が生じるまで`TBD`
 
-### 14.2 リスクと軽減策
+### 14.2 確定した運用方針
+
+- CI：GitHub Actionsの`.github/workflows/quality.yml`にある`quality` Job
+- CI Platform：`ubuntu-latest`。Windows SetupはReview済み手順書としてCI対象外
+- Log：GitHub Actions標準Job Log。保持期間はRepository設定に従う
+- 監視：専用Dashboard、外部AlertおよびOn-callは導入しない
+- Release：`quality`成功後にMaintainerがSemVer Tagを手動作成する
+
+### 14.3 リスクと軽減策
 
 - **旧Skill名を使用するCallerが残る** → Repository全体を検索し、Live Callerを同一変更で更新する。
 - **Reference DOCX移動で変換が失敗する** → 成功TestとReference欠落Testを実行する。
