@@ -27,6 +27,12 @@ DOCUMENTS = {"prd": "QR-001", "hld": "ADR-001"}
 FINALIZER = REPOSITORY_ROOT / ".agents" / "skills" / "markdown2docx" / "main.py"
 RELEASE_WORKFLOW = REPOSITORY_ROOT / ".github" / "workflows" / "release-hld-docx.yml"
 WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+OFFICE_RELATIONSHIP_NAMESPACE = (
+    "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+)
+PACKAGE_RELATIONSHIP_NAMESPACE = (
+    "http://schemas.openxmlformats.org/package/2006/relationships"
+)
 NAMESPACES = {"w": WORD_NAMESPACE}
 
 
@@ -138,6 +144,38 @@ class MarkdownToDocxTests(unittest.TestCase):
                         document_xml = archive.read("word/document.xml")
                         document = ET.fromstring(document_xml)
                         styles = ET.fromstring(archive.read("word/styles.xml"))
+                        relationships = ET.fromstring(
+                            archive.read("word/_rels/document.xml.rels")
+                        )
+                        targets = {
+                            relationship.get("Id", ""): relationship.get("Target", "")
+                            for relationship in relationships.findall(
+                                f"{{{PACKAGE_RELATIONSHIP_NAMESPACE}}}Relationship"
+                            )
+                        }
+                        for section in document.findall(".//w:sectPr", NAMESPACES):
+                            for reference_name in (
+                                "headerReference",
+                                "footerReference",
+                            ):
+                                references = {
+                                    reference.get(word_attribute("type"), ""): reference
+                                    for reference in section.findall(
+                                        f"w:{reference_name}", NAMESPACES
+                                    )
+                                }
+                                if "even" not in references:
+                                    continue
+                                even_id = references["even"].get(
+                                    f"{{{OFFICE_RELATIONSHIP_NAMESPACE}}}id", ""
+                                )
+                                default_id = references["default"].get(
+                                    f"{{{OFFICE_RELATIONSHIP_NAMESPACE}}}id", ""
+                                )
+                                self.assertEqual(
+                                    archive.read(f"word/{targets[even_id]}"),
+                                    archive.read(f"word/{targets[default_id]}"),
+                                )
 
                     document_text = "".join(document.itertext())
                     self.assertIn(representative_id, document_text)
@@ -231,11 +269,21 @@ class MarkdownToDocxTests(unittest.TestCase):
                         self.assertEqual(
                             table_style.get(word_attribute("val")), "Table"
                         )
+                        if sys.platform != "win32":
+                            table_alignment = table.find("w:tblPr/w:jc", NAMESPACES)
+                            self.assertIsNotNone(table_alignment)
+                            self.assertEqual(
+                                table_alignment.get(word_attribute("val")), "center"
+                            )
                         first_row = table.find("w:tr", NAMESPACES)
                         self.assertIsNotNone(first_row)
                         self.assertIsNotNone(
                             first_row.find("w:trPr/w:tblHeader", NAMESPACES)
                         )
+                        for row in table.findall("w:tr", NAMESPACES):
+                            self.assertIsNotNone(
+                                row.find("w:trPr/w:cantSplit", NAMESPACES)
+                            )
 
     def test_reference_doc_preserves_print_styles(self) -> None:
         """参照DOCXが共通の印刷Styleと余白を保持する。"""

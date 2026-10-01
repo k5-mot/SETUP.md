@@ -20,6 +20,12 @@ XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
 MARKUP_COMPATIBILITY_NAMESPACE = (
     "http://schemas.openxmlformats.org/markup-compatibility/2006"
 )
+OFFICE_RELATIONSHIP_NAMESPACE = (
+    "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+)
+PACKAGE_RELATIONSHIP_NAMESPACE = (
+    "http://schemas.openxmlformats.org/package/2006/relationships"
+)
 NAMESPACES = {"w": WORD_NAMESPACE}
 NAVIGATION_TITLES = ("目次", "図一覧", "表一覧")
 MARGINS = {"top": "1440", "bottom": "1440", "left": "1080", "right": "1080"}
@@ -118,6 +124,31 @@ def navigation_entry_paragraph(text: str, page: int | None = None) -> ET.Element
     return paragraph
 
 
+def format_tables(document: ET.Element) -> None:
+    """表を中央配置し、行の途中で改ページしない。"""
+    for table in document.findall(".//w:tbl", NAMESPACES):
+        properties = table.find("w:tblPr", NAMESPACES)
+        if properties is None:
+            properties = ET.Element(word_name("tblPr"))
+            table.insert(0, properties)
+        alignment = properties.find("w:jc", NAMESPACES)
+        if alignment is None:
+            alignment = ET.SubElement(properties, word_name("jc"))
+        alignment.set(word_name("val"), "center")
+        indent = properties.find("w:tblInd", NAMESPACES)
+        if indent is not None:
+            properties.remove(indent)
+
+        rows = table.findall("w:tr", NAMESPACES)
+        for row in rows:
+            row_properties = row.find("w:trPr", NAMESPACES)
+            if row_properties is None:
+                row_properties = ET.Element(word_name("trPr"))
+                row.insert(0, row_properties)
+            if row_properties.find("w:cantSplit", NAMESPACES) is None:
+                ET.SubElement(row_properties, word_name("cantSplit"))
+
+
 def add_table_captions(body: ET.Element) -> None:
     """本文の全表へ直前見出しを用いたCaptionを追加する。"""
     heading = "表"
@@ -180,6 +211,34 @@ def update_margins(document: ET.Element) -> None:
             margins.set(word_name(name), value)
 
 
+def synchronize_even_headers_and_footers(root: Path, document: ET.Element) -> None:
+    """LibreOfficeが作る空の偶数ページ用HeaderとFooterをDefault内容で置換する。"""
+    relationships_path = root / "word" / "_rels" / "document.xml.rels"
+    relationships = ET.parse(relationships_path).getroot()
+    targets = {
+        relationship.get("Id", ""): relationship.get("Target", "")
+        for relationship in relationships.findall(
+            f"{{{PACKAGE_RELATIONSHIP_NAMESPACE}}}Relationship"
+        )
+    }
+    for section in document.findall(".//w:sectPr", NAMESPACES):
+        for reference_name in ("headerReference", "footerReference"):
+            references = section.findall(f"w:{reference_name}", NAMESPACES)
+            by_type = {
+                reference.get(word_name("type"), ""): reference
+                for reference in references
+            }
+            if "even" not in by_type or "default" not in by_type:
+                continue
+            default_id = by_type["default"].get(
+                f"{{{OFFICE_RELATIONSHIP_NAMESPACE}}}id", ""
+            )
+            even_id = by_type["even"].get(f"{{{OFFICE_RELATIONSHIP_NAMESPACE}}}id", "")
+            default_target = root / "word" / targets[default_id]
+            even_target = root / "word" / targets[even_id]
+            even_target.write_bytes(default_target.read_bytes())
+
+
 def remove_navigation_page_breaks(document: ET.Element) -> None:
     """TOCHeading Styleと重複する明示的Page Breakを除去する。"""
     for paragraph in document.findall(".//w:p", NAMESPACES):
@@ -205,6 +264,7 @@ def finalize_docx(path: Path) -> None:
         if body is None:
             raise ValueError("DOCXに本文がありません")
         update_navigation(document.getroot())
+        format_tables(document.getroot())
         add_table_captions(body)
         update_margins(document.getroot())
         ET.register_namespace("w", WORD_NAMESPACE)
@@ -392,6 +452,9 @@ def replace_navigation_entries(
         # LibreOfficeが残すIgnorable値は、未使用Namespace宣言をXML再保存時に
         # 失ってWordで破損扱いになるため、拡張要素がない確定結果から除去する。
         remove_navigation_page_breaks(document.getroot())
+        format_tables(document.getroot())
+        update_margins(document.getroot())
+        synchronize_even_headers_and_footers(root, document.getroot())
         document.getroot().attrib.pop(
             f"{{{MARKUP_COMPATIBILITY_NAMESPACE}}}Ignorable", None
         )
