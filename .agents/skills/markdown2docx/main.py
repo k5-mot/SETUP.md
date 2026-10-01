@@ -17,6 +17,9 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
+MARKUP_COMPATIBILITY_NAMESPACE = (
+    "http://schemas.openxmlformats.org/markup-compatibility/2006"
+)
 NAMESPACES = {"w": WORD_NAMESPACE}
 NAVIGATION_TITLES = ("目次", "図一覧", "表一覧")
 MARGINS = {"top": "1440", "bottom": "1440", "left": "1080", "right": "1080"}
@@ -373,6 +376,11 @@ def replace_navigation_entries(
                 for offset, (text, page) in enumerate(values, 1):
                     body.insert(start + offset, navigation_entry_paragraph(text, page))
 
+        # LibreOfficeが残すIgnorable値は、未使用Namespace宣言をXML再保存時に
+        # 失ってWordで破損扱いになるため、拡張要素がない確定結果から除去する。
+        document.getroot().attrib.pop(
+            f"{{{MARKUP_COMPATIBILITY_NAMESPACE}}}Ignorable", None
+        )
         ET.register_namespace("w", WORD_NAMESPACE)
         document.write(document_path, encoding="utf-8", xml_declaration=True)
         temporary = path.with_suffix(".tmp.docx")

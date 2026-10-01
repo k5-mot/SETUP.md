@@ -135,11 +135,18 @@ class MarkdownToDocxTests(unittest.TestCase):
                     after = hashlib.sha256(source.read_bytes()).digest()
                     self.assertEqual(before, after)
                     with ZipFile(output) as archive:
-                        document = ET.fromstring(archive.read("word/document.xml"))
+                        document_xml = archive.read("word/document.xml")
+                        document = ET.fromstring(document_xml)
                         styles = ET.fromstring(archive.read("word/styles.xml"))
 
                     document_text = "".join(document.itertext())
                     self.assertIn(representative_id, document_text)
+                    ignorable = document.get(
+                        "{http://schemas.openxmlformats.org/markup-compatibility/2006}Ignorable",
+                        "",
+                    )
+                    for prefix in ignorable.split():
+                        self.assertIn(f"xmlns:{prefix}=", document_xml.decode("utf-8"))
                     names = style_names(styles)
                     paragraphs = document.findall(".//w:p", NAMESPACES)
                     texts = [paragraph_text(paragraph) for paragraph in paragraphs]
