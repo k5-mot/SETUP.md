@@ -18,4 +18,4 @@
 ## 4. Verification and Publication
 
 - [x] 4.1 OpenSpec、Python品質、DOCX回帰 Testを実行し、両DOCXの全ページ描画に欠け・重なり・表崩れがないことを確認する（QR-DOCX-001～006）。
-- [ ] 4.2 Change を検証・Archiveし、PRで`main`へ統合できる状態にする（移行・運用・供給）。
+- [x] 4.2 Change を検証し、ArchiveとPRで`main`へ統合できる状態にする（移行・運用・供給）。
