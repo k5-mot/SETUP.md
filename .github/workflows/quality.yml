@@ -12,7 +12,7 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
@@ -37,6 +37,11 @@ jobs:
         uses: pandoc/actions/setup@v1
         with:
           version: "3.11"
+
+      - name: Install LibreOffice field updater
+        run: |
+          sudo apt-get update --quiet
+          sudo apt-get install --yes --no-install-recommends libreoffice-writer python3-uno
 
       - name: Install OpenSpec
         run: npm install --global @fission-ai/openspec@1.13.0
@@ -67,4 +72,4 @@ jobs:
         run: python tests/test_quality.py
 
       - name: Test DOCX conversion
-        run: python tests/test_markdown2docx.py
+        run: /usr/bin/python3 tests/test_markdown2docx.py

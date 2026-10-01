@@ -24,23 +24,27 @@ Repository Rootから入力と参照文書をLiteral Pathとして解決し、�
 
 ## DOCXへ変換する
 
-Pandoc 3.11を直接1回だけ実行する。Tool Version Wrapper、Python Scriptまたは
-変換後のOOXML書換えは使用しない。
+Pandoc 3.11を入力ごとに1回実行した後、同梱の`main.py`でNavigation見出し、
+表Captionおよび余白を確定し、Field対応Office Engineで表示内容を更新する。
+WindowsではMicrosoft Word、LinuxではLibreOffice WriterとPython UNOを使用する。
 
 <!-- markdownlint-disable MD013 -->
 
 ```powershell
 pandoc '<input.md>' --from='gfm+implicit_figures' --to=docx --standalone --reference-doc='.agents/skills/markdown2docx/references/template.docx' --toc --toc-depth=6 --lof --lot --metadata='toc-title:目次' --metadata='lof-title:図一覧' --metadata='lot-title:表一覧' --output='<same-basename.docx>'
+python '.agents/skills/markdown2docx/main.py' finalize '<same-basename.docx>'
+python '.agents/skills/markdown2docx/main.py' refresh '<same-basename.docx>'
 ```
 
 <!-- markdownlint-enable MD013 -->
 
 ## 検証して報告する
 
-Pandocが正常終了し、DOCXが存在して空でなく、入力のSHA-256 Hashが変化していない
-ことを確認する。Microsoft Wordを利用できる場合は、生成物を開いて`Ctrl+A`、`F9`の
-順に実行して保存し、目次、図一覧、表一覧、Page番号および保存日を更新する。
+Pandoc、`finalize`および`refresh`が正常終了し、DOCXが存在して空でなく、入力の
+SHA-256 Hashが変化していないことを確認する。目次、図一覧、表一覧の日本語見出しと
+表示項目、全表のCaption、Page番号および保存日が更新され、全Sectionの余白が上・下
+25.4mm、左・右19.05mmであることを確認する。
 
 すべての確認に合格した場合だけ、DOCXの絶対Pathを返す。失敗した場合は入力
-Markdownを保持し、完了した処理と失敗した確認を部分成功として報告する。Fieldを
-更新できない環境ではその旨を明記し、CacheされたField値を最新として報告しない。
+Markdownを保持し、完了した処理と失敗した確認を部分成功として報告する。Field対応
+Office Engineを利用できない環境では変換を成功扱いにしない。
