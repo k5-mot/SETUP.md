@@ -18,13 +18,18 @@ pandoc 'openspec/publics/<document>.md' \
   --metadata='lof-title:図一覧' \
   --metadata='lot-title:表一覧' \
   --output='openspec/publics/<document>.docx'
+python '.agents/skills/markdown2docx/main.py' finalize \
+  'openspec/publics/<document>.docx'
+python '.agents/skills/markdown2docx/main.py' refresh \
+  'openspec/publics/<document>.docx'
 ```
 
 Repository Rootで実行し、`<document>`には変換対象のMarkdownと同じBase Nameを
 指定する。参照DOCXには`.agents/skills/markdown2docx/references/template.docx`を
-使用する。変換にはPandoc 3.11を使用し、入力形式は`gfm+implicit_figures`とする。Pandocは
-参照DOCXから名前付きStyle、Section設定、HeaderおよびFooterを取り込むが、参照
-DOCX内のSample本文は生成物へCopyしない。
+使用する。変換にはPandoc 3.11を使用し、入力形式は`gfm+implicit_figures`とする。
+Pandocは参照DOCXから名前付きStyle、Section設定、HeaderおよびFooterを取り込むが、
+参照DOCX内のSample本文は生成物へCopyしない。`finalize`は日本語Navigation見出し、
+全表のCaptionおよび余白を確定し、`refresh`は一覧とPage番号の表示内容を更新する。
 
 ## 🧩 GitHub Flavored Markdown対応
 
@@ -67,10 +72,10 @@ Breakを使用する。入力Markdownに直接Font名、Font Size、文字色ま
 | 用紙方向 | 縦 |
 | Page幅 | 11906 twip |
 | Page高さ | 16838 twip |
-| 上余白 | 1134 twip |
-| 右余白 | 720 twip |
-| 下余白 | 1134 twip |
-| 左余白 | 720 twip |
+| 上余白 | 1440 twip（25.4mm） |
+| 右余白 | 1080 twip（19.05mm） |
+| 下余白 | 1440 twip（25.4mm） |
+| 左余白 | 1080 twip（19.05mm） |
 
 色は原則として黒と白を使用し、GFM Alertだけは役割を識別するための抑制した背景色を
 使用できる。
@@ -191,20 +196,21 @@ Header Rowを繰り返す。列のAlignment指定はGFMのDelimiter Rowに従う
 | 件数 | 10 |
 ```
 
-GFM Pipe TableにはCaption Syntaxがないため、通常の変換では`TableCaption`を生成
-しない。Captionのない表は表一覧へ表示されない。
+GFM Pipe TableにはCaption Syntaxがないため、`finalize`が全表の直前へ
+`表 <連番>: <直前の見出し>`形式の`TableCaption`を追加する。同じ見出し内に複数の
+表がある場合は、2つ目以降のCaption末尾へ出現順を付けて区別する。
 
 ## 🏷️ 図表・コードCaption
 
 | 対象 | Word Style | Font | Size | Alignment | GFMでの生成方法 |
 | --- | --- | --- | --- | --- | --- |
 | 図 | `ImageCaption` | MS Pゴシック／Arial | 10pt | 中央 | 単独画像の代替Text |
-| 表 | `TableCaption` | MS Pゴシック／Arial | 10pt | 中央 | 標準Syntaxなし |
+| 表 | `TableCaption` | MS Pゴシック／Arial | 10pt | 中央 | `finalize`が全表へ自動追加 |
 | Code | `CodeCaption` | MS Pゴシック／Arial | 10pt | 中央 | 標準Syntaxなし |
 
-図Captionは図一覧の入力となる。`TableCaption`と`CodeCaption`はTemplateに保持する
-が、GFMだけでは生成されない。Code Block本体は`SourceCode`を使用する。Caption対応を
-追加するときは、GFM互換性を維持できるPandoc Filterなどを別途設計する。
+図Captionは図一覧の入力となる。表Captionは`finalize`が全表へ追加し、表一覧の入力と
+する。`CodeCaption`はTemplateに保持するが、GFMだけでは生成されない。Code Block本体は
+`SourceCode`を使用する。
 
 `ImageCaption`と`TableCaption`は`Caption`を継承し、10pt、斜体、中央、段落前4pt、
 段落後6ptとする。`CodeCaption`は10pt、太字、中央、段落前4pt、段落後2ptとする。
@@ -263,8 +269,8 @@ TOC \o "1-6" \h \z \u
 ```
 
 `TOCHeading`は14pt、段落前12pt、段落後8ptとし、直前で改Pageする。目次項目は
-`TOC1`から`TOC6`を使用し、MS P明朝／Times New Romanの10ptとする。見出し7から
-見出し9は現在の目次へ含めない。
+`TOC1`から`TOC6`を使用し、MS P明朝／Times New Romanの10pt、段落後0ptとする。
+見出し7から見出し9は現在の目次へ含めない。
 
 ## 🖼️ 図一覧
 
@@ -272,12 +278,12 @@ SkillはPandocを`--lof --metadata='lof-title:図一覧'`付きで実行する�
 `TOCHeading`と次のFieldを生成する。
 
 ```text
-TOC \h \z \t "Image Caption" \c
+TOC \h \z \t "図タイトル" \c
 ```
 
 `implicit_figures`が`ImageCaption`を付与した図だけを一覧の入力とする。Inline Image
-やCaptionのない画像は対象外とする。該当する図がない文書では、空の図一覧を正しい
-結果とする。
+やCaptionのない画像は対象外とする。該当する図がない文書でも、Field更新結果として
+項目がない旨を示す表示を保持する。
 
 ## 📊 表一覧
 
@@ -285,12 +291,11 @@ SkillはPandocを`--lot --metadata='lot-title:表一覧'`付きで実行する�
 `TOCHeading`と次のFieldを生成する。
 
 ```text
-TOC \h \z \t "Table Caption" \c
+TOC \h \z \t "表タイトル" \c
 ```
 
-`TableCaption`がある表だけを一覧の入力とする。GFM Pipe TableはCaptionを生成しない
-ため、GFMだけで作成した文書では通常、表一覧は空になる。空の一覧を変換失敗として
-扱わない。
+`finalize`が全表へ追加した`TableCaption`を一覧の入力とする。Field更新後の表一覧には、
+各CaptionとPage番号が表示されなければならない。
 
 ## 🔄 Data Field
 
@@ -299,8 +304,8 @@ TOC \h \z \t "Table Caption" \c
 | Field | 使用箇所 | 参照範囲 | 更新内容 |
 | --- | --- | --- | --- |
 | `TOC \o "1-6" \h \z \u` | 目次 | 文書内 | 見出しとPage番号 |
-| `TOC \h \z \t "Image Caption" \c` | 図一覧 | 文書内 | 図CaptionとPage番号 |
-| `TOC \h \z \t "Table Caption" \c` | 表一覧 | 文書内 | 表CaptionとPage番号 |
+| `TOC \h \z \t "図タイトル" \c` | 図一覧 | 文書内 | 図CaptionとPage番号 |
+| `TOC \h \z \t "表タイトル" \c` | 表一覧 | 文書内 | 表CaptionとPage番号 |
 | `STYLEREF 1 \n` | Footer | 文書内 | 直近の見出し1番号 |
 | `PAGE` | Footer | 文書内 | 現在のPage番号 |
 | `SAVEDATE \@ "yyyy/MM/dd"` | Footer | 文書Property | 保存日 |
@@ -312,9 +317,11 @@ TemplateおよびSkillは`INCLUDETEXT`、`INCLUDEPICTURE`、`LINK`、`DDE`、`DA
 されるため、文書の配布方針に従って入力段階で確認する。
 
 PandocはField Codeを生成するが、最終的な項目やPage番号を計算しない。参照DOCXの
-`w:updateFields=true`により更新対象として扱う。Microsoft Wordを使用できる場合は、
-文書を開いて`Ctrl+A`、`F9`の順に実行して保存する。Wordを利用できない場合はField
-Codeと`w:updateFields=true`の存在を検証し、表示中のCache値を最新として報告しない。
+`w:updateFields=true`に加え、`refresh`がMicrosoft WordですべてのFieldを更新する。
+LibreOffice Writerでは目次と共通Fieldを更新後、Python UNOで図表CaptionのPage番号を
+取得し、2回目の配置結果を図一覧と表一覧の表示項目へ確定する。図Captionがない場合は
+`該当する図はありません。`と表示する。Field対応Office Engineを利用できず表示内容を
+更新できない場合は変換を成功扱いにしない。
 
 ## 📚 Word Style一覧
 
@@ -325,8 +332,8 @@ Codeと`w:updateFields=true`の存在を検証し、表示中のCache値を最�
 
 本書でWord Styleを参照するときは、次表の`Style ID`をBacktickで囲んで記載する。
 `表示名`は次表の記録と、WordのField Codeが表示名を要求する箇所だけで使用する。
-このため、図一覧と表一覧のField Code内にある`"Image Caption"`および
-`"Table Caption"`はStyle IDへ置換しない。
+このため、図一覧と表一覧のField Code内では、それぞれ日本語表示名の`"図タイトル"`
+および`"表タイトル"`を使用し、Style IDへ置換しない。
 
 | Style ID | 種別 | 表示名 | 継承元 |
 | --- | --- | --- | --- |
@@ -450,6 +457,9 @@ Codeと`w:updateFields=true`の存在を検証し、表示中のCache値を最�
 - Font Family、Font Size、段落間隔および改Pageが本書と一致すること
 - `word/styles.xml`に110 Styleがあり、Style ID、種別、表示名、継承元が一致すること
 - HeaderおよびFooterのLiteral Text、Field Code、First／Defaultの参照が一致すること
-- 目次、図一覧、表一覧のField Codeと`w:updateFields=true`が存在すること
+- 目次、図一覧、表一覧の日本語見出し、表示項目、Page番号および
+  Templateの`w:updateFields=true`が存在すること
+- 全表の直前に一意な`TableCaption`があり、表一覧へ表示されること
+- 全Sectionの余白が上・下25.4mm、左・右19.05mmであること
 - Macro Part、外部参照Fieldおよび外部RelationshipがTemplateに存在しないこと
 - 代表的なGFM文書を変換し、全Pageに欠け、重なり、Font置換または表崩れがないこと

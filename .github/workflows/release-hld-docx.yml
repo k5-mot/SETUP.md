@@ -1,4 +1,4 @@
-name: release-hld-docx
+name: release-docx
 
 on:
   push:
@@ -35,6 +35,11 @@ jobs:
             exit 1
           fi
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -45,30 +50,46 @@ jobs:
         with:
           version: "3.11"
 
+      - name: Install LibreOffice field updater
+        run: |
+          sudo apt-get update --quiet
+          sudo apt-get install --yes --no-install-recommends libreoffice-writer python3-uno
+
       - name: Install OpenSpec
         run: npm install --global @fission-ai/openspec@1.13.0
 
       - name: Validate MySDD schema
         run: openspec schema validate mysdd --verbose
 
-      - name: Generate HLD DOCX
+      - name: Generate PRD and HLD DOCX
         shell: bash
         run: |
-          pandoc 'openspec/publics/hld.md' \
-            --from='gfm+implicit_figures' \
-            --to=docx \
-            --standalone \
-            --reference-doc='.agents/skills/markdown2docx/references/template.docx' \
-            --toc \
-            --toc-depth=6 \
-            --lof \
-            --lot \
-            --metadata='toc-title:目次' \
-            --metadata='lof-title:図一覧' \
-            --metadata='lot-title:表一覧' \
-            --output='openspec/publics/hld.docx'
+          for document in prd hld; do
+            pandoc "openspec/publics/${document}.md" \
+              --from='gfm+implicit_figures' \
+              --to=docx \
+              --standalone \
+              --reference-doc='.agents/skills/markdown2docx/references/template.docx' \
+              --toc \
+              --toc-depth=6 \
+              --lof \
+              --lot \
+              --metadata='toc-title:目次' \
+              --metadata='lof-title:図一覧' \
+              --metadata='lot-title:表一覧' \
+              --output="openspec/publics/${document}.docx"
+          done
+          /usr/bin/python3 .agents/skills/markdown2docx/main.py finalize \
+            openspec/publics/prd.docx openspec/publics/hld.docx
+          /usr/bin/python3 .agents/skills/markdown2docx/main.py refresh \
+            openspec/publics/prd.docx openspec/publics/hld.docx
+          test -s openspec/publics/prd.docx
           test -s openspec/publics/hld.docx
-          git diff --exit-code -- openspec/publics/hld.md openspec/schemas/mysdd
+          git diff --exit-code -- \
+            openspec/publics/prd.md openspec/publics/hld.md openspec/schemas/mysdd
 
-      - name: Create release with HLD
-        run: gh release create "$GITHUB_REF_NAME" openspec/publics/hld.docx --verify-tag --generate-notes
+      - name: Verify distributable DOCX
+        run: /usr/bin/python3 tests/test_markdown2docx.py
+
+      - name: Create release with PRD and HLD
+        run: gh release create "$GITHUB_REF_NAME" openspec/publics/prd.docx openspec/publics/hld.docx --verify-tag --generate-notes
