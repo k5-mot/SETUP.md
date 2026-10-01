@@ -38,6 +38,11 @@ def paragraph_text(paragraph: ET.Element) -> str:
     return "".join(node.text or "" for node in paragraph.findall(".//w:t", NAMESPACES))
 
 
+def element_text(element: ET.Element) -> str:
+    """Content Controlを含む要素内の表示Textを結合する。"""
+    return "".join(node.text or "" for node in element.findall(".//w:t", NAMESPACES))
+
+
 def replace_paragraph_text(paragraph: ET.Element, value: str) -> None:
     """段落のStyleを保って表示Textを置換する。"""
     properties = paragraph.find("w:pPr", NAMESPACES)
@@ -89,6 +94,24 @@ def caption_paragraph(number: int, title: str) -> ET.Element:
     suffix_run = ET.SubElement(paragraph, word_name("r"))
     suffix = ET.SubElement(suffix_run, word_name("t"))
     suffix.text = f": {title}"
+    return paragraph
+
+
+def navigation_entry_paragraph(text: str, page: int | None = None) -> ET.Element:
+    """一覧の表示項目をTOC Styleで作る。"""
+    paragraph = ET.Element(word_name("p"))
+    properties = ET.SubElement(paragraph, word_name("pPr"))
+    style = ET.SubElement(properties, word_name("pStyle"))
+    style.set(word_name("val"), "TOC1")
+    text_run = ET.SubElement(paragraph, word_name("r"))
+    value = ET.SubElement(text_run, word_name("t"))
+    value.text = text
+    if page is not None:
+        tab_run = ET.SubElement(paragraph, word_name("r"))
+        ET.SubElement(tab_run, word_name("tab"))
+        page_run = ET.SubElement(paragraph, word_name("r"))
+        page_text = ET.SubElement(page_run, word_name("t"))
+        page_text.text = str(page)
     return paragraph
 
 
@@ -258,18 +281,106 @@ def refresh_with_libreoffice(path: Path) -> None:
             hidden = PropertyValue()
             hidden.Name = "Hidden"
             hidden.Value = True
-            document = desktop.loadComponentFromURL(
-                uno.systemPathToFileUrl(str(path.resolve())), "_blank", 0, (hidden,)
-            )
-            indexes = document.getDocumentIndexes()
-            for index in range(indexes.getCount()):
-                indexes.getByIndex(index).update()
-            document.getTextFields().refresh()
-            document.store()
-            document.close(True)
+            for _ in range(2):
+                document = desktop.loadComponentFromURL(
+                    uno.systemPathToFileUrl(str(path.resolve())),
+                    "_blank",
+                    0,
+                    (hidden,),
+                )
+                indexes = document.getDocumentIndexes()
+                for index in range(indexes.getCount()):
+                    indexes.getByIndex(index).update()
+                document.getTextFields().refresh()
+                navigation_entries = collect_navigation_entries(document)
+                document.store()
+                document.close(True)
+                replace_navigation_entries(path, navigation_entries)
         finally:
             process.terminate()
             process.wait(timeout=10)
+
+
+def collect_navigation_entries(
+    document: object,
+) -> dict[str, list[tuple[str, int]]]:
+    """LibreOfficeの配置結果から図表CaptionとPage番号を集める。"""
+    entries: dict[str, list[tuple[str, int]]] = {"図一覧": [], "表一覧": []}
+    style_to_list = {
+        "ImageCaption": "図一覧",
+        "Image Caption": "図一覧",
+        "図タイトル": "図一覧",
+        "TableCaption": "表一覧",
+        "Table Caption": "表一覧",
+        "表タイトル": "表一覧",
+    }
+    view_cursor = document.getCurrentController().getViewCursor()
+    elements = document.Text.createEnumeration()
+    while elements.hasMoreElements():
+        element = elements.nextElement()
+        if not element.supportsService("com.sun.star.text.Paragraph"):
+            continue
+        list_name = style_to_list.get(element.ParaStyleName)
+        if list_name is None:
+            continue
+        view_cursor.gotoRange(element, False)
+        entries[list_name].append((element.getString(), int(view_cursor.Page)))
+    return entries
+
+
+def replace_navigation_entries(
+    path: Path, entries: dict[str, list[tuple[str, int]]]
+) -> None:
+    """LibreOfficeが削除する図表一覧を表示結果としてDOCXへ書き戻す。"""
+    with tempfile.TemporaryDirectory(prefix="mysdd_lists_") as directory:
+        root = Path(directory)
+        with ZipFile(path) as archive:
+            archive.extractall(root)
+        document_path = root / "word" / "document.xml"
+        document = ET.parse(document_path)
+        body = document.getroot().find("w:body", NAMESPACES)
+        if body is None:
+            raise ValueError("DOCXに本文がありません")
+
+        for title, end_title in (("図一覧", "表一覧"), ("表一覧", None)):
+            children = list(body)
+            start = next(
+                index
+                for index, child in enumerate(children)
+                if element_text(child) == title
+            )
+            if end_title is None:
+                end = next(
+                    index
+                    for index, child in enumerate(children[start + 1 :], start + 1)
+                    if child.tag == word_name("p")
+                    and paragraph_style(child).startswith("Heading1")
+                )
+            else:
+                end = next(
+                    index
+                    for index, child in enumerate(children[start + 1 :], start + 1)
+                    if element_text(child) == end_title
+                )
+            for child in children[start + 1 : end]:
+                body.remove(child)
+            values = entries[title]
+            if not values and title == "図一覧":
+                body.insert(
+                    start + 1, navigation_entry_paragraph("該当する図はありません。")
+                )
+            else:
+                for offset, (text, page) in enumerate(values, 1):
+                    body.insert(start + offset, navigation_entry_paragraph(text, page))
+
+        ET.register_namespace("w", WORD_NAMESPACE)
+        document.write(document_path, encoding="utf-8", xml_declaration=True)
+        temporary = path.with_suffix(".tmp.docx")
+        with ZipFile(temporary, "w", ZIP_DEFLATED) as archive:
+            for item in root.rglob("*"):
+                if item.is_file():
+                    archive.write(item, item.relative_to(root).as_posix())
+        temporary.replace(path)
 
 
 def refresh_fields(path: Path) -> None:

@@ -317,8 +317,10 @@ TemplateおよびSkillは`INCLUDETEXT`、`INCLUDEPICTURE`、`LINK`、`DDE`、`DA
 されるため、文書の配布方針に従って入力段階で確認する。
 
 PandocはField Codeを生成するが、最終的な項目やPage番号を計算しない。参照DOCXの
-`w:updateFields=true`に加え、`refresh`がMicrosoft WordまたはLibreOffice Writerで
-すべての一覧とFieldを更新して保存する。Field対応Office Engineを利用できず表示内容を
+`w:updateFields=true`に加え、`refresh`がMicrosoft WordですべてのFieldを更新する。
+LibreOffice Writerでは目次と共通Fieldを更新後、Python UNOで図表CaptionのPage番号を
+取得し、2回目の配置結果を図一覧と表一覧の表示項目へ確定する。図Captionがない場合は
+`該当する図はありません。`と表示する。Field対応Office Engineを利用できず表示内容を
 更新できない場合は変換を成功扱いにしない。
 
 ## 📚 Word Style一覧
@@ -455,8 +457,8 @@ PandocはField Codeを生成するが、最終的な項目やPage番号を計算
 - Font Family、Font Size、段落間隔および改Pageが本書と一致すること
 - `word/styles.xml`に110 Styleがあり、Style ID、種別、表示名、継承元が一致すること
 - HeaderおよびFooterのLiteral Text、Field Code、First／Defaultの参照が一致すること
-- 目次、図一覧、表一覧の日本語見出し、表示項目、Field Codeおよび
-  `w:updateFields=true`が存在すること
+- 目次、図一覧、表一覧の日本語見出し、表示項目、Page番号および
+  Templateの`w:updateFields=true`が存在すること
 - 全表の直前に一意な`TableCaption`があり、表一覧へ表示されること
 - 全Sectionの余白が上・下25.4mm、左・右19.05mmであること
 - Macro Part、外部参照Fieldおよび外部RelationshipがTemplateに存在しないこと

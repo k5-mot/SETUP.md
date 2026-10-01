@@ -26,7 +26,8 @@ Repository Rootから入力と参照文書をLiteral Pathとして解決し、�
 
 Pandoc 3.11を入力ごとに1回実行した後、同梱の`main.py`でNavigation見出し、
 表Captionおよび余白を確定し、Field対応Office Engineで表示内容を更新する。
-WindowsではMicrosoft Word、LinuxではLibreOffice WriterとPython UNOを使用する。
+WindowsではMicrosoft Wordを使用する。LinuxではLibreOffice WriterとPython UNOで
+配置を2回計算し、図表CaptionとPage番号を一覧の表示結果へ確定する。
 
 <!-- markdownlint-disable MD013 -->
 
