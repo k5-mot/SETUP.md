@@ -1,0 +1,74 @@
+name: release-hld-docx
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check release tag and quality result
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Release tag must use vMAJOR.MINOR.PATCH" >&2
+            exit 1
+          fi
+          git fetch origin main --quiet
+          git merge-base --is-ancestor HEAD origin/main
+          if [[ "$(gh run list --workflow quality.yml --branch main --commit "$(git rev-parse HEAD)" --event push --status success --json databaseId --jq 'length')" -lt 1 ]]; then
+            echo "No successful quality run for the tagged main commit" >&2
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Set up Pandoc
+        uses: pandoc/actions/setup@v1
+        with:
+          version: "3.11"
+
+      - name: Install OpenSpec
+        run: npm install --global @fission-ai/openspec@1.13.0
+
+      - name: Validate MySDD schema
+        run: openspec schema validate mysdd --verbose
+
+      - name: Generate HLD DOCX
+        shell: bash
+        run: |
+          pandoc 'openspec/publics/hld.md' \
+            --from='gfm+implicit_figures' \
+            --to=docx \
+            --standalone \
+            --reference-doc='.agents/skills/markdown2docx/references/template.docx' \
+            --toc \
+            --toc-depth=6 \
+            --lof \
+            --lot \
+            --metadata='toc-title:目次' \
+            --metadata='lof-title:図一覧' \
+            --metadata='lot-title:表一覧' \
+            --output='openspec/publics/hld.docx'
+          test -s openspec/publics/hld.docx
+          git diff --exit-code -- openspec/publics/hld.md openspec/schemas/mysdd
+
+      - name: Create release with HLD
+        run: gh release create "$GITHUB_REF_NAME" openspec/publics/hld.docx --verify-tag --generate-notes
