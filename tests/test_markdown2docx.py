@@ -168,6 +168,13 @@ class MarkdownToDocxTests(unittest.TestCase):
                     self.assertNotIn("List of Tables", texts)
                     for navigation_title in ("目次", "図一覧", "表一覧"):
                         self.assertIn(navigation_title, texts)
+                    for paragraph, style_name in zip(
+                        paragraphs, styles_by_paragraph, strict=True
+                    ):
+                        if style_name.lower() == "toc heading":
+                            self.assertIsNone(
+                                paragraph.find(".//w:br[@w:type='page']", NAMESPACES)
+                            )
 
                     toc_start = texts.index("目次")
                     figure_start = texts.index("図一覧")

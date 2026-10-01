@@ -180,6 +180,19 @@ def update_margins(document: ET.Element) -> None:
             margins.set(word_name(name), value)
 
 
+def remove_navigation_page_breaks(document: ET.Element) -> None:
+    """TOCHeading Styleと重複する明示的Page Breakを除去する。"""
+    for paragraph in document.findall(".//w:p", NAMESPACES):
+        if paragraph_style(paragraph) != "TOCHeading":
+            continue
+        for run in paragraph.findall("w:r", NAMESPACES):
+            for page_break in run.findall("w:br", NAMESPACES):
+                if page_break.get(word_name("type")) == "page":
+                    run.remove(page_break)
+            if not list(run) and not (run.text or "").strip():
+                paragraph.remove(run)
+
+
 def finalize_docx(path: Path) -> None:
     """DOCXのNavigation、Caption、余白を更新する。"""
     with tempfile.TemporaryDirectory(prefix="mysdd_docx_") as directory:
@@ -378,6 +391,7 @@ def replace_navigation_entries(
 
         # LibreOfficeが残すIgnorable値は、未使用Namespace宣言をXML再保存時に
         # 失ってWordで破損扱いになるため、拡張要素がない確定結果から除去する。
+        remove_navigation_page_breaks(document.getroot())
         document.getroot().attrib.pop(
             f"{{{MARKUP_COMPATIBILITY_NAMESPACE}}}Ignorable", None
         )
