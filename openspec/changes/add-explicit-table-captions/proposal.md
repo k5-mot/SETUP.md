@@ -6,7 +6,7 @@
 
 ## What Changes
 
-- 表の直前に記述した明示的な表題を DOCX の表キャプションとして使用する。
+- Pandoc Markdown の `table_captions` 記法で指定した表題を DOCX の表キャプションとして使用する。
 - PRD と HLD の全表へ、表の内容に合う固有の表題を設定する。
 - 明示的な表題がない既存文書では、現在のセクション名由来のキャプションを維持する。
 - DOCX の全表と表一覧に、明示した表題が反映されることを検証する。
@@ -23,7 +23,7 @@
 
 ## Impact
 
-- `.agents/skills/markdown2docx/main.py` の表キャプション生成処理。
+- `.agents/skills/markdown2docx/main.py` の表キャプション生成処理と Pandoc Reader指定。
 - `.agents/skills/markdown2docx/` の利用手順と書式仕様。
 - `openspec/publics/prd.md` と `openspec/publics/hld.md` の全表。
 - `tests/test_markdown2docx.py` のキャプション検証。
@@ -34,7 +34,7 @@
 - 取得・供給: 文書利用者は表一覧から表の内容を直接判別できる。
 - 移行: 既存の表題未指定 Markdown は従来の自動キャプションで変換できる。
 - 運用・保守: 文書作成者が正本 Markdown で表題を編集し、DOCX 再生成時に反映する。
-- 廃止: 表題記法を廃止する場合は正本 Markdown の表題行と変換処理を同時に除去する。
+- 廃止: 表題を廃止する場合は正本 Markdown の Pandoc表キャプションと変換処理を同時に除去する。
 
 ## Quality Considerations
 
