@@ -7,6 +7,8 @@
 ## What Changes
 
 - Pandoc Markdown の `table_captions` 記法で指定した表題を DOCX の表キャプションとして使用する。
+- Pandoc の `gfm` Readerを基礎として、GFM構文と既存の `implicit_figures` を維持する。
+- Pandoc固有構文は明示的に追加・検証したものだけを許可し、対応範囲を書式仕様へ記録する。
 - PRD と HLD の全表へ、表の内容に合う固有の表題を設定する。
 - 明示的な表題がない既存文書では、現在のセクション名由来のキャプションを維持する。
 - DOCX の全表と表一覧に、明示した表題が反映されることを検証する。
@@ -23,7 +25,7 @@
 
 ## Impact
 
-- `.agents/skills/markdown2docx/main.py` の表キャプション生成処理と Pandoc Reader指定。
+- `.agents/skills/markdown2docx/` の表キャプション変換、Pandoc Filterおよび書式仕様。
 - `.agents/skills/markdown2docx/` の利用手順と書式仕様。
 - `openspec/publics/prd.md` と `openspec/publics/hld.md` の全表。
 - `tests/test_markdown2docx.py` のキャプション検証。
@@ -43,6 +45,7 @@
 | 機能適合性 | QR-DOCX-002 | PRD/HLD の全表で Markdown の表題と DOCX のキャプションが一致する。OOXML Test で確認する。 |
 | 使用性 | QR-DOCX-007 | 表一覧の各項目が対応する表の内容を識別できる固有名を持つ。全ページ描画で確認する。 |
 | 互換性 | QR-DOCX-003 | 表題未指定の既存 Markdown も従来どおり変換できる。回帰 Test で確認する。 |
+| 互換性 | QR-DOCX-008 | Pandoc `gfm` Readerが扱うGFM構文を維持し、互換Fixtureで確認する。 |
 | 保守性 | QR-DOCX-005 | 既存の共通変換処理へ最小限の判定を追加し、PRD/HLD に同じ規則を適用する。差分 Review で確認する。 |
 | 信頼性 | — | Release の既存生成・検証 Gateを使用するため、独立した目標は追加しない。 |
 | 性能効率性 | — | 表直前の1段落を判定するだけであり、独立した性能目標は不要。 |
