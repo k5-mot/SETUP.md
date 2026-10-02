@@ -11,12 +11,19 @@
 - [ ] 2.2 Filterが生成した `TableCaption` の個別名を保持して連番を付与し、DOCXと表一覧の表示値が一致することを確認する（QR-DOCX-002、005、007）。
 - [ ] 2.3 表題がない表では既存のSection名由来キャプションを維持し、互換Testが成功することを確認する（QR-DOCX-003、移行）。
 
-## 3. Canonical Documents and Documentation
+## 3. Pandoc and Reference DOCX Responsibilities
 
-- [ ] 3.1 `prd.md` と `hld.md` の全表へ `: <caption>` 形式で内容に合う固有の表題を追加し、表題数と表数が一致することを検査する（QR-DOCX-007、運用・保守）。
-- [ ] 3.2 `markdown2docx` Skillと書式仕様へGFM構文、対応するPandoc追加構文、DOCX表現の制限を追記し、Markdown lintとLink検査が成功することを確認する（QR-DOCX-005、008、Support）。
+- [ ] 3.1 Pandocの日本語翻訳Dataで `目次`、`図一覧`、`表一覧` を生成し、Pythonの見出し置換を削除して構造Testを通す（QR-DOCX-001、005）。
+- [ ] 3.2 reference.docxの図表Caption Style名をPandocのField参照へ合わせ、PythonのField Code置換を削除して一覧更新Testを通す（QR-DOCX-001、005）。
+- [ ] 3.3 reference.docxだけで余白と表中央配置を検証し、変換直後の重複補正を削除する。LibreOffice保存後に崩れる項目だけ再現Test付きで維持する（QR-DOCX-005、006、移植性）。
+- [ ] 3.4 表Rowの途中改Page禁止とOffice Engine後の互換補正を残し、各処理に対応する失敗再現Testがあることを確認する（信頼性、保守）。
 
-## 4. Verification and Publication
+## 4. Canonical Documents and Documentation
 
-- [ ] 4.1 OpenSpec、Ruff、DOCX回帰Testを実行し、PRD/HLDの全ページ描画で表キャプションと表一覧に欠け・重なりがないことを確認する（QR-DOCX-002、003、005、007）。
-- [ ] 4.2 Changeを検証・Archiveし、PRとCI成功後にPatch ReleaseへPRD/HLDを登録して再ダウンロード検証を行う（移行・供給）。
+- [ ] 4.1 `prd.md` と `hld.md` の全表へ `: <caption>` 形式で内容に合う固有の表題を追加し、表題数と表数が一致することを検査する（QR-DOCX-007、運用・保守）。
+- [ ] 4.2 `markdown2docx` Skillと書式仕様へGFM構文、対応するPandoc追加構文、DOCX表現の制限および責務表を追記し、Markdown lintとLink検査が成功することを確認する（QR-DOCX-005、008、Support）。
+
+## 5. Verification and Publication
+
+- [ ] 5.1 OpenSpec、Ruff、DOCX回帰Testを実行し、PRD/HLDの全ページ描画で表キャプションと表一覧に欠け・重なりがないことを確認する（QR-DOCX-002、003、005、007）。
+- [ ] 5.2 Changeを検証・Archiveし、PRとCI成功後にPatch ReleaseへPRD/HLDを登録して再ダウンロード検証を行う（移行・供給）。
