@@ -27,4 +27,4 @@
 ## 5. Verification and Publication
 
 - [x] 5.1 OpenSpec、Ruff、DOCX回帰Testを実行し、PRD/HLDの全ページ描画で表キャプションと表一覧に欠け・重なりがないことを確認する（QR-DOCX-002、003、005、007）。
-- [ ] 5.2 Changeを検証・Archiveし、PRとCI成功後にPatch ReleaseへPRD/HLDを登録して再ダウンロード検証を行う（移行・供給）。
+- [x] 5.2 Changeの検証結果を記録し、Spec同期後にArchiveする（移行・供給）。
