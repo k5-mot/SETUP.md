@@ -25,6 +25,11 @@ REFERENCE_DOC = (
 )
 DOCUMENTS = {"prd": "QR-001", "hld": "ADR-001"}
 FINALIZER = REPOSITORY_ROOT / ".agents" / "skills" / "markdown2docx" / "main.py"
+LUA_FILTER = (
+    REPOSITORY_ROOT / ".agents" / "skills" / "markdown2docx" / "table_captions.lua"
+)
+PANDOC_DATA = REPOSITORY_ROOT / ".agents" / "skills" / "markdown2docx" / "pandoc-data"
+GFM_FIXTURE = REPOSITORY_ROOT / "tests" / "fixtures" / "gfm-pandoc.md"
 RELEASE_WORKFLOW = REPOSITORY_ROOT / ".github" / "workflows" / "release-hld-docx.yml"
 WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 OFFICE_RELATIONSHIP_NAMESPACE = (
@@ -88,6 +93,18 @@ def yaml_title(source: Path) -> str:
     raise AssertionError(f"missing non-empty YAML title: {source}")
 
 
+def markdown_table_captions(source: Path) -> list[str]:
+    """表直前に記述したPandoc Captionを返す。"""
+    lines = source.read_text(encoding="utf-8").splitlines()
+    return [
+        line.removeprefix(": ").strip()
+        for index, line in enumerate(lines[:-2])
+        if line.startswith(": ")
+        and not lines[index + 1].strip()
+        and lines[index + 2].startswith("|")
+    ]
+
+
 class MarkdownToDocxTests(unittest.TestCase):
     """PRDとHLDの配布用DOCX生成を検証する。"""
 
@@ -110,21 +127,16 @@ class MarkdownToDocxTests(unittest.TestCase):
                             "--to=docx",
                             "--standalone",
                             f"--reference-doc={REFERENCE_DOC}",
+                            f"--lua-filter={LUA_FILTER}",
+                            f"--data-dir={PANDOC_DATA}",
                             "--toc",
                             "--toc-depth=6",
                             "--lof",
                             "--lot",
                             "--metadata=toc-title:目次",
-                            "--metadata=lof-title:図一覧",
-                            "--metadata=lot-title:表一覧",
+                            "--metadata=lang:ja-JP",
                             f"--output={output}",
                         ],
-                        check=True,
-                        capture_output=True,
-                        text=True,
-                    )
-                    subprocess.run(
-                        [sys.executable, str(FINALIZER), "finalize", str(output)],
                         check=True,
                         capture_output=True,
                         text=True,
@@ -236,8 +248,15 @@ class MarkdownToDocxTests(unittest.TestCase):
                         if style_name.lower() in {"表タイトル", "table caption"}
                     ]
                     self.assertEqual(len(captions), len(tables))
-                    self.assertTrue(
-                        all(caption.startswith("表") for caption in captions)
+                    expected_captions = [
+                        f"表 {number}: {title}"
+                        for number, title in enumerate(
+                            markdown_table_captions(source), 1
+                        )
+                    ]
+                    self.assertEqual(
+                        captions,
+                        expected_captions,
                     )
                     first_body_heading = next(
                         index
@@ -280,10 +299,131 @@ class MarkdownToDocxTests(unittest.TestCase):
                         self.assertIsNotNone(
                             first_row.find("w:trPr/w:tblHeader", NAMESPACES)
                         )
-                        for row in table.findall("w:tr", NAMESPACES):
-                            self.assertIsNotNone(
-                                row.find("w:trPr/w:cantSplit", NAMESPACES)
-                            )
+
+    def test_pandoc_table_captions_are_independent_from_sections(self) -> None:
+        """Pandoc標準Captionと未指定時の互換Captionを生成する。"""
+        source_text = """---
+title: Caption Test
+---
+
+# Shared Section
+
+: First Caption
+
+| A | B |
+| --- | --- |
+| 1 | 2 |
+
+| C | D |
+| --- | --- |
+| 3 | 4 |
+
+: Second Caption
+
+# Fallback Section
+
+| E | F |
+| --- | --- |
+| 5 | 6 |
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "captions.md"
+            output = root / "captions.docx"
+            source.write_text(source_text, encoding="utf-8")
+            subprocess.run(
+                [
+                    "pandoc",
+                    str(source),
+                    "--from=gfm+implicit_figures",
+                    "--to=docx",
+                    "--standalone",
+                    f"--reference-doc={REFERENCE_DOC}",
+                    f"--lua-filter={LUA_FILTER}",
+                    f"--data-dir={PANDOC_DATA}",
+                    f"--output={output}",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            with ZipFile(output) as archive:
+                document = ET.fromstring(archive.read("word/document.xml"))
+            captions = [
+                paragraph_text(paragraph)
+                for paragraph in document.findall(".//w:p", NAMESPACES)
+                if paragraph_style_name(
+                    paragraph,
+                    {
+                        "TableCaption": "Table Caption",
+                    },
+                )
+                == "Table Caption"
+            ]
+            self.assertEqual(
+                captions,
+                [
+                    "表 1: First Caption",
+                    "表 2: Second Caption",
+                    "表 3: Fallback Section",
+                ],
+            )
+
+    def test_gfm_reader_contract_is_preserved(self) -> None:
+        """有効なGFM拡張と追加Pandoc構文を同じASTで扱う。"""
+        extensions = subprocess.run(
+            ["pandoc", "--list-extensions=gfm"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.splitlines()
+        enabled = {line[1:] for line in extensions if line.startswith("+")}
+        self.assertEqual(
+            enabled,
+            {
+                "alerts",
+                "autolink_bare_uris",
+                "emoji",
+                "footnotes",
+                "gfm_auto_identifiers",
+                "pipe_tables",
+                "raw_html",
+                "strikeout",
+                "task_lists",
+                "tex_math_dollars",
+                "tex_math_gfm",
+                "yaml_metadata_block",
+            },
+        )
+        result = subprocess.run(
+            [
+                "pandoc",
+                str(GFM_FIXTURE),
+                "--from=gfm+implicit_figures",
+                "--to=json",
+                f"--lua-filter={LUA_FILTER}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        ast = result.stdout
+        for node_type in (
+            '"t":"BulletList"',
+            '"t":"Div"',
+            '"t":"Figure"',
+            '"t":"Link"',
+            '"t":"Math"',
+            '"t":"Note"',
+            '"t":"RawBlock"',
+            '"t":"Strikeout"',
+            '"t":"Table"',
+        ):
+            self.assertIn(node_type, ast)
+        self.assertIn('"c":"表 1: "', ast)
+        self.assertIn('"c":"Fixture"', ast)
+        self.assertIn("😄", ast)
 
     def test_reference_doc_preserves_print_styles(self) -> None:
         """参照DOCXが共通の印刷Styleと余白を保持する。"""
@@ -310,6 +450,8 @@ class MarkdownToDocxTests(unittest.TestCase):
         table_alignment = style_by_id(styles, "Table").find("w:tblPr/w:jc", NAMESPACES)
         self.assertIsNotNone(table_alignment)
         self.assertEqual(table_alignment.get(word_attribute("val")), "center")
+        self.assertEqual(style_names(styles)["TableCaption"], "Table Caption")
+        self.assertEqual(style_names(styles)["ImageCaption"], "Image Caption")
         for section in document.findall(".//w:sectPr", NAMESPACES):
             margins = section.find("w:pgMar", NAMESPACES)
             self.assertIsNotNone(margins)
@@ -328,6 +470,8 @@ class MarkdownToDocxTests(unittest.TestCase):
         )
         self.assertIn("prd.docx", release_line)
         self.assertIn("hld.docx", release_line)
+        self.assertIn("--lua-filter", workflow)
+        self.assertIn("--data-dir", workflow)
 
 
 def main() -> int:

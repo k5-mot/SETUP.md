@@ -6,6 +6,8 @@ title: "📋 要件定義書"
 
 # 1. 文書概要
 
+: 文書概要
+
 | 項目 | 内容 |
 | --- | --- |
 | 対象Change | `archive/2026-09-18-align-mysdd-structure-and-adr` |
@@ -45,6 +47,8 @@ title: "📋 要件定義書"
 
 対象は、このRepositoryで運用するMySDDおよび関連するOpenSpec／Agent Skill群である。
 
+: 対象システム構成
+
 | 区分 | 対象 |
 | --- | --- |
 | OpenSpec | `mysdd` Schema、Template、Main Spec、Change Artifact |
@@ -77,6 +81,8 @@ title: "📋 要件定義書"
 
 # 4. ステークホルダ
 
+: ステークホルダと関心事項
+
 | ステークホルダ | 関心事項 |
 | --- | --- |
 | Maintainer | 一貫した構成、検証可能なRequirement、安全なCommit |
@@ -106,6 +112,8 @@ title: "📋 要件定義書"
 
 ## 6.1 `project-setup`
 
+: project-setup要求一覧
+
 | Requirement | 要求概要 |
 | --- | --- |
 | `Setup uses ordinary user permissions` | 非昇格PowerShellを使用し、対応Packageを`--scope user`で導入する |
@@ -125,6 +133,8 @@ title: "📋 要件定義書"
 - `Complete the canonical setup`
 
 ## 6.2 `mysdd-workflow`
+
+: mysdd-workflow要求一覧
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -146,6 +156,8 @@ title: "📋 要件定義書"
 
 ## 6.3 `mysdd-schema`
 
+: mysdd-schema要求一覧
+
 | Requirement | 要求概要 |
 | --- | --- |
 | `MySDD preserves the four standard artifacts` | `spec-driven`互換の4 Artifactと依存関係を維持する |
@@ -159,6 +171,8 @@ title: "📋 要件定義書"
 - `Complete the proposal workflow`
 
 ## 6.4 `generate-prd`
+
+: generate-prd要求一覧
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -175,6 +189,8 @@ title: "📋 要件定義書"
 
 ## 6.5 `generate-hld`
 
+: generate-hld要求一覧
+
 | Requirement | 要求概要 |
 | --- | --- |
 | `Generate the HLD from a named change` | Proposal、Delta Spec、存在するDesignから`hld.md`を生成する |
@@ -189,6 +205,8 @@ title: "📋 要件定義書"
 - `DOCX conversion fails`
 
 ## 6.6 `markdown2docx`
+
+: markdown2docx要求一覧
 
 | Requirement | 要求概要 |
 | --- | --- |
@@ -206,6 +224,8 @@ title: "📋 要件定義書"
 - `変換が成功する`
 
 # 7. ISO/IEC 25010品質要求
+
+: 品質要求一覧
 
 | 品質ID | 品質特性 | 測定量 | 目標値 | 条件 | 検証方法 |
 | --- | --- | --- | --- | --- | --- |
@@ -229,6 +249,8 @@ QR-007の定義は入力Artifactに存在しないため`TBD`とする。新し�
   IntegrityはQR-006で扱う
 
 # 8. 外部インタフェース・データ要求
+
+: 外部インターフェースとデータ要件
 
 | Interface／Data | Input | Output／制約 |
 | --- | --- | --- |
@@ -276,6 +298,8 @@ Database、Network API、認証ProviderおよびMCP Endpointは入力Artifactに
 
 # 10. 受入条件と検証方法
 
+: 受入条件と検証方法
+
 | 受入条件 | 合格基準 | 検証方法 |
 | --- | --- | --- |
 | Schema互換性 | 4 Artifact、依存関係、Apply条件が維持される | MySDD Schema Verbose Validation |
@@ -295,6 +319,8 @@ CIの具体的なJob名、Test Fixtureおよび自動化Script Pathは入力Arti
 
 # 11. 要求トレーサビリティ
 
+: ADRトレーサビリティ
+
 | ADR | Capability／Requirement | 主な品質ID |
 | --- | --- | --- |
 | ADR-001 | `project-setup`／`Setup uses ordinary user permissions` | QR-002 |
@@ -312,6 +338,8 @@ CIの具体的なJob名、Test Fixtureおよび自動化Script Pathは入力Arti
 第6章に保持している。検証時はArchive済みDelta SpecをSourceとして比較する。
 
 # 12. 用語集
+
+: 用語一覧
 
 | 用語 | 定義 |
 | --- | --- |
