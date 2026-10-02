@@ -10,13 +10,11 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections import defaultdict
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from zipfile import ZIP_DEFLATED, ZipFile
 
 WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
 MARKUP_COMPATIBILITY_NAMESPACE = (
     "http://schemas.openxmlformats.org/markup-compatibility/2006"
 )
@@ -27,7 +25,6 @@ PACKAGE_RELATIONSHIP_NAMESPACE = (
     "http://schemas.openxmlformats.org/package/2006/relationships"
 )
 NAMESPACES = {"w": WORD_NAMESPACE}
-NAVIGATION_TITLES = ("目次", "図一覧", "表一覧")
 MARGINS = {"top": "1440", "bottom": "1440", "left": "1080", "right": "1080"}
 
 
@@ -42,68 +39,9 @@ def paragraph_style(paragraph: ET.Element) -> str:
     return "" if style is None else style.get(word_name("val"), "")
 
 
-def paragraph_text(paragraph: ET.Element) -> str:
-    """段落内の表示Textを結合する。"""
-    return "".join(node.text or "" for node in paragraph.findall(".//w:t", NAMESPACES))
-
-
 def element_text(element: ET.Element) -> str:
     """Content Controlを含む要素内の表示Textを結合する。"""
     return "".join(node.text or "" for node in element.findall(".//w:t", NAMESPACES))
-
-
-def replace_paragraph_text(paragraph: ET.Element, value: str) -> None:
-    """段落のStyleを保って表示Textを置換する。"""
-    properties = paragraph.find("w:pPr", NAMESPACES)
-    for child in list(paragraph):
-        if child is not properties:
-            paragraph.remove(child)
-    run = ET.SubElement(paragraph, word_name("r"))
-    text = ET.SubElement(run, word_name("t"))
-    text.text = value
-
-
-def field_run(field_code: str, value: str) -> list[ET.Element]:
-    """更新可能なSimple FieldのRun列を作る。"""
-    begin_run = ET.Element(word_name("r"))
-    begin = ET.SubElement(begin_run, word_name("fldChar"))
-    begin.set(word_name("fldCharType"), "begin")
-
-    instruction_run = ET.Element(word_name("r"))
-    instruction = ET.SubElement(instruction_run, word_name("instrText"))
-    instruction.set(f"{{{XML_NAMESPACE}}}space", "preserve")
-    instruction.text = f" {field_code} "
-
-    separate_run = ET.Element(word_name("r"))
-    separate = ET.SubElement(separate_run, word_name("fldChar"))
-    separate.set(word_name("fldCharType"), "separate")
-
-    value_run = ET.Element(word_name("r"))
-    text = ET.SubElement(value_run, word_name("t"))
-    text.text = value
-
-    end_run = ET.Element(word_name("r"))
-    end = ET.SubElement(end_run, word_name("fldChar"))
-    end.set(word_name("fldCharType"), "end")
-    return [begin_run, instruction_run, separate_run, value_run, end_run]
-
-
-def caption_paragraph(number: int, title: str) -> ET.Element:
-    """表番号Fieldを含む日本語Caption段落を作る。"""
-    paragraph = ET.Element(word_name("p"))
-    properties = ET.SubElement(paragraph, word_name("pPr"))
-    style = ET.SubElement(properties, word_name("pStyle"))
-    style.set(word_name("val"), "TableCaption")
-
-    prefix_run = ET.SubElement(paragraph, word_name("r"))
-    prefix = ET.SubElement(prefix_run, word_name("t"))
-    prefix.text = "表 "
-    for run in field_run(r"SEQ Table \* ARABIC", str(number)):
-        paragraph.append(run)
-    suffix_run = ET.SubElement(paragraph, word_name("r"))
-    suffix = ET.SubElement(suffix_run, word_name("t"))
-    suffix.text = f": {title}"
-    return paragraph
 
 
 def navigation_entry_paragraph(text: str, page: int | None = None) -> ET.Element:
@@ -124,8 +62,8 @@ def navigation_entry_paragraph(text: str, page: int | None = None) -> ET.Element
     return paragraph
 
 
-def format_tables(document: ET.Element) -> None:
-    """表を中央配置し、行の途中で改ページしない。"""
+def normalize_libreoffice_tables(document: ET.Element) -> None:
+    """LibreOffice保存後も表の中央配置を維持する。"""
     for table in document.findall(".//w:tbl", NAMESPACES):
         properties = table.find("w:tblPr", NAMESPACES)
         if properties is None:
@@ -138,64 +76,6 @@ def format_tables(document: ET.Element) -> None:
         indent = properties.find("w:tblInd", NAMESPACES)
         if indent is not None:
             properties.remove(indent)
-
-        rows = table.findall("w:tr", NAMESPACES)
-        for row in rows:
-            row_properties = row.find("w:trPr", NAMESPACES)
-            if row_properties is None:
-                row_properties = ET.Element(word_name("trPr"))
-                row.insert(0, row_properties)
-            if row_properties.find("w:cantSplit", NAMESPACES) is None:
-                ET.SubElement(row_properties, word_name("cantSplit"))
-
-
-def add_table_captions(body: ET.Element) -> None:
-    """本文の全表へ直前見出しを用いたCaptionを追加する。"""
-    heading = "表"
-    heading_counts: defaultdict[str, int] = defaultdict(int)
-    table_number = 0
-    index = 0
-    while index < len(body):
-        child = body[index]
-        if child.tag == word_name("p"):
-            style = paragraph_style(child)
-            if style.startswith("Heading") and paragraph_text(child).strip():
-                heading = paragraph_text(child).strip()
-        elif child.tag == word_name("tbl"):
-            previous = body[index - 1] if index else None
-            if (
-                previous is not None
-                and previous.tag == word_name("p")
-                and paragraph_style(previous) == "TableCaption"
-            ):
-                index += 1
-                continue
-            table_number += 1
-            heading_counts[heading] += 1
-            occurrence = heading_counts[heading]
-            title = heading if occurrence == 1 else f"{heading}（{occurrence}）"
-            body.insert(index, caption_paragraph(table_number, title))
-            index += 1
-        index += 1
-
-
-def update_navigation(document: ET.Element) -> None:
-    """Navigation見出しと一覧Fieldが参照するStyle名を日本語化する。"""
-    headings = [
-        paragraph
-        for paragraph in document.findall(".//w:p", NAMESPACES)
-        if paragraph_style(paragraph) == "TOCHeading"
-    ]
-    if len(headings) < len(NAVIGATION_TITLES):
-        msg = "DOCXに目次・図一覧・表一覧の見出しがありません"
-        raise ValueError(msg)
-    for paragraph, title in zip(headings[:3], NAVIGATION_TITLES, strict=True):
-        replace_paragraph_text(paragraph, title)
-
-    for instruction in document.findall(".//w:instrText", NAMESPACES):
-        if instruction.text:
-            instruction.text = instruction.text.replace("Image Caption", "図タイトル")
-            instruction.text = instruction.text.replace("Table Caption", "表タイトル")
 
 
 def update_margins(document: ET.Element) -> None:
@@ -250,31 +130,6 @@ def remove_navigation_page_breaks(document: ET.Element) -> None:
                     run.remove(page_break)
             if not list(run) and not (run.text or "").strip():
                 paragraph.remove(run)
-
-
-def finalize_docx(path: Path) -> None:
-    """DOCXのNavigation、Caption、余白を更新する。"""
-    with tempfile.TemporaryDirectory(prefix="mysdd_docx_") as directory:
-        root = Path(directory)
-        with ZipFile(path) as archive:
-            archive.extractall(root)
-        document_path = root / "word" / "document.xml"
-        document = ET.parse(document_path)
-        body = document.getroot().find("w:body", NAMESPACES)
-        if body is None:
-            raise ValueError("DOCXに本文がありません")
-        update_navigation(document.getroot())
-        format_tables(document.getroot())
-        add_table_captions(body)
-        update_margins(document.getroot())
-        ET.register_namespace("w", WORD_NAMESPACE)
-        document.write(document_path, encoding="utf-8", xml_declaration=True)
-        temporary = path.with_suffix(".tmp.docx")
-        with ZipFile(temporary, "w", ZIP_DEFLATED) as archive:
-            for item in root.rglob("*"):
-                if item.is_file():
-                    archive.write(item, item.relative_to(root).as_posix())
-        temporary.replace(path)
 
 
 def refresh_with_word(path: Path) -> None:
@@ -452,7 +307,7 @@ def replace_navigation_entries(
         # LibreOfficeが残すIgnorable値は、未使用Namespace宣言をXML再保存時に
         # 失ってWordで破損扱いになるため、拡張要素がない確定結果から除去する。
         remove_navigation_page_breaks(document.getroot())
-        format_tables(document.getroot())
+        normalize_libreoffice_tables(document.getroot())
         update_margins(document.getroot())
         synchronize_even_headers_and_footers(root, document.getroot())
         document.getroot().attrib.pop(
@@ -479,17 +334,14 @@ def refresh_fields(path: Path) -> None:
 def main() -> int:
     """指定DOCXを仕上げる。"""
     parser = argparse.ArgumentParser()
-    parser.add_argument("operation", choices=("finalize", "refresh"))
+    parser.add_argument("operation", choices=("refresh",))
     parser.add_argument("documents", nargs="+", type=Path)
     args = parser.parse_args()
     start = time.perf_counter()
     for document in args.documents:
         if not document.is_file() or document.suffix.lower() != ".docx":
             parser.error(f"DOCXが存在しません: {document}")
-        if args.operation == "finalize":
-            finalize_docx(document)
-        else:
-            refresh_fields(document)
+        refresh_fields(document)
     print(
         f"{args.operation} documents={len(args.documents)} elapsed_seconds={time.perf_counter() - start:.3f}"
     )

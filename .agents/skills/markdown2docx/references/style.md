@@ -10,16 +10,15 @@ pandoc 'openspec/publics/<document>.md' \
   --to=docx \
   --standalone \
   --reference-doc='.agents/skills/markdown2docx/references/template.docx' \
+  --lua-filter='.agents/skills/markdown2docx/table_captions.lua' \
+  --data-dir='.agents/skills/markdown2docx/pandoc-data' \
   --toc \
   --toc-depth=6 \
   --lof \
   --lot \
   --metadata='toc-title:目次' \
-  --metadata='lof-title:図一覧' \
-  --metadata='lot-title:表一覧' \
+  --metadata='lang:ja-JP' \
   --output='openspec/publics/<document>.docx'
-python '.agents/skills/markdown2docx/main.py' finalize \
-  'openspec/publics/<document>.docx'
 python '.agents/skills/markdown2docx/main.py' refresh \
   'openspec/publics/<document>.docx'
 ```
@@ -28,8 +27,8 @@ Repository Rootで実行し、`<document>`には変換対象のMarkdownと同じ
 指定する。参照DOCXには`.agents/skills/markdown2docx/references/template.docx`を
 使用する。変換にはPandoc 3.11を使用し、入力形式は`gfm+implicit_figures`とする。
 Pandocは参照DOCXから名前付きStyle、Section設定、HeaderおよびFooterを取り込むが、
-参照DOCX内のSample本文は生成物へCopyしない。`finalize`は日本語Navigation見出し、
-全表のCaptionおよび余白を確定し、`refresh`は一覧とPage番号の表示内容を更新する。
+参照DOCX内のSample本文は生成物へCopyしない。Lua Filterは全表のCaptionを確定し、
+`refresh`は一覧とPage番号の表示内容を更新する。
 
 ## 🧩 GitHub Flavored Markdown対応
 
@@ -46,6 +45,8 @@ Pandocは参照DOCXから名前付きStyle、Section設定、HeaderおよびFoot
 | Code Block | Fenced Code Block | `SourceCode` |
 | Block Quote | `> 引用` | `BlockText` |
 | Link | `表示名`と`URL` | `Hyperlink` |
+| Bare URL | `https://example.com` | `Hyperlink` |
+| Emoji | `:smile:` | Unicode Emoji |
 | 箇条書き | `- 項目` | `ListBullet`系 |
 | 番号付きList | `1. 項目` | `ListNumber`系 |
 | Task List | `- [x] 完了` | Check記号を含むList |
@@ -53,16 +54,40 @@ Pandocは参照DOCXから名前付きStyle、Section設定、HeaderおよびFoot
 | 単独の画像 | 代替TextとLocal Path | `Figure`、`CaptionedFigure`、`ImageCaption` |
 | Footnote | `[^1]` | `FootnoteText`、`FootnoteReference` |
 | Alert | `> [!NOTE]`など | `Note`、`Tip`などのAlert Style |
-| 数式 | `$x$`、`$$x$$` | `Equation`または`EquationBlock` |
+| 数式 | `$x$`、`$$x$$`、GFM Math | `Equation`または`EquationBlock` |
 | YAML Metadata | File先頭の`---` Block | `Title`、`Subtitle`などの文書Metadata |
 
-GFMでは見出し1から見出し6までを直接記述できる。見出し7から見出し9、
-`TableCaption`および`CodeCaption`の標準Syntaxはない。Raw HTMLはDOCX Writerで同じ表示に
-なる保証がないため、書式制御には使用しない。
+GFMでは見出し1から見出し6までを直接記述でき、見出しIDは
+`gfm_auto_identifiers`に従う。見出し7から見出し9および`CodeCaption`の標準Syntaxは
+ない。Raw HTMLは解析できるが、DOCX Writerで同じ表示になる保証がないため、書式制御
+には使用しない。
 
 Soft Line Breakは通常の空白として扱う。強制改行が必要な場合はGFMのHard Line
 Breakを使用する。入力Markdownに直接Font名、Font Size、文字色またはWord固有Styleを
 記述せず、参照DOCXへ責務を集約する。
+
+## ➕ 対応するPandoc追加記法
+
+GFMを基礎とし、次のPandoc記法だけを追加する。
+
+| 記法 | Markdown例 | Wordでの表現 |
+| --- | --- | --- |
+| 単独画像Caption | 代替Text付きの単独画像 | `ImageCaption` |
+| 表Caption | 表の前後に`: 説明` | `TableCaption` |
+
+表Captionは同梱Lua FilterがPandoc ASTのCaptionへ変換する。表題がない表では、互換性の
+ため直前の見出しをCaptionに使用する。Pandoc Markdownのその他の拡張は、対応表と
+回帰Testを追加するまで正本では使用しない。
+
+## 🧭 書式責務
+
+| 責務 | 所有先 |
+| --- | --- |
+| GFM要素、図表Caption、表番号 | PandocおよびLua Filter |
+| Font、余白、表配置、Header、Footer、改PageStyle | `template.docx` |
+| 目次・図一覧・表一覧の日本語 | Pandoc翻訳Data |
+| Page番号と一覧の表示更新 | Microsoft Word／LibreOffice |
+| LibreOffice保存後の互換補正 | `main.py` |
 
 ## 余白
 
@@ -196,19 +221,19 @@ Header Rowを繰り返す。列のAlignment指定はGFMのDelimiter Rowに従う
 | 件数 | 10 |
 ```
 
-GFM Pipe TableにはCaption Syntaxがないため、`finalize`が全表の直前へ
-`表 <連番>: <直前の見出し>`形式の`TableCaption`を追加する。同じ見出し内に複数の
-表がある場合は、2つ目以降のCaption末尾へ出現順を付けて区別する。
+GFM Pipe Tableの前後へPandoc形式の`: <表題>`を置く。Lua Filterが
+`表 <連番>: <表題>`形式の`TableCaption`へ変換する。表題がない場合は直前の見出しを
+使用し、同じ見出し内の2つ目以降には出現順を付ける。
 
 ## 🏷️ 図表・コードCaption
 
 | 対象 | Word Style | Font | Size | Alignment | GFMでの生成方法 |
 | --- | --- | --- | --- | --- | --- |
 | 図 | `ImageCaption` | MS Pゴシック／Arial | 10pt | 中央 | 単独画像の代替Text |
-| 表 | `TableCaption` | MS Pゴシック／Arial | 10pt | 中央 | `finalize`が全表へ自動追加 |
+| 表 | `TableCaption` | MS Pゴシック／Arial | 10pt | 中央 | 表の前後に`: <表題>` |
 | Code | `CodeCaption` | MS Pゴシック／Arial | 10pt | 中央 | 標準Syntaxなし |
 
-図Captionは図一覧の入力となる。表Captionは`finalize`が全表へ追加し、表一覧の入力と
+図Captionは図一覧の入力となる。表CaptionはLua Filterが全表へ追加し、表一覧の入力と
 する。`CodeCaption`はTemplateに保持するが、GFMだけでは生成されない。Code Block本体は
 `SourceCode`を使用する。
 
@@ -274,11 +299,12 @@ TOC \o "1-6" \h \z \u
 
 ## 🖼️ 図一覧
 
-SkillはPandocを`--lof --metadata='lof-title:図一覧'`付きで実行する。Pandocは
+SkillはPandocを`--lof --metadata='lang:ja-JP'`とRepository内の日本語翻訳Data付きで
+実行する。Pandocは
 `TOCHeading`と次のFieldを生成する。
 
 ```text
-TOC \h \z \t "図タイトル" \c
+TOC \h \z \t "Image Caption" \c
 ```
 
 `implicit_figures`が`ImageCaption`を付与した図だけを一覧の入力とする。Inline Image
@@ -287,14 +313,15 @@ TOC \h \z \t "図タイトル" \c
 
 ## 📊 表一覧
 
-SkillはPandocを`--lot --metadata='lot-title:表一覧'`付きで実行する。Pandocは
+SkillはPandocを`--lot --metadata='lang:ja-JP'`とRepository内の日本語翻訳Data付きで
+実行する。Pandocは
 `TOCHeading`と次のFieldを生成する。
 
 ```text
-TOC \h \z \t "表タイトル" \c
+TOC \h \z \t "Table Caption" \c
 ```
 
-`finalize`が全表へ追加した`TableCaption`を一覧の入力とする。Field更新後の表一覧には、
+Lua Filterが全表へ追加した`TableCaption`を一覧の入力とする。Field更新後の表一覧には、
 各CaptionとPage番号が表示されなければならない。
 
 ## 🔄 Data Field
@@ -304,8 +331,8 @@ TOC \h \z \t "表タイトル" \c
 | Field | 使用箇所 | 参照範囲 | 更新内容 |
 | --- | --- | --- | --- |
 | `TOC \o "1-6" \h \z \u` | 目次 | 文書内 | 見出しとPage番号 |
-| `TOC \h \z \t "図タイトル" \c` | 図一覧 | 文書内 | 図CaptionとPage番号 |
-| `TOC \h \z \t "表タイトル" \c` | 表一覧 | 文書内 | 表CaptionとPage番号 |
+| `TOC \h \z \t "Image Caption" \c` | 図一覧 | 文書内 | 図CaptionとPage番号 |
+| `TOC \h \z \t "Table Caption" \c` | 表一覧 | 文書内 | 表CaptionとPage番号 |
 | `STYLEREF 1 \n` | Footer | 文書内 | 直近の見出し1番号 |
 | `PAGE` | Footer | 文書内 | 現在のPage番号 |
 | `SAVEDATE \@ "yyyy/MM/dd"` | Footer | 文書Property | 保存日 |
@@ -332,8 +359,8 @@ LibreOffice Writerでは目次と共通Fieldを更新後、Python UNOで図表Ca
 
 本書でWord Styleを参照するときは、次表の`Style ID`をBacktickで囲んで記載する。
 `表示名`は次表の記録と、WordのField Codeが表示名を要求する箇所だけで使用する。
-このため、図一覧と表一覧のField Code内では、それぞれ日本語表示名の`"図タイトル"`
-および`"表タイトル"`を使用し、Style IDへ置換しない。
+図一覧と表一覧のField CodeはPandocが生成する英語表示名`"Image Caption"`および
+`"Table Caption"`を使用し、参照DOCXのStyle表示名も一致させる。
 
 | Style ID | 種別 | 表示名 | 継承元 |
 | --- | --- | --- | --- |
@@ -374,8 +401,8 @@ LibreOffice Writerでは目次と共通Fieldを更新後、Python UNOで図表Ca
 | Table | table | Table | TableNormal |
 | DefinitionTerm | paragraph | Definition Term | Normal |
 | Definition | paragraph | Definition | Normal |
-| TableCaption | paragraph | 表タイトル | Caption |
-| ImageCaption | paragraph | 図タイトル | Caption |
+| TableCaption | paragraph | Table Caption | Caption |
+| ImageCaption | paragraph | Image Caption | Caption |
 | BodyTextChar | character | Body Text Char | DefaultParagraphFont |
 | SectionNumber | character | Section Number | BodyTextChar |
 | KeywordTok | character | KeywordTok | VerbatimChar |

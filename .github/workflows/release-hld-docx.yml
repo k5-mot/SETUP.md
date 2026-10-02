@@ -70,17 +70,16 @@ jobs:
               --to=docx \
               --standalone \
               --reference-doc='.agents/skills/markdown2docx/references/template.docx' \
+              --lua-filter='.agents/skills/markdown2docx/table_captions.lua' \
+              --data-dir='.agents/skills/markdown2docx/pandoc-data' \
               --toc \
               --toc-depth=6 \
               --lof \
               --lot \
               --metadata='toc-title:目次' \
-              --metadata='lof-title:図一覧' \
-              --metadata='lot-title:表一覧' \
+              --metadata='lang:ja-JP' \
               --output="openspec/publics/${document}.docx"
           done
-          /usr/bin/python3 .agents/skills/markdown2docx/main.py finalize \
-            openspec/publics/prd.docx openspec/publics/hld.docx
           /usr/bin/python3 .agents/skills/markdown2docx/main.py refresh \
             openspec/publics/prd.docx openspec/publics/hld.docx
           test -s openspec/publics/prd.docx

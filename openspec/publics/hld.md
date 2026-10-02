@@ -6,6 +6,8 @@ title: "🏛️ 基本設計書"
 
 # 1. 文書概要と適用範囲
 
+: 文書概要と適用範囲
+
 | 項目 | 内容 |
 | --- | --- |
 | 対象Change | `archive/2026-09-18-align-mysdd-structure-and-adr` |
@@ -43,6 +45,8 @@ High-Level Designを整理する。入力にない実装Class、Function、外�
 
 ## 3.1 論理構成
 
+: 論理構成
+
 | Layer | Component | 責務 |
 | --- | --- | --- |
 | Workflow | OpenSpec Phase Skills | propose、apply、verify、archiveを実行する |
@@ -73,6 +77,8 @@ PRD／HLD／DOCXはMySDD Artifact Graphに含めない。Planning完了と文書
 # 4. アプリケーション・ソフトウェア構成
 
 ## 4.1 MySDD Schema
+
+: MySDD Artifact構成
 
 | Artifact | Output | Dependency | 主な設計責務 |
 | --- | --- | --- | --- |
@@ -158,6 +164,8 @@ Package取得時のNetwork要件、Proxy、MirrorおよびOffline Setup方式は
 
 ## 6.1 File Interface
 
+: File Interface一覧
+
 | Path | 種別 | Read／Write | 制約 |
 | --- | --- | --- | --- |
 | `openspec/config.yaml` | Config | Read | `schema: mysdd`とOperation Timingを提供する |
@@ -189,6 +197,8 @@ Database Schema、Message FormatおよびNetwork APIは対象外である。
 
 Identity、AuthenticationおよびAuthorizationの新規機能は設計対象外である。
 本変更のSecurity／IntegrityはFile PathとGit変更境界で扱う。
+
+: 認証・認可・セキュリティ制御
 
 | Control | Design |
 | --- | --- |
@@ -231,6 +241,8 @@ Recovery Time Objective、Recovery Point Objective、Backup媒体およびRetent
 # 9. ログ・監視・運用・保守方式
 
 ## 9.1 観測対象
+
+: 観測対象とEvidence
 
 | 対象 | Evidence |
 | --- | --- |
@@ -295,6 +307,8 @@ Release TagはSemantic Versioningの`v<MAJOR>.<MINOR>.<PATCH>`形式とする。
 
 # 11. ISO/IEC 25010品質特性への対応
 
+: 品質要求への設計対応
+
 | 品質ID | 特性 | Design対応 | Evidence |
 | --- | --- | --- | --- |
 | QR-001 | Functional suitability | ID／Requirement／Scenarioを生成文書へ保持し、VerifyをArchive Gateにする | 10/10 ADR対応、生成文書比較、Verification結果 |
@@ -320,6 +334,8 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 
 # 12. ADR
 
+: ADR一覧
+
 | ADR | Design判断 | 実装先 |
 | --- | --- | --- |
 | ADR-001 | Setupを非昇格PowerShellとUser Scopeで実行する | `project-setup` |
@@ -343,6 +359,8 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
   Live Contractとの混同を避けるため検索時にArchiveを区別する。
 
 # 13. 要求・設計・検証トレーサビリティ
+
+: 要求・設計・検証トレーサビリティ
 
 | Capability／Requirement | Design判断 | 検証Evidence |
 | --- | --- | --- |
@@ -369,6 +387,8 @@ QR-007に対応する品質要求はSource Artifactに存在しないため、�
 | `markdown2docx`／`変換失敗時に正本を保持する` | SourceをRead-only Contractとして扱う | Hash比較、Failure報告 |
 
 ## 13.1 Scenario Traceability
+
+: Scenarioトレーサビリティ
 
 | Capability | Source Scenario |
 | --- | --- |

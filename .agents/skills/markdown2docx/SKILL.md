@@ -24,16 +24,15 @@ Repository Rootから入力と参照文書をLiteral Pathとして解決し、�
 
 ## DOCXへ変換する
 
-Pandoc 3.11を入力ごとに1回実行した後、同梱の`main.py`でNavigation見出し、
-表Captionおよび余白を確定し、Field対応Office Engineで表示内容を更新する。
+Pandoc 3.11を入力ごとに1回実行し、同梱のLua Filterで表Captionを確定した後、
+Field対応Office Engineで目次とPage配置を更新する。
 WindowsではMicrosoft Wordを使用する。LinuxではLibreOffice WriterとPython UNOで
 配置を2回計算し、図表CaptionとPage番号を一覧の表示結果へ確定する。
 
 <!-- markdownlint-disable MD013 -->
 
 ```powershell
-pandoc '<input.md>' --from='gfm+implicit_figures' --to=docx --standalone --reference-doc='.agents/skills/markdown2docx/references/template.docx' --toc --toc-depth=6 --lof --lot --metadata='toc-title:目次' --metadata='lof-title:図一覧' --metadata='lot-title:表一覧' --output='<same-basename.docx>'
-python '.agents/skills/markdown2docx/main.py' finalize '<same-basename.docx>'
+pandoc '<input.md>' --from='gfm+implicit_figures' --to=docx --standalone --reference-doc='.agents/skills/markdown2docx/references/template.docx' --lua-filter='.agents/skills/markdown2docx/table_captions.lua' --data-dir='.agents/skills/markdown2docx/pandoc-data' --toc --toc-depth=6 --lof --lot --metadata='toc-title:目次' --metadata='lang:ja-JP' --output='<same-basename.docx>'
 python '.agents/skills/markdown2docx/main.py' refresh '<same-basename.docx>'
 ```
 
@@ -41,7 +40,7 @@ python '.agents/skills/markdown2docx/main.py' refresh '<same-basename.docx>'
 
 ## 検証して報告する
 
-Pandoc、`finalize`および`refresh`が正常終了し、DOCXが存在して空でなく、入力の
+Pandocおよび`refresh`が正常終了し、DOCXが存在して空でなく、入力の
 SHA-256 Hashが変化していないことを確認する。目次、図一覧、表一覧の日本語見出しと
 表示項目、全表のCaption、Page番号および保存日が更新され、全Sectionの余白が上・下
 25.4mm、左・右19.05mmであることを確認する。
