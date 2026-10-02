@@ -10,7 +10,7 @@
 - Pandoc の `gfm` Readerを基礎として、GFM構文と既存の `implicit_figures` を維持する。
 - Pandoc固有構文は明示的に追加・検証したものだけを許可し、対応範囲を書式仕様へ記録する。
 - 日本語Navigation、表Caption、余白および表Styleは、Pandocまたはreference.docxで表現できる範囲をそちらへ移し、重複するOOXML編集を削除する。
-- PythonのOOXML編集は、行分割禁止とOffice Engine保存後の互換補正など、Pandocとreference.docxで表現できない処理へ限定する。
+- PythonのOOXML編集は、Office Engine保存後の互換補正など、Pandocとreference.docxで表現できない処理へ限定する。
 - PRD と HLD の全表へ、表の内容に合う固有の表題を設定する。
 - 明示的な表題がない既存文書では、現在のセクション名由来のキャプションを維持する。
 - DOCX の全表と表一覧に、明示した表題が反映されることを検証する。

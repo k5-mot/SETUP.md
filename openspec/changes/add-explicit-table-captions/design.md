@@ -24,7 +24,7 @@
 | 目次・図一覧・表一覧の日本語見出し | Pandoc翻訳Data | 削除 |
 | 図表一覧Fieldが参照するStyle名 | reference.docx | 削除 |
 | 余白、表中央配置、Header/Footer、改PageStyle | reference.docx | 変換直後の補正を削除 |
-| 表Rowの途中改Page禁止 | DOCX Row Property | 維持 |
+| 表Rowの改Page | Word／LibreOfficeの標準配置 | `cantSplit`追加を削除 |
 | Page番号を含む一覧の確定 | Word／LibreOffice | 維持 |
 | LibreOffice保存後の偶数Page部品などの補正 | 再現Testに基づく互換処理 | 必要な処理だけ維持 |
 

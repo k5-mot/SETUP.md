@@ -16,7 +16,8 @@
 - [ ] 3.1 Pandocの日本語翻訳Dataで `目次`、`図一覧`、`表一覧` を生成し、Pythonの見出し置換を削除して構造Testを通す（QR-DOCX-001、005）。
 - [ ] 3.2 reference.docxの図表Caption Style名をPandocのField参照へ合わせ、PythonのField Code置換を削除して一覧更新Testを通す（QR-DOCX-001、005）。
 - [ ] 3.3 reference.docxだけで余白と表中央配置を検証し、変換直後の重複補正を削除する。LibreOffice保存後に崩れる項目だけ再現Test付きで維持する（QR-DOCX-005、006、移植性）。
-- [ ] 3.4 表Rowの途中改Page禁止とOffice Engine後の互換補正を残し、各処理に対応する失敗再現Testがあることを確認する（信頼性、保守）。
+- [ ] 3.4 全Rowへの `cantSplit` 追加と対応Testを削除し、表Rowの改PageをWord／LibreOfficeの標準配置へ戻す（保守）。
+- [ ] 3.5 Office Engine後の互換補正は、各処理に対応する失敗再現Testがあるものだけ残す（信頼性、保守）。
 
 ## 4. Canonical Documents and Documentation
 
