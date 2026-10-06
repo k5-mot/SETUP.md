@@ -26,12 +26,11 @@ Java固有の規則を定める。
 
 ### 💬 コメント
 
-- MUST; 設定値、定数および閾値には、目的、単位、有効範囲または採用理由が
-  自明でない場合、保守者が判断根拠を理解できる説明Commentを付けること
-- MUST; 複雑なAlgorithm、分岐、状態遷移または制約には、処理の意図、理由および
-  前提が分かる説明Commentを適切な粒度で付けること
-- MUST NOT; Codeを読めば分かる処理を、行単位で言い換えるだけのCommentを
-  追加しないこと
+- MUST; Codeには「How」、Test Codeには「What」を表現すること
+- SHOULD; Code Commentには、採用しなかった選択肢や一見不自然な制約の理由
+  （「Why not」）を書くこと
+- SHOULD NOT; Code Commentで処理内容を言い換えたり、CodeやTest Codeで
+  表現できる内容を説明したりしないこと
 - MUST; Code変更でCommentの内容が古くなった場合は、同じ変更で更新または
   削除すること
 
@@ -189,6 +188,9 @@ exclude = [".agents", "tests"]
 
 - MUST; Project既存のPackage Managerと`package.json` Scriptを使用すること
 - MUST; `strict` Type Checkを有効にし、型Errorを残さないこと
+- MUST; Componentは関数Componentで実装すること
+- MUST; importは外部Package、Project内部のAliasまたは絶対Path、相対Pathの順に
+  並べること
 - MUST NOT; 理由のない`any`、型Assertionまたは`@ts-ignore`を追加しないこと
 - SHOULD; BrowserまたはRuntimeの標準APIを第三者Packageより優先すること
 - MUST; Projectで構成されたFormat、Lint、型検査およびTestを通すこと
