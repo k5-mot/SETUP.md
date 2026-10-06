@@ -6,8 +6,7 @@
 
 コミットメッセージは、Conventional commitsをベースとした以下のルールに従うこと
 
-- MUST; 日本語でメッセージを記述すること
-- MUST; 修正の理由と内容をセットで記述すること
+- MUST; Commit Logには変更理由（「Why」）と変更内容をセットで日本語で記述すること
 - MUST; 1コミットには1つの論理変更のみを含めること
 - MUST; AIを使用したコミットには、本文末尾へ汎用Trailer
   `AI-Assisted: true`を記載すること
