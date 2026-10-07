@@ -14,5 +14,7 @@
 
 - MUST NOT generate database migration files automatically. Request human
   confirmation before creating a migration file.
-- MUST NOT execute production deployments, paid operations, or actions that
-  send data externally. Propose those actions only.
+- MUST NOT execute a production deployment without the user's explicit approval
+  of the concrete deployment target and release artifact.
+- MUST NOT execute paid operations, even with the user's approval. Explain the
+  expected cost and risks so the user can perform those operations manually.
