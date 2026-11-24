@@ -2,16 +2,114 @@
 
 # 🚀 Windows開発環境セットアップ 2026年度版
 
-## 1️⃣ wingetで開発ツールをインストールする
+## 📑 目次
+
+1. [🔕 テレメトリを無効化する](#-テレメトリを無効化する)
+2. [1️⃣ craneをインストールする](#1️⃣-craneをインストールする)
+3. [2️⃣ wingetで開発ツールをインストールする](#2️⃣-wingetで開発ツールをインストールする)
+4. [3️⃣ miseで、Python/Node.jsをインストールする](#3️⃣-miseでpythonnodejsをインストールする)
+5. [4️⃣ VSCode 拡張機能をインストールする](#4️⃣-vscode-拡張機能をインストールする)
+6. [5️⃣ VSCode の設定を追加する](#5️⃣-vscode-の設定を追加する)
+7. [6️⃣ コーディングエージェントにローカルLLMを設定する](#6️⃣-コーディングエージェントにローカルllmを設定する)
+   - [🐙 GitHub Copilot Chatで使う場合](#-github-copilot-chatで使う場合)
+   - [🦓 Zoo Codeで使う場合](#-zoo-codeで使う場合)
+8. [7️⃣ OpenSpecをプロジェクトに導入する](#7️⃣-openspecをプロジェクトに導入する)
+9. [8️⃣ 動作確認](#8️⃣-動作確認)
+10. [9️⃣ その他のAgent Skillsを導入する (任意)](#9️⃣-その他のagent-skillsを導入する-任意)
+11. [🔖 参考文献](#-参考文献)
+
+## 🔕 テレメトリを無効化する
+
+各ツールが利用状況を外部へ送信しないよう、最初にテレメトリ無効化用の環境変数を設定する。
+
+```powershell
+### 1. テレメトリ無効化用の環境変数を列挙
+$TelemetryEnv = [ordered]@{
+    # 共通の DO_NOT_TRACK 規約（OpenSpec、skills CLI、Claude Code など）
+    DO_NOT_TRACK                             = '1'
+    # OpenSpec
+    OPENSPEC_TELEMETRY                       = '0'
+    # skills CLI / Claude Code
+    DISABLE_TELEMETRY                        = '1'
+    # Claude Code（エラー報告と、自動更新などの必須でない通信を無効化）
+    DISABLE_ERROR_REPORTING                  = '1'
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = '1'
+    # PowerShell 7（pwsh 起動前に設定されている必要がある）
+    POWERSHELL_TELEMETRY_OPTOUT              = '1'
+}
+
+### 2. ユーザ環境変数と現在のセッションに設定
+foreach ($Name in $TelemetryEnv.Keys) {
+    [Environment]::SetEnvironmentVariable($Name, $TelemetryEnv[$Name], "User")
+    Set-Item -Path "Env:$Name" -Value $TelemetryEnv[$Name]
+}
+```
+
+## 1️⃣ craneをインストールする
+
+- [crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md)
+
+```powershell
+$ErrorActionPreference = "Stop"
+
+### 1. 設定
+$Version = "v0.22.1"
+$OS = "Windows"
+$Arch = "x86_64"
+$BinDir = Join-Path $HOME ".local\bin"
+
+### 2. ダウンロード設定
+$FileName = "go-containerregistry_${OS}_${Arch}.tar.gz"
+$Url = "https://github.com/google/go-containerregistry/releases/download/$Version/$FileName"
+$Archive = Join-Path $env:TEMP $FileName
+$ExeName = if ($OS -eq "Windows") { "crane.exe" } else { "crane" }
+
+### 3. インストール先ディレクトリを作成
+New-Item -ItemType Directory -Path $BinDir -Force | Out-Null
+
+### 4. ダウンロード・展開
+try {
+    Invoke-WebRequest -Uri $Url -OutFile $Archive
+
+    tar -xzf $Archive -C $BinDir $ExeName
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to extract $ExeName"
+    }
+}
+finally {
+    Remove-Item $Archive -Force -ErrorAction SilentlyContinue
+}
+
+### 5. ユーザ環境変数 PATH に追加（重複防止）
+$UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
+$PathEntries = @($UserPath -split ';' | Where-Object { $_ })
+
+if ($PathEntries -notcontains $BinDir) {
+    $NewPath = ($PathEntries + $BinDir) -join ';'
+    [Environment]::SetEnvironmentVariable(
+        "Path",
+        $NewPath,
+        "User"
+    )
+}
+
+### 6. 現在の PowerShell セッションにも PATH を反映
+if (($env:Path -split ';') -notcontains $BinDir) {
+    $env:Path += ";$BinDir"
+}
+
+### 7. 動作確認
+crane version
+```
+
+## 2️⃣ wingetで開発ツールをインストールする
 
 ```powershell
 ### インストールするパッケージを列挙.
 $PackageIds = @(
-  'Git.Git'
-  'OpenJS.NodeJS.LTS'
-  'Python.Python.3.12'
   'Microsoft.PowerShell'
   'Microsoft.VisualStudioCode'
+  'jdx.mise'
   'astral-sh.uv'
   'jqlang.jq'
   'JohnMacFarlane.Pandoc'
@@ -51,7 +149,74 @@ $PackageIds = @(
 
 </details>
 
-## 2️⃣ VSCode 拡張機能をインストールする
+## 3️⃣ miseで、Python/Node.jsをインストールする
+
+```powershell
+$ErrorActionPreference = "Stop"
+
+### 1. インストール設定
+$PythonVersion = "3.14"
+$NodeVersion = "24"
+$ShimsDir = Join-Path $env:LOCALAPPDATA "mise\shims"
+
+### 2. mise の PATH を現在のセッションに反映
+$WingetLinks = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links"
+if (($env:Path -split ';') -notcontains $WingetLinks) {
+    $env:Path += ";$WingetLinks"
+}
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    throw "Not found mise. Restart PowerShell."
+}
+
+### 3. Python 3.14 と Node.js 24 LTS をインストール
+mise use --global "python@$PythonVersion" "node@$NodeVersion"
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to install Python / Node.js."
+}
+
+### 4. mise の shims を生成・更新
+mise reshim
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to generate mise shims."
+}
+
+### 5. ユーザ環境変数 PATH に shims を追加（重複防止）
+$UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
+$PathEntries = @($UserPath -split ';' | Where-Object { $_ })
+if ($PathEntries -notcontains $ShimsDir) {
+    $NewPath = (@($ShimsDir) + $PathEntries) -join ';'
+
+    [Environment]::SetEnvironmentVariable(
+        "Path",
+        $NewPath,
+        "User"
+    )
+}
+
+### 6. 現在の PowerShell セッションにも PATH を反映
+$ProcessPathEntries = @($env:Path -split ';' | Where-Object { $_ })
+
+if ($ProcessPathEntries -notcontains $ShimsDir) {
+    $env:Path = "$ShimsDir;$env:Path"
+}
+
+### 7. mise の動作確認
+mise --version
+mise ls
+
+### 8. Python / Node.js の動作確認
+python --version
+node --version
+npm --version
+
+### 9. PATH の解決先を確認
+Get-Command mise
+Get-Command python
+Get-Command node
+Get-Command npm
+```
+
+## 4️⃣ VSCode 拡張機能をインストールする
 
 ```powershell
 ### VSCode 拡張機能を列挙.
@@ -67,7 +232,7 @@ foreach ($ExtensionId in $ExtensionIds) {
 }
 ```
 
-## 3️⃣ VSCode の設定を追加する
+## 5️⃣ VSCode の設定を追加する
 
 ```json
 {
@@ -235,7 +400,7 @@ foreach ($ExtensionId in $ExtensionIds) {
 }
 ```
 
-## 4️⃣ コーディングエージェントにローカルLLMを設定する
+## 6️⃣ コーディングエージェントにローカルLLMを設定する
 
 ### 🐙 GitHub Copilot Chatで使う場合
 
@@ -265,7 +430,7 @@ foreach ($ExtensionId in $ExtensionIds) {
      - `API Key`: `local`
      - `Model ID`: `<model-id>`
 
-## 5️⃣ OpenSpecをプロジェクトに導入する
+## 7️⃣ OpenSpecをプロジェクトに導入する
 
 ```powershell
 ### OpenSpecをインストール.
@@ -277,7 +442,7 @@ openspec init --tools agents --force --profile custom --no-animation
 openspec config set telemetry.enabled false
 ```
 
-## 6️⃣ 動作確認
+## 8️⃣ 動作確認
 
 ```powershell
 # インストールしたコマンドのバージョンを確認する。
@@ -296,7 +461,7 @@ openspec --version
 <details>
 <summary>その他のAgent Skillsを導入する</summary>
 
-## #️⃣. その他のAgent Skillsを導入する (任意)
+## 9️⃣ その他のAgent Skillsを導入する (任意)
 
 ### Matt Pocock Skills
 
@@ -338,26 +503,6 @@ npx skills@latest add DietrichGebert/ponytail --agent universal --yes ponytail p
 
 </details>
 
-<details>
-<summary>craneを導入する</summary>
-
-## #️⃣. craneを導入する (任意)
-
-```powershell
-### インストール先を作成.
-$BinDir = "$HOME\.local\bin"
-New-Item -ItemType Directory -Force $BinDir | Out-Null
-
-### crane をダウンロード・展開・インストール.
-Invoke-WebRequest `
-    'https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Windows_x86_64.tar.gz' `
-    -OutFile "$env:TEMP\crane.tar.gz"
-tar.exe -xf "$env:TEMP\crane.tar.gz" -C $BinDir crane.exe
-Remove-Item "$env:TEMP\crane.tar.gz"
-```
-
-</details>
-
 ## 🔖 参考文献
 
 - [Documentation for Visual Studio Code](https://code.visualstudio.com/docs)
@@ -373,3 +518,6 @@ Remove-Item "$env:TEMP\crane.tar.gz"
 - [Graphify-Labs/graphify: Turn any codebase, with its docs, SQL schemas, configs, and PDFs, into a queryable knowledge graph. A /graphify skill for Claude Code, Cursor, Codex, and Gemini CLI: local deterministic AST parsing, every edge explained, no vector store.](https://github.com/Graphify-Labs/graphify)
 - [Introduction - Ollama](https://docs.ollama.com/api/introduction)
 - [vLLM](https://docs.vllm.ai/en/latest/)
+- [about_Telemetry - PowerShell | Microsoft Learn](https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.core/about/about_telemetry)
+- [Data usage - Claude Code](https://docs.claude.com/en/docs/claude-code/data-usage)
+- [vercel-labs/skills](https://github.com/vercel-labs/skills)
