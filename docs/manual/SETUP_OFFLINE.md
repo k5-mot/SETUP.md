@@ -464,7 +464,7 @@ if ($LASTEXITCODE -ne 0) {
 
 </details>
 
-### 🗜️ 0-9 資材をzipにまとめて搬出する
+### 🚚 0-9 資材をzipにまとめて搬出する
 
 ```powershell
 ### 1. 資材をzipにまとめる（Compress-Archiveの2GB制限を避けるため tar を使う）
