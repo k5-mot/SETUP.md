@@ -5,6 +5,7 @@ Windows 11の開発環境を構築し、OpenSpecのMySDD（`mysdd`）Schemaで�
 ## 🚀 セットアップ
 
 - [SETUP.md](docs/manual/SETUP.md)
+- [SETUP_OFFLINE.md](docs/manual/SETUP_OFFLINE.md)（閉域環境向け）
 
 セットアップ後、PowerShellでmiseを有効化する。
 
