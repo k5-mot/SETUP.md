@@ -2,110 +2,63 @@
 
 # 🚀 Windows開発環境セットアップ 2026年度版
 
+## 📝 概要
+
+Windows 11上に、PowerShell 7、VSCode、Python/Node.js、コーディングエージェント、OpenSpecなどの開発環境を構築する手順書である。
+
 ## 📑 目次
 
-1. [🔕 テレメトリを無効化する](#-テレメトリを無効化する)
-2. [1️⃣ craneをインストールする](#1️⃣-craneをインストールする)
-3. [2️⃣ wingetで開発ツールをインストールする](#2️⃣-wingetで開発ツールをインストールする)
-4. [3️⃣ miseで、Python/Node.jsをインストールする](#3️⃣-miseでpythonnodejsをインストールする)
-5. [4️⃣ VSCode 拡張機能をインストールする](#4️⃣-vscode-拡張機能をインストールする)
-6. [5️⃣ VSCode の設定を追加する](#5️⃣-vscode-の設定を追加する)
-7. [6️⃣ コーディングエージェントにローカルLLMを設定する](#6️⃣-コーディングエージェントにローカルllmを設定する)
-   - [🐙 GitHub Copilot Chatで使う場合](#-github-copilot-chatで使う場合)
-   - [🦓 Zoo Codeで使う場合](#-zoo-codeで使う場合)
-8. [7️⃣ npm/pipパッケージをインストールし、OpenSpecを導入する](#7️⃣-npmpipパッケージをインストールしopenspecを導入する)
-9. [8️⃣ 動作確認](#8️⃣-動作確認)
-10. [9️⃣ その他のAgent Skillsを導入する (任意)](#9️⃣-その他のagent-skillsを導入する-任意)
-11. [🔖 参考文献](#-参考文献)
+- [📝 概要](#-概要)
+- [✅ 前提条件](#-前提条件)
+- [1. テレメトリーを無効化する](#1-テレメトリーを無効化する)
+- [2. wingetで開発ツールをインストールする](#2-wingetで開発ツールをインストールする)
+- [3. craneをインストールする](#3-craneをインストールする)
+- [4. miseで、Python/Node.jsをインストールする](#4-miseでpythonnodejsをインストールする)
+- [5. npmパッケージをインストール](#5-npmパッケージをインストール)
+- [6. pipパッケージをインストール](#6-pipパッケージをインストール)
+- [7. VSCode 拡張機能をインストールする](#7-vscode-拡張機能をインストールする)
+- [8. VSCode の設定を追加する](#8-vscode-の設定を追加する)
+- [9. コーディングエージェントにローカルLLMを設定する](#9-コーディングエージェントにローカルllmを設定する)
+  - [GitHub Copilotで使う場合](#-github-copilotで使う場合)
+  - [Codexで使う場合](#-codexで使う場合)
+  - [Claude Codeで使う場合](#-claude-codeで使う場合)
+  - [Zoo Codeで使う場合](#-zoo-codeで使う場合)
+- [10. 重複したPATHを除去](#10-重複したpathを除去)
+- [11. 動作確認](#11-動作確認)
+- [12. OpenSpecをプロジェクトに導入](#12-openspecをプロジェクトに導入)
+- [13. 有用なAgent Skillsをインストール](#13-有用なagent-skillsをインストール)
+- [🔖 参考文献](#-参考文献)
 
-## 🔕 テレメトリを無効化する
+## ✅ 前提条件
 
-各ツールが利用状況を外部へ送信しないよう、最初にテレメトリ無効化用の環境変数を設定する。
+- Windows 11（x64）であること
+- 一般ユーザ権限のPowerShellで実行できること（管理者権限は不要）
+- インターネットに接続できること
+- wingetが利用できること
+- 9.でローカルLLMを使う場合は、OpenAI互換APIを提供するLLMサーバ（vLLMなど）が起動していること
+
+## 1. テレメトリーを無効化する
+
+各ツールが利用状況を外部へ送信しないよう、最初にテレメトリー無効化用の環境変数をユーザ環境変数に設定する。
 
 ```powershell
-### 1. テレメトリ無効化用の環境変数を列挙
-$TelemetryEnv = [ordered]@{
-    # 共通の DO_NOT_TRACK 規約（OpenSpec、skills CLI、Claude Code など）
-    DO_NOT_TRACK                             = '1'
-    # OpenSpec
-    OPENSPEC_TELEMETRY                       = '0'
-    # skills CLI / Claude Code
-    DISABLE_TELEMETRY                        = '1'
-    # Claude Code（エラー報告と、自動更新などの必須でない通信を無効化）
-    DISABLE_ERROR_REPORTING                  = '1'
-    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = '1'
-    # PowerShell 7（pwsh 起動前に設定されている必要がある）
-    POWERSHELL_TELEMETRY_OPTOUT              = '1'
-}
-
-### 2. ユーザ環境変数と現在のセッションに設定
-foreach ($Name in $TelemetryEnv.Keys) {
-    [Environment]::SetEnvironmentVariable($Name, $TelemetryEnv[$Name], "User")
-    Set-Item -Path "Env:$Name" -Value $TelemetryEnv[$Name]
-}
+# 1. 共通
+[Environment]::SetEnvironmentVariable("DO_NOT_TRACK", "1", "User")
+# 2. OpenSpec
+[Environment]::SetEnvironmentVariable("OPENSPEC_TELEMETRY", "0", "User")
+# 3. skills CLI / Claude Code
+[Environment]::SetEnvironmentVariable("DISABLE_TELEMETRY", "1", "User")
+# 4. Claude Code
+[Environment]::SetEnvironmentVariable("DISABLE_ERROR_REPORTING", "1", "User")
+[Environment]::SetEnvironmentVariable("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC", "1", "User")
+# 5. PowerShell 7
+[Environment]::SetEnvironmentVariable("POWERSHELL_TELEMETRY_OPTOUT", "1", "User")
 ```
 
-## 1️⃣ craneをインストールする
-
-- [crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md)
+## 2. wingetで開発ツールをインストールする
 
 ```powershell
-$ErrorActionPreference = "Stop"
-
-### 1. 設定
-$Version = "v0.22.1"
-$OS = "Windows"
-$Arch = "x86_64"
-$BinDir = Join-Path $HOME ".local\bin"
-
-### 2. ダウンロード設定
-$FileName = "go-containerregistry_${OS}_${Arch}.tar.gz"
-$Url = "https://github.com/google/go-containerregistry/releases/download/$Version/$FileName"
-$Archive = Join-Path $env:TEMP $FileName
-$ExeName = if ($OS -eq "Windows") { "crane.exe" } else { "crane" }
-
-### 3. インストール先ディレクトリを作成
-New-Item -ItemType Directory -Path $BinDir -Force | Out-Null
-
-### 4. ダウンロード・展開
-try {
-    Invoke-WebRequest -Uri $Url -OutFile $Archive
-
-    tar -xzf $Archive -C $BinDir $ExeName
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to extract $ExeName"
-    }
-}
-finally {
-    Remove-Item $Archive -Force -ErrorAction SilentlyContinue
-}
-
-### 5. ユーザ環境変数 PATH に追加（重複防止）
-$UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
-$PathEntries = @($UserPath -split ';' | Where-Object { $_ })
-
-if ($PathEntries -notcontains $BinDir) {
-    $NewPath = ($PathEntries + $BinDir) -join ';'
-    [Environment]::SetEnvironmentVariable(
-        "Path",
-        $NewPath,
-        "User"
-    )
-}
-
-### 6. 現在の PowerShell セッションにも PATH を反映
-if (($env:Path -split ';') -notcontains $BinDir) {
-    $env:Path += ";$BinDir"
-}
-
-### 7. 動作確認
-crane version
-```
-
-## 2️⃣ wingetで開発ツールをインストールする
-
-```powershell
-### インストールするパッケージを列挙.
+# 1. インストールするパッケージを列挙
 $PackageIds = @(
   'Microsoft.PowerShell'
   'Microsoft.VisualStudioCode'
@@ -116,110 +69,65 @@ $PackageIds = @(
   'BurntSushi.ripgrep.MSVC'
 )
 
-### wingetでパッケージをインストール.
+# 2. wingetでパッケージをインストール
 foreach ($PackageId in $PackageIds) {
   winget install --exact --id $PackageId --source winget --scope user --accept-source-agreements --accept-package-agreements --disable-interactivity
 }
 ```
 
-<details>
-<summary>そのほかのおすすめツール</summary>
+## 3. craneをインストールする
+
+- [crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md)
 
 ```powershell
-$PackageIds = @(
-  'GitHub.cli'
-  'Microsoft.WindowsTerminal'
-  'twpayne.chezmoi'
-  'JanDeDobbeleer.OhMyPosh'
-  'jdx.mise'
-  'sharkdp.bat'
-  'Clement.bottom'
-  'dandavison.delta'
-  'bootandy.dust'
-  'sharkdp.fd'
-  'sharkdp.hyperfine'
-  'ajeetdsouza.zoxide'
-  'lsd-rs.lsd'
-  'Dystroy.broot'
-  'ducaale.xh'
-  'chmln.sd'
-  'svenstaro.genact'
-)
+# 1. インストール先ディレクトリを作成
+New-Item -ItemType Directory -Path "$HOME\.local\bin" -Force | Out-Null
+# 2. crane をダウンロードして展開
+curl.exe -fsSL -o "$env:TEMP\crane.tar.gz" https://github.com/google/go-containerregistry/releases/download/v0.22.1/go-containerregistry_Windows_x86_64.tar.gz; tar -xzf "$env:TEMP\crane.tar.gz" -C "$HOME\.local\bin" crane.exe
+# 3. ユーザ環境変数 PATH に追加
+[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$HOME\.local\bin", "User")
 ```
 
-</details>
-
-## 3️⃣ miseで、Python/Node.jsをインストールする
+## 4. miseで、Python/Node.jsをインストールする
 
 ```powershell
-$ErrorActionPreference = "Stop"
+# 1. mise をユーザ環境変数  PATH に追加
+[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$env:LOCALAPPDATA\Microsoft\WinGet\Links", "User")
 
-### 1. インストール設定
-$PythonVersion = "3.14"
-$NodeVersion = "24"
-$ShimsDir = Join-Path $env:LOCALAPPDATA "mise\shims"
+# 2. Python 3.14 と Node.js 24 LTS をインストール
+mise use --global python@3.14 node@24
 
-### 2. mise の PATH を現在のセッションに反映
-$WingetLinks = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links"
-if (($env:Path -split ';') -notcontains $WingetLinks) {
-    $env:Path += ";$WingetLinks"
-}
-if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
-    throw "Not found mise. Restart PowerShell."
-}
-
-### 3. Python 3.14 と Node.js 24 LTS をインストール
-mise use --global "python@$PythonVersion" "node@$NodeVersion"
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to install Python / Node.js."
-}
-
-### 4. mise の shims を生成・更新
+# 3. shims を更新
 mise reshim
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to generate mise shims."
-}
 
-### 5. ユーザ環境変数 PATH に shims を追加（重複防止）
-$UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
-$PathEntries = @($UserPath -split ';' | Where-Object { $_ })
-if ($PathEntries -notcontains $ShimsDir) {
-    $NewPath = (@($ShimsDir) + $PathEntries) -join ';'
-
-    [Environment]::SetEnvironmentVariable(
-        "Path",
-        $NewPath,
-        "User"
-    )
-}
-
-### 6. 現在の PowerShell セッションにも PATH を反映
-$ProcessPathEntries = @($env:Path -split ';' | Where-Object { $_ })
-
-if ($ProcessPathEntries -notcontains $ShimsDir) {
-    $env:Path = "$ShimsDir;$env:Path"
-}
-
-### 7. mise の動作確認
-mise --version
-mise ls
-
-### 8. Python / Node.js の動作確認
-python --version
-node --version
-npm --version
-
-### 9. PATH の解決先を確認
-Get-Command mise
-Get-Command python
-Get-Command node
-Get-Command npm
+# 4. ユーザ環境変数 PATH の先頭に mise の shims を追加
+[Environment]::SetEnvironmentVariable("Path", "$env:LOCALAPPDATA\mise\shims;" + [Environment]::GetEnvironmentVariable("Path", "User"), "User")
 ```
 
-## 4️⃣ VSCode 拡張機能をインストールする
+ここまでに設定した環境変数を反映するため、**PowerShellを開き直してから**次の手順へ進む。
+
+## 5. npmパッケージをインストール
 
 ```powershell
-### VSCode 拡張機能を列挙.
+# 1. npm パッケージをまとめてインストール
+npm install --global @opencode/cli @openai/codex @anthropic-ai/claude-code @github/copilot git-cz markdownlint-cli2 pnpm typescript tsx vite-plus
+# 2. インストールしたコマンドを mise の shims に反映
+mise reshim
+```
+
+## 6. pipパッケージをインストール
+
+```powershell
+# 1. pip パッケージをまとめてインストール
+python -m pip install ruff pre-commit pytest codespell yamllint graphifyy
+# 2. インストールしたコマンドを mise の shims に反映
+mise reshim
+```
+
+## 7. VSCode 拡張機能をインストールする
+
+```powershell
+# 1. VSCode 拡張機能を列挙
 $ExtensionIds = @(
   'GitHub.copilot'
   'GitHub.copilot-chat'
@@ -227,15 +135,27 @@ $ExtensionIds = @(
   'anthropic.claude-code'
   'openai.chatgpt'
   'sst-dev.opencode-v2'
+  'ms-vscode-remote.remote-wsl'
+  'ms-vscode-remote.remote-containers'
+  'ms-vscode-remote.remote-ssh'
+  'ms-vscode.remote-server'
+  'ms-vscode-remote.vscode-remote-extensionpack'
+  'ms-python.python'
+  'ms-python.vscode-pylance'
+  'charliermarsh.ruff'
+  'DavidAnson.vscode-markdownlint'
+  'bierner.markdown-mermaid'
+  'redhat.vscode-yaml'
+  'tamasfe.even-better-toml'
 )
 
-### VSCode 拡張機能をインストール.
+# 2. VSCode 拡張機能をインストール
 foreach ($ExtensionId in $ExtensionIds) {
     code --install-extension $ExtensionId --force
 }
 ```
 
-## 5️⃣ VSCode の設定を追加する
+## 8. VSCode の設定を追加する
 
 ```json
 {
@@ -264,214 +184,93 @@ foreach ($ExtensionId in $ExtensionIds) {
     "chat.tools.terminal.blockDetectedFileWrites": "outsideWorkspace",
     // Agent のターミナルコマンドを勝手に承認しない.
     "chat.tools.terminal.enableAutoApprove": true,
-    "chat.tools.global.autoApprove": false,
-    // 読み取り系だけ自動承認。
-    "chat.tools.terminal.autoApprove": {
-        // PowerShell
-        "Get-ChildItem": true,
-        "Get-Item": true,
-        "Get-Content": true,
-        "Get-Location": true,
-        "Resolve-Path": true,
-        "Test-Path": true,
-        "Select-String": true,
-        "Get-FileHash": true,
-        "Get-Command": true,
-        "Out-String": true,
-        "where": true,
-        "/^pwsh\\s+(?:--version|-v)\\s*$/i": true,
-        // Linux
-        "dir": true,
-        "ls": true,
-        "cat": true,
-        "pwd": true,
-        "type": true,
-        "head": true,
-        "tail": true,
-        "wc": true,
-        "grep": true,
-        "stat": true,
-        "file": true,
-        "which": true,
-        "realpath": true,
-        "readlink": true,
-        "basename": true,
-        "dirname": true,
-        "cut": true,
-        "uniq": true,
-        "tr": true,
-        // Git
-        "/^git\\s+--version\\s*$/i": true,
-        "/^git\\s+(?:(?:-C\\s+(?:\"[^\"]+\"|'[^']+'|\\S+)\\s+)|(?:--no-pager\\s+))*(?:status|log|show|diff|ls-files|rev-parse|rev-list|describe)\\b/i": true,
-        "/^git\\s+branch\\s+(?:--list|-l)(?:\\s|$)/i": true,
-        "/^git\\s+tag\\s+(?:--list|-l)(?:\\s|$)/i": true,
-        "/^git\\s+remote\\s*$/i": true,
-        "/^git\\s+remote\\s+(?:-v|--verbose)\\s*$/i": true,
-        // ripgrep
-        "rg": true,
-        "/^rg\\b.*(?:--pre(?:=|\\s)|--hostname-bin(?:=|\\s))/i": false,
-        // jq
-        "jq": true,
-        // Node.js / npm / pnpm / Corepack
-        "/^node\\s+(?:--version|-v|--help|-h)\\s*$/i": true,
-        "/^npm\\s+(?:--version|-v|--help|-h)\\s*$/i": true,
-        "/^npm\\s+(?:ls|list|root|prefix|explain|query)\\b/i": true,
-        "/^npm\\s+config\\s+get\\b/i": true,
-        "/^corepack\\s+--version\\s*$/i": true,
-        "/^npm\\s+run\\s+(?:lint|test|typecheck|type-check|check)\\s*$/i": true,
-        "/^npm\\s+test\\s*$/i": true,
-        "/^pnpm\\s+(?:ls|list|why|root)\\b/i": true,
-        "/^pnpm\\s+config\\s+get\\b/i": true,
-        "/^pnpm\\s+run\\s+(?:lint|test|typecheck|type-check|check)\\s*$/i": true,
-        "/^pnpm\\s+test\\s*$/i": true,
-        // Python / pip
-        "/^python(?:3(?:\\.\\d+)?)?\\s+(?:--version|-V|--help|-h)\\s*$/i": true,
-        "/^py\\s+(?:-3(?:\\.\\d+)?\\s+)?(?:--version|-V|--help|-h)\\s*$/i": true,
-        "/^pip(?:3(?:\\.\\d+)?)?\\s+--version\\s*$/i": true,
-        "/^pip(?:3(?:\\.\\d+)?)?\\s+(?:list|check)\\s*$/i": true,
-        "/^pip(?:3(?:\\.\\d+)?)?\\s+(?:show|freeze|inspect)\\b/i": true,
-        "/^python(?:3(?:\\.\\d+)?)?\\s+-m\\s+pip\\s+--version\\s*$/i": true,
-        "/^python(?:3(?:\\.\\d+)?)?\\s+-m\\s+pip\\s+(?:list|check)\\s*$/i": true,
-        "/^python(?:3(?:\\.\\d+)?)?\\s+-m\\s+pip\\s+(?:show|freeze|inspect)\\b/i": true,
-        "/^py\\s+(?:-3(?:\\.\\d+)?\\s+)?-m\\s+pip\\s+--version\\s*$/i": true,
-        "/^py\\s+(?:-3(?:\\.\\d+)?\\s+)?-m\\s+pip\\s+(?:list|check)\\s*$/i": true,
-        "/^py\\s+(?:-3(?:\\.\\d+)?\\s+)?-m\\s+pip\\s+(?:show|freeze|inspect)\\b/i": true,
-        // uv
-        "/^uv\\s+(?:--version|--help|-h)\\s*$/i": true,
-        "/^uv\\s+version\\s*$/i": true,
-        "/^uv\\s+pip\\s+(?:list|check)\\s*$/i": true,
-        "/^uv\\s+pip\\s+(?:show|freeze|tree)\\b/i": true,
-        "/^uv\\s+tool\\s+list\\s*$/i": true,
-        "/^uv\\s+tool\\s+dir(?:\\s+--bin)?\\s*$/i": true,
-        "/^uv\\s+python\\s+list\\b(?=.*--only-installed\\b)/i": true,
-        "/^uv\\s+python\\s+dir\\s*$/i": true,
-        "/^uv\\s+cache\\s+dir\\s*$/i": true,
-        "/^uv\\s+tree\\b(?=.*(?:--locked|--frozen)\\b)/i": true,
-        "/^uv\\s+lock\\s+--check-exists\\s*$/i": true,
-        "/^uv\\s+run\\s+--no-sync\\s+pytest(?:\\s|$)/i": true,
-        "/^uv\\s+run\\s+--no-sync\\s+ruff\\s+check(?:\\s|$)/i": true,
-        "/^uv\\s+run\\b.*\\bruff\\s+check\\b.*(?:--fix|--unsafe-fixes)\\b/i": false,
-        "/^uv\\s+run\\s+--no-sync\\s+ty\\s+check(?:\\s|$)/i": true,
-        "/^uv\\s+run\\b.*\\bty\\s+check\\b.*--add-ignore\\b/i": false,
-        // VSCode
-        "/^(?:code|code-insiders)\\s+--version\\s*$/i": true,
-        "/^(?:code|code-insiders)\\s+--status\\s*$/i": true,
-        "/^(?:code|code-insiders)\\s+(?:--help|-h)\\s*$/i": true,
-        "/^(?:code|code-insiders)\\s+--list-extensions(?:\\s+--show-versions)?\\s*$/i": true,
-        // Pandoc
-        "/^pandoc\\s+(?:--version|-v|--help|-h)\\s*$/i": true,
-        "/^pandoc\\s+(?:--list-input-formats|--list-output-formats|--list-highlight-languages|--list-highlight-styles)\\s*$/i": true,
-        "/^pandoc\\s+--list-extensions(?:=[^\\s]+|\\s+[^\\s]+)?\\s*$/i": true,
-        "/^pandoc\\s+--print-default-template(?:=[^\\s]+|\\s+[^\\s]+)\\s*$/i": true,
-        // Docker
-        "/^docker\\s+(?:--version|version|info)\\b/i": true,
-        "/^docker\\s+(?:ps|inspect|images|logs|top|port)\\b/i": true,
-        "/^docker\\s+container\\s+(?:ls|list|ps|inspect|logs|top|port)\\b/i": true,
-        "/^docker\\s+image\\s+(?:ls|list|inspect|history)\\b/i": true,
-        "/^docker\\s+network\\s+(?:ls|list|inspect)\\b/i": true,
-        "/^docker\\s+volume\\s+(?:ls|list|inspect)\\b/i": true,
-        "/^docker\\s+context\\s+(?:ls|list|show|inspect)\\b/i": true,
-        "/^docker\\s+system\\s+df\\b/i": true,
-        "/^docker\\s+compose\\s+(?:ps|images|logs|ls|version)\\b/i": true,
-        "/^docker\\s+compose\\s+config\\b(?!.*(?:\\s-o(?:\\s|=)|--output(?:=|\\s)))/i": true,
-        // Podman
-        "/^podman\\s+(?:ps|container\\s+(?:ps|ls|list))\\b.*--sync\\b/i": false,
-        "/^podman\\s+(?:--version|version|info)\\b/i": true,
-        "/^podman\\s+(?:ps|inspect|images|logs|top|port)\\b/i": true,
-        "/^podman\\s+container\\s+(?:ls|list|ps|inspect|logs|top|port)\\b/i": true,
-        "/^podman\\s+image\\s+(?:ls|list|inspect|history|tree)\\b/i": true,
-        "/^podman\\s+network\\s+(?:ls|list|inspect)\\b/i": true,
-        "/^podman\\s+volume\\s+(?:ls|list|inspect)\\b/i": true,
-        "/^podman\\s+pod\\s+(?:ps|inspect)\\b/i": true,
-        "/^podman\\s+system\\s+df\\b/i": true,
-        "/^podman\\s+machine\\s+(?:list|ls|inspect)\\b/i": true
-    },
-    "zoo-code.allowedCommands": [
-        "git log",
-        "git diff",
-        "git show",
-        "mkdir",
-        "python",
-        "ls",
-        "cp",
-        "cd",
-        "uv",
-        "uv run",
-        "uv run python"
-    ],
-    "zoo-code.deniedCommands": [],
+    "chat.tools.global.autoApprove": false
 }
 ```
 
-## 6️⃣ コーディングエージェントにローカルLLMを設定する
+## 9. コーディングエージェントにローカルLLMを設定する
 
-### 🐙 GitHub Copilot Chatで使う場合
+OpenAI互換APIを提供するローカルLLMサーバ（vLLMなど）に接続する。
+
+- URL: `http://localhost:8000/v1`
+- APIキー: `<api-key>`
+- モデルID: `<model-id>`
+
+### 💙 GitHub Copilotで使う場合
 
 `Ctrl+Shift+P`から`Chat: Manage Language Models`を開く
 
 1. `Add Models`から`Custom Endpoint`を選ぶ
 2. API Typeに`Chat Completions`を選ぶ
 3. URLに`http://localhost:8000/v1/chat/completions`を設定する
-4. API Keyに`local`、Model IDに`<model-id>`を設定する
+4. API Keyに`<api-key>`、Model IDに`<model-id>`を設定する
 5. Tool Calling対応モデルの場合は`toolCalling`を有効にする
 6. Model Pickerから追加したモデルを選ぶ
 
-### 🦓 Zoo Codeで使う場合
+### 💚 Codexで使う場合
+
+Codexは、OpenAI互換APIのうちResponses API（`/v1/responses`）で接続する。
+まず、CodexがAPIキーを参照するユーザ環境変数を設定する。
+
+```powershell
+# Codex が参照するAPIキーをユーザ環境変数に設定
+[Environment]::SetEnvironmentVariable("LITELLM_MASTER_API_KEY", "<api-key>", "User")
+```
+
+次に、`%USERPROFILE%\.codex\config.toml`に以下を追加する。
+
+```toml
+# 1. ローカルLLMをデフォルトのモデルプロバイダーにする
+model = "<model-id>"
+model_provider = "local"
+
+# 2. APIキーは上で設定した環境変数 LITELLM_MASTER_API_KEY から読み込む
+[model_providers.local]
+name = "Local LLM"
+base_url = "http://localhost:8000/v1"
+env_key = "LITELLM_MASTER_API_KEY"
+```
+
+### 🧡 Claude Codeで使う場合
+
+Claude CodeはOpenAI互換APIではなく、Anthropic Messages API（`/v1/messages`）で接続する。
+vLLMはMessages APIにも対応しているため、同じサーバに接続できる。
+接続先には`/v1`を含めない。
+
+```powershell
+# Claude Code の接続先、APIキー、モデルをユーザ環境変数に設定
+[Environment]::SetEnvironmentVariable("ANTHROPIC_BASE_URL", "http://localhost:8000", "User")
+[Environment]::SetEnvironmentVariable("ANTHROPIC_AUTH_TOKEN", "<api-key>", "User")
+[Environment]::SetEnvironmentVariable("ANTHROPIC_MODEL", "<model-id>", "User")
+```
+
+### 💜 Zoo Codeで使う場合
 
 1. `Settings`(⚙️)を開く
 2. `Providers` タブを開く
 3. 以下を入力する
+   - `API Provider`: `OpenAI Compatible`
+   - `Base URL`: `http://localhost:8000/v1`
+   - `API Key`: `<api-key>`
+   - `Model ID`: `<model-id>`
 
-   - Ollamaの場合
-     - `API Provider`: `Ollama`
-     - `Base URL`: `http://localhost:11434`
-     - `API Key`: `EMPTY`
-     - `Model Name`: `<model-name>`
-   - vLLMの場合
-     - `API Provider`: `OpenAI Compatible`
-     - `Base URL`: `http://localhost:8000/v1`
-     - `API Key`: `local`
-     - `Model ID`: `<model-id>`
+## 10. 重複したPATHを除去
 
-## 7️⃣ npm/pipパッケージをインストールし、OpenSpecを導入する
+ここまでの手順でユーザ環境変数PATHに重複して追加されたディレクトリを、順序を保ったまま除去する。
 
 ```powershell
-### 1. npm パッケージを列挙.
-$NpmPackages = @(
-  '@fission-ai/openspec'
-  '@opencode/cli'
-  '@openai/codex'
-  '@anthropic-ai/claude-code'
-  '@github/copilot'
-  'git-cz'
-)
-
-### 2. npm パッケージをインストール.
-foreach ($Package in $NpmPackages) {
-    npm install --global "$Package@latest"
-}
-
-### 3. pip パッケージを列挙.
-$PipPackages = @(
-  'cowsay'
-)
-
-### 4. pip パッケージをインストール.
-python -m pip install @PipPackages
-
-### 5. インストールしたコマンドを mise の shims に反映.
-mise reshim
-
-### 6. OpenSpecをプロジェクトへ導入.
-Set-Location -LiteralPath '<project-root>'
-openspec init --tools agents --force --profile custom --no-animation
-openspec config set telemetry.enabled false
+# ユーザ環境変数 PATH の重複を除去
+[Environment]::SetEnvironmentVariable("Path", (([Environment]::GetEnvironmentVariable("Path", "User") -split ';' | Where-Object { $_ } | Select-Object -Unique) -join ';'), "User")
 ```
 
-## 8️⃣ 動作確認
+PATHを反映するため、**PowerShellを開き直してから**次の手順へ進む。
+
+## 11. 動作確認
 
 ```powershell
-# インストールしたコマンドのバージョンを確認する。
+# インストールしたコマンドのバージョンを確認する
+crane version
+mise --version
 node --version
 npm --version
 python --version
@@ -481,59 +280,74 @@ uv --version
 jq --version
 pandoc --version
 rg --version
-openspec --version
 opencode --version
 codex --version
 claude --version
 copilot --version
 git-cz --version
-python -m pip show cowsay
+pnpm --version
+tsc --version
+tsx --version
+vp --version
+npm ls --global --depth=0
+ruff --version
+pre-commit --version
+pytest --version
+codespell --version
+yamllint --version
 ```
 
-<details>
-<summary>その他のAgent Skillsを導入する</summary>
-
-## 9️⃣ その他のAgent Skillsを導入する (任意)
-
-### Matt Pocock Skills
+## 12. OpenSpecをプロジェクトに導入
 
 ```powershell
-### Matt Pocock Skills を導入.
+# 1. OpenSpec 1.17.0 をインストール
+npm install --global @fission-ai/openspec@1.17.0
+mise reshim
+openspec --version
+
+# 2. OpenSpecをプロジェクトへ導入
+Set-Location -LiteralPath '<project-root>'
+openspec init --tools agents --force --profile custom --no-animation
+openspec config set telemetry.enabled false
+```
+
+## 13. 有用なAgent Skillsをインストール
+
+### 🧠 Matt Pocock Skills
+
+```powershell
+# Matt Pocock Skills を導入
 npx skills@latest add mattpocock/skills --agent universal --yes ask-matt code-review codebase-design diagnosing-bugs domain-modeling grill-me grill-with-docs grilling handoff implement improve-codebase-architecture prototype research resolving-merge-conflicts setup-matt-pocock-skills tdd teach to-questionnaire to-spec to-tickets triage wait-what wayfinder wizard writing-great-skills
 ```
 
-### Graphify
+### 📊 Graphify
 
 ```powershell
-### Graphify をインストール.
-uv tool install graphifyy
-### Graphify を導入.
+# 6.でインストールした Graphify をプロジェクトへ導入
 graphify agents install --project
 ```
 
-### agent-browser
+### 🌐 agent-browser
 
 ```powershell
-### agent-browser をインストール.
+# 1. agent-browser をインストール
 npm install -g agent-browser
-### agent-browser を導入.
+# 2. agent-browser を導入
 npx agent-browser install
 ```
 
-### プログラミング系スキル
+### 💻 プログラミング系スキル
 
 ```powershell
-### React
+# 1. React
 npx skills@latest add vercel-labs/agent-skills --agent universal --yes react-best-practices
-### Python
+# 2. Python
 npx skills@latest add trailofbits/skills --agent universal --yes modern-python codeql insecure-defaults
-### Java / Spring Boot
+# 3. Java / Spring Boot
 npx skills@latest add github/awesome-copilot --agent universal --yes java-springboot spring-boot-testing
-### Ponytail; Tight coding
+# 4. Ponytail; Tight coding
 npx skills@latest add DietrichGebert/ponytail --agent universal --yes ponytail ponytail-review ponytail-audit
 ```
-
-</details>
 
 ## 🔖 参考文献
 
@@ -544,12 +358,17 @@ npx skills@latest add DietrichGebert/ponytail --agent universal --yes ponytail p
 - [Pandoc - index](https://pandoc.org/)
 - [BurntSushi/ripgrep: ripgrep recursively searches directories for a regex pattern while respecting your gitignore](https://github.com/burntsushi/ripgrep)
 - [GitHub Copilot ドキュメント - GitHubドキュメント](https://docs.github.com/ja/copilot)
+- [Advanced configuration - Codex](https://developers.openai.com/codex/config-advanced)
+- [Connect Claude Code to an LLM gateway - Claude Code](https://code.claude.com/docs/en/llm-gateway-connect)
 - [Zoo Code Docs | Zoo Code Documentation](https://docs.zoocode.dev/)
 - [Fission-AI/OpenSpec: Spec-driven development (SDD) for AI coding assistants.](https://github.com/Fission-AI/OpenSpec)
 - [mattpocock/skills: Skills for Real Engineers. Straight from my .agents directory.](https://github.com/mattpocock/skills)
 - [Graphify-Labs/graphify: Turn any codebase, with its docs, SQL schemas, configs, and PDFs, into a queryable knowledge graph. A /graphify skill for Claude Code, Cursor, Codex, and Gemini CLI: local deterministic AST parsing, every edge explained, no vector store.](https://github.com/Graphify-Labs/graphify)
-- [Introduction - Ollama](https://docs.ollama.com/api/introduction)
 - [vLLM](https://docs.vllm.ai/en/latest/)
 - [about_Telemetry - PowerShell | Microsoft Learn](https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.core/about/about_telemetry)
 - [Data usage - Claude Code](https://docs.claude.com/en/docs/claude-code/data-usage)
 - [vercel-labs/skills](https://github.com/vercel-labs/skills)
+- [Vite+](https://viteplus.dev/guide)
+- [pnpm](https://pnpm.io/)
+- [Ruff](https://docs.astral.sh/ruff/)
+- [pre-commit](https://pre-commit.com/)
