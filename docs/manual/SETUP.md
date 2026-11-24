@@ -13,7 +13,7 @@
 7. [6️⃣ コーディングエージェントにローカルLLMを設定する](#6️⃣-コーディングエージェントにローカルllmを設定する)
    - [🐙 GitHub Copilot Chatで使う場合](#-github-copilot-chatで使う場合)
    - [🦓 Zoo Codeで使う場合](#-zoo-codeで使う場合)
-8. [7️⃣ OpenSpecをプロジェクトに導入する](#7️⃣-openspecをプロジェクトに導入する)
+8. [7️⃣ npm/pipパッケージをインストールし、OpenSpecを導入する](#7️⃣-npmpipパッケージをインストールしopenspecを導入する)
 9. [8️⃣ 動作確認](#8️⃣-動作確認)
 10. [9️⃣ その他のAgent Skillsを導入する (任意)](#9️⃣-その他のagent-skillsを導入する-任意)
 11. [🔖 参考文献](#-参考文献)
@@ -224,6 +224,9 @@ $ExtensionIds = @(
   'GitHub.copilot'
   'GitHub.copilot-chat'
   'ZooCodeOrganization.zoo-code'
+  'anthropic.claude-code'
+  'openai.chatgpt'
+  'sst-dev.opencode-v2'
 )
 
 ### VSCode 拡張機能をインストール.
@@ -430,13 +433,36 @@ foreach ($ExtensionId in $ExtensionIds) {
      - `API Key`: `local`
      - `Model ID`: `<model-id>`
 
-## 7️⃣ OpenSpecをプロジェクトに導入する
+## 7️⃣ npm/pipパッケージをインストールし、OpenSpecを導入する
 
 ```powershell
-### OpenSpecをインストール.
-npm install --global @fission-ai/openspec@latest
+### 1. npm パッケージを列挙.
+$NpmPackages = @(
+  '@fission-ai/openspec'
+  '@opencode/cli'
+  '@openai/codex'
+  '@anthropic-ai/claude-code'
+  '@github/copilot'
+  'git-cz'
+)
 
-### OpenSpecをプロジェクトへ導入.
+### 2. npm パッケージをインストール.
+foreach ($Package in $NpmPackages) {
+    npm install --global "$Package@latest"
+}
+
+### 3. pip パッケージを列挙.
+$PipPackages = @(
+  'cowsay'
+)
+
+### 4. pip パッケージをインストール.
+python -m pip install @PipPackages
+
+### 5. インストールしたコマンドを mise の shims に反映.
+mise reshim
+
+### 6. OpenSpecをプロジェクトへ導入.
 Set-Location -LiteralPath '<project-root>'
 openspec init --tools agents --force --profile custom --no-animation
 openspec config set telemetry.enabled false
@@ -456,6 +482,12 @@ jq --version
 pandoc --version
 rg --version
 openspec --version
+opencode --version
+codex --version
+claude --version
+copilot --version
+git-cz --version
+python -m pip show cowsay
 ```
 
 <details>
