@@ -10,6 +10,7 @@ Windows 11上に、PowerShell 7、VSCode、Python/Node.js、コーディング�
 
 - [📝 概要](#-概要)
 - [✅ 前提条件](#-前提条件)
+- [🧰 インストールするツール](#-インストールするツール)
 - [1. テレメトリーを無効化する](#1-テレメトリーを無効化する)
 - [2. wingetで開発ツールをインストールする](#2-wingetで開発ツールをインストールする)
 - [3. craneをインストールする](#3-craneをインストールする)
@@ -27,6 +28,10 @@ Windows 11上に、PowerShell 7、VSCode、Python/Node.js、コーディング�
 - [11. 動作確認](#11-動作確認)
 - [12. OpenSpecをプロジェクトに導入](#12-openspecをプロジェクトに導入)
 - [13. 有用なAgent Skillsをインストール](#13-有用なagent-skillsをインストール)
+  - [Matt Pocock Skills](#-matt-pocock-skills)
+  - [Graphify](#-graphify)
+  - [agent-browser](#-agent-browser)
+  - [プログラミング系スキル](#-プログラミング系スキル)
 - [🔖 参考文献](#-参考文献)
 
 ## ✅ 前提条件
@@ -36,6 +41,68 @@ Windows 11上に、PowerShell 7、VSCode、Python/Node.js、コーディング�
 - インターネットに接続できること
 - wingetが利用できること
 - 9.でローカルLLMを使う場合は、OpenAI互換APIを提供するLLMサーバ（vLLMなど）が起動していること
+
+## 🧰 インストールするツール
+
+- **基本ツール（手順 2、3）**
+  - [PowerShell 7](https://learn.microsoft.com/ja-jp/powershell/scripting/install/installing-powershell-on-windows)
+  - [VSCode](https://code.visualstudio.com/)
+  - [mise](https://mise.jdx.dev/)
+  - [uv](https://docs.astral.sh/uv/)
+  - [jq](https://jqlang.org/)
+  - [Pandoc](https://pandoc.org/)
+  - [ripgrep](https://github.com/BurntSushi/ripgrep)
+  - [crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md)
+- **実行環境（手順 4）**
+  - [Python 3.14](https://www.python.org/downloads/)
+  - [Node.js 24](https://nodejs.org/en/download)
+- **npmパッケージ（手順 5、12、13）**
+  - [OpenCode](https://opencode.ai/docs/)（`@opencode/cli`）
+  - [Codex](https://github.com/openai/codex)（`@openai/codex`）
+  - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)（`@anthropic-ai/claude-code`）
+  - [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli)（`@github/copilot`）
+  - [`git-cz`](https://github.com/streamich/git-cz)
+  - [`markdownlint-cli2`](https://github.com/DavidAnson/markdownlint-cli2)
+  - [`pnpm`](https://pnpm.io/)
+  - [`typescript`](https://www.typescriptlang.org/)
+  - [`tsx`](https://tsx.is/)
+  - [`vite-plus`](https://viteplus.dev/guide)
+  - [OpenSpec 1.17.0](https://github.com/Fission-AI/OpenSpec)（`@fission-ai/openspec`）
+  - [`agent-browser`](https://github.com/vercel-labs/agent-browser)
+- **pipパッケージ（手順 6）**
+  - [`ruff`](https://docs.astral.sh/ruff/)
+  - [`pre-commit`](https://pre-commit.com/)
+  - [`pytest`](https://docs.pytest.org/en/stable/)
+  - [`codespell`](https://pypi.org/project/codespell/)
+  - [`yamllint`](https://pypi.org/project/yamllint/)
+  - [Graphify](https://github.com/Graphify-Labs/graphify)（`graphifyy`）
+- **VSCode拡張機能（手順 7）**
+  - [`GitHub.copilot`](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
+  - [`GitHub.copilot-chat`](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
+  - [`ZooCodeOrganization.zoo-code`](https://marketplace.visualstudio.com/items?itemName=ZooCodeOrganization.zoo-code)
+  - [`anthropic.claude-code`](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code)
+  - [`openai.chatgpt`](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt)
+  - [`sst-dev.opencode-v2`](https://marketplace.visualstudio.com/items?itemName=sst-dev.opencode-v2)
+  - [`ms-vscode-remote.remote-wsl`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl)
+  - [`ms-vscode-remote.remote-containers`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+  - [`ms-vscode-remote.remote-ssh`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+  - [`ms-vscode.remote-server`](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-server)
+  - [`ms-vscode-remote.vscode-remote-extensionpack`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
+  - [`ms-python.python`](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+  - [`ms-python.vscode-pylance`](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
+  - [`charliermarsh.ruff`](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
+  - [`DavidAnson.vscode-markdownlint`](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint)
+  - [`bierner.markdown-mermaid`](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid)
+  - [`redhat.vscode-yaml`](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+  - [`tamasfe.even-better-toml`](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
+- **追加ツール・Agent Skills（手順 13）**
+  - [agent-browser用ブラウザ](https://github.com/vercel-labs/agent-browser)
+  - [Matt Pocock Skills](https://github.com/mattpocock/skills)
+  - [Graphify](https://github.com/Graphify-Labs/graphify)
+  - [React](https://github.com/vercel-labs/agent-skills)
+  - [Python](https://github.com/trailofbits/skills)
+  - [Java / Spring Boot](https://github.com/github/awesome-copilot)
+  - [Ponytail関連のSkills](https://github.com/DietrichGebert/ponytail)
 
 ## 1. テレメトリーを無効化する
 

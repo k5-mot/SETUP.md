@@ -12,7 +12,7 @@ Windows 11上に、PowerShell 7、VSCode、Python/Node.js、コーディング�
 
 ```text
 offline-dist/
-├─ tools/                  # Git、PowerShell、VSCode、Python、Node.js、uv、jq、Pandoc、ripgrep、crane
+├─ tools/                  # Git、PowerShell、VSCode、Python、Node.js、uv、jq、Pandoc、ripgrep
 ├─ npm/                    # npmキャッシュとnpmパッケージ一覧
 ├─ pip/                    # wheelとpipパッケージ一覧
 ├─ vsix/                   # VSIXとインストール順序
@@ -23,6 +23,7 @@ offline-dist/
 
 - [📝 概要](#-概要)
 - [✅ 前提条件](#-前提条件)
+- [🧰 インストールするツール](#-インストールするツール)
 - [0. 開域側PCで資材をダウンロードする](#0-開域側pcで資材をダウンロードする)
   - [0-1 開発ツールをダウンロードする](#0-1-開発ツールをダウンロードする)
   - [0-2 npmパッケージをダウンロードする](#0-2-npmパッケージをダウンロードする)
@@ -32,17 +33,16 @@ offline-dist/
 - [1. テレメトリーを無効化する](#1-テレメトリーを無効化する)
 - [2. 資材を展開する](#2-資材を展開する)
 - [3. 開発ツールをインストールする](#3-開発ツールをインストールする)
-- [4. craneをインストールする](#4-craneをインストールする)
-- [5. Python/Node.jsをインストールする](#5-pythonnodejsをインストールする)
-- [6. npmパッケージをインストール](#6-npmパッケージをインストール)
-- [7. pipパッケージをインストール](#7-pipパッケージをインストール)
-- [8. VSCode 拡張機能をインストールする](#8-vscode-拡張機能をインストールする)
-- [9. VSCode の設定を追加する](#9-vscode-の設定を追加する)
-- [10. コーディングエージェントにローカルLLMを設定する](#10-コーディングエージェントにローカルllmを設定する)
-- [11. 重複したPATHを除去](#11-重複したpathを除去)
-- [12. 動作確認](#12-動作確認)
-- [13. OpenSpecをプロジェクトに導入](#13-openspecをプロジェクトに導入)
-- [14. 有用なAgent Skillsをインストール](#14-有用なagent-skillsをインストール)
+- [4. Python/Node.jsをインストールする](#4-pythonnodejsをインストールする)
+- [5. npmパッケージをインストール](#5-npmパッケージをインストール)
+- [6. pipパッケージをインストール](#6-pipパッケージをインストール)
+- [7. VSCode 拡張機能をインストールする](#7-vscode-拡張機能をインストールする)
+- [8. VSCode の設定を追加する](#8-vscode-の設定を追加する)
+- [9. コーディングエージェントにローカルLLMを設定する](#9-コーディングエージェントにローカルllmを設定する)
+- [10. 重複したPATHを除去](#10-重複したpathを除去)
+- [11. 動作確認](#11-動作確認)
+- [12. OpenSpecをプロジェクトに導入](#12-openspecをプロジェクトに導入)
+- [13. 有用なAgent Skillsをインストール](#13-有用なagent-skillsをインストール)
 - [🔖 参考文献](#-参考文献)
 
 ## ✅ 前提条件
@@ -54,6 +54,71 @@ offline-dist/
 - 資材zipを、組織の持ち込み規程に従って外部媒体などで搬入できること
 - ローカルLLMを使う場合は、閉域内でOpenAI互換APIを提供するLLMサーバ（vLLMなど）が起動していること
 
+## 🧰 インストールするツール
+
+以下は閉域側PCにインストールするツールである。開域側PCは前提条件のとおり[SETUP.md](SETUP.md)でセットアップ済みとする。
+
+- **基本ツール（手順 3）**
+  - [Git](https://gitforwindows.org/)
+  - [PowerShell 7](https://learn.microsoft.com/ja-jp/powershell/scripting/install/installing-powershell-on-windows)
+  - [VSCode](https://code.visualstudio.com/)
+  - [uv](https://docs.astral.sh/uv/)
+  - [jq](https://jqlang.org/)
+  - [Pandoc](https://pandoc.org/)
+  - [ripgrep](https://github.com/BurntSushi/ripgrep)
+- **実行環境（手順 4）**
+  - [Python 3.14](https://www.python.org/downloads/)
+  - [Node.js 24](https://nodejs.org/en/download)
+- **npmパッケージ（手順 5、12）**
+  - [OpenCode](https://opencode.ai/docs/)（`@opencode/cli`）
+  - [Codex](https://github.com/openai/codex)（`@openai/codex`）
+  - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)（`@anthropic-ai/claude-code`）
+  - [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli)（`@github/copilot`）
+  - [`git-cz`](https://github.com/streamich/git-cz)
+  - [`markdownlint-cli2`](https://github.com/DavidAnson/markdownlint-cli2)
+  - [`pnpm`](https://pnpm.io/)
+  - [`typescript`](https://www.typescriptlang.org/)
+  - [`tsx`](https://tsx.is/)
+  - [`vite-plus`](https://viteplus.dev/guide)
+  - [`skills`](https://github.com/vercel-labs/skills)
+  - [OpenSpec 1.17.0](https://github.com/Fission-AI/OpenSpec)（`@fission-ai/openspec`）
+- **pipパッケージ（手順 6）**
+  - [`ruff`](https://docs.astral.sh/ruff/)
+  - [`pre-commit`](https://pre-commit.com/)
+  - [`pytest`](https://docs.pytest.org/en/stable/)
+  - [`codespell`](https://pypi.org/project/codespell/)
+  - [`yamllint`](https://pypi.org/project/yamllint/)
+  - [Graphify](https://github.com/Graphify-Labs/graphify)（`graphifyy`）
+- **VSCode拡張機能（手順 7）**
+  - [`GitHub.copilot`](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
+  - [`GitHub.copilot-chat`](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
+  - [`ZooCodeOrganization.zoo-code`](https://marketplace.visualstudio.com/items?itemName=ZooCodeOrganization.zoo-code)
+  - [`anthropic.claude-code`](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code)
+  - [`openai.codex-audio`](https://marketplace.visualstudio.com/items?itemName=openai.codex-audio)
+  - [`openai.chatgpt`](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt)
+  - [`sst-dev.opencode-v2`](https://marketplace.visualstudio.com/items?itemName=sst-dev.opencode-v2)
+  - [`ms-vscode-remote.remote-wsl`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl)
+  - [`ms-vscode-remote.remote-containers`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+  - [`ms-vscode-remote.remote-ssh`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+  - [`ms-vscode.remote-server`](https://marketplace.visualstudio.com/items?itemName=ms-vscode.remote-server)
+  - [`ms-vscode-remote.vscode-remote-extensionpack`](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
+  - [`ms-python.debugpy`](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)
+  - [`ms-python.vscode-python-envs`](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-python-envs)
+  - [`ms-python.vscode-pylance`](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
+  - [`ms-python.python`](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+  - [`charliermarsh.ruff`](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
+  - [`DavidAnson.vscode-markdownlint`](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint)
+  - [`bierner.markdown-mermaid`](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid)
+  - [`redhat.vscode-yaml`](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+  - [`tamasfe.even-better-toml`](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
+- **Agent Skills（手順 13）**
+  - [Matt Pocock Skills](https://github.com/mattpocock/skills)
+  - [Graphify](https://github.com/Graphify-Labs/graphify)
+  - [React](https://github.com/vercel-labs/agent-skills)
+  - [Python](https://github.com/trailofbits/skills)
+  - [Java / Spring Boot](https://github.com/github/awesome-copilot)
+  - [Ponytail関連のSkills](https://github.com/DietrichGebert/ponytail)
+
 ## 0. 開域側PCで資材をダウンロードする
 
 0-1から0-5までは、**同一のPowerShellセッション**で順に実行する。
@@ -61,7 +126,7 @@ offline-dist/
 
 ### 0-1 開発ツールをダウンロードする
 
-共通設定を行い、SETUP.mdの2.でwingetからインストールしているツール、Git、crane、Python/Node.jsの配布物をダウンロードする。
+共通設定を行い、SETUP.mdの2.でwingetからインストールしているツール、Git、Python/Node.jsの配布物をダウンロードする。
 閉域側でユーザインストールするため、Pythonはpython.orgのインストーラを、Node.jsはnodejs.orgのzipをダウンロードする（Node.jsのMSIは管理者権限が必要なため）。
 Git、Pandoc、Pythonのインストーラは配布元がチェックサムファイルを公開していないため、HTTPSでのダウンロードのみとする。それ以外は配布元のチェックサムで検証する。
 0-2、0-3では、SETUP.mdで構築済みの`npm`と`python`を使う。
@@ -209,14 +274,7 @@ if ((Get-FileHash -LiteralPath $VSCodeSetup -Algorithm SHA256).Hash -ne $VSCodeR
 }
 Write-Host "Verified: $(Split-Path $VSCodeSetup -Leaf)"
 
-# 10. SETUP.mdと同じバージョンのcraneをダウンロードし、checksums.txt で検証
-Save-GitHubReleaseAsset `
-    -Repo "google/go-containerregistry" `
-    -Tag "v0.22.1" `
-    -FileName "go-containerregistry_Windows_x86_64.tar.gz" `
-    -ChecksumFile "checksums.txt"
-
-# 11. インストーラが公開されている最新の Python 3.14.x を判定し、インストーラをダウンロード
+# 10. インストーラが公開されている最新の Python 3.14.x を判定し、インストーラをダウンロード
 $PythonVersions = (Invoke-WebRequest -Uri "https://www.python.org/ftp/python/" -UseBasicParsing).Links.href |
     Where-Object { $_ -match '^3\.14\.\d+/$' } |
     ForEach-Object { [version]$_.TrimEnd('/') } |
@@ -237,7 +295,7 @@ if (-not $PythonVersion) {
 }
 Invoke-WebRequest -Uri "https://www.python.org/ftp/python/$PythonVersion/python-$PythonVersion-amd64.exe" -OutFile (Join-Path $ToolsDir "python-$PythonVersion-amd64.exe") -UseBasicParsing
 
-# 12. Node.js 24 の最新版を SHASUMS256.txt から判定し、zip をダウンロードして検証
+# 11. Node.js 24 の最新版を SHASUMS256.txt から判定し、zip をダウンロードして検証
 $NodeBaseUrl = "https://nodejs.org/dist/latest-v24.x"
 $NodeZipName = [regex]::Match((Invoke-WebRequest -Uri "$NodeBaseUrl/SHASUMS256.txt" -UseBasicParsing).Content, 'node-v[\d.]+-win-x64\.zip').Value
 Invoke-WebRequest -Uri "$NodeBaseUrl/$NodeZipName" -OutFile (Join-Path $ToolsDir $NodeZipName) -UseBasicParsing
@@ -249,11 +307,11 @@ Test-FileChecksum -File (Join-Path $ToolsDir $NodeZipName) -ChecksumUrl "$NodeBa
 依存パッケージを含めてnpmキャッシュへ保存し、閉域側で`npm install --offline`できるようにする。
 ダウンロード時の検証（integrity）はnpmが行う。
 プラットフォーム別のバイナリを含むパッケージがあるため、閉域側と同じWindows x64のPCで実行する。
-14.でskills CLIから導入するAgent Skillsのリポジトリも、あわせてダウンロードする。
+13.でskills CLIから導入するAgent Skillsのリポジトリも、あわせてダウンロードする。
 `agent-browser`はブラウザ本体を追加でダウンロードするため、閉域環境では対象外とする。
 
 ```powershell
-# 1. 閉域側の6.でまとめてインストールする npm パッケージを列挙（skills は14.で使う）
+# 1. 閉域側の5.でまとめてインストールする npm パッケージを列挙（skills は13.で使う）
 $NpmPackages = @(
     '@opencode/cli'
     '@openai/codex'
@@ -268,7 +326,7 @@ $NpmPackages = @(
     'skills'
 )
 
-# 2. 依存パッケージごとnpmキャッシュへ保存（OpenSpecは13.で使うため 1.17.0 に固定して保存）
+# 2. 依存パッケージごとnpmキャッシュへ保存（OpenSpecは12.で使うため 1.17.0 に固定して保存）
 npm install --global --prefix (Join-Path $Work "npm-prefix") --cache (Join-Path $NpmDir "npm-cache") @NpmPackages "@fission-ai/openspec@1.17.0"
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to download npm packages."
@@ -306,7 +364,7 @@ foreach ($Source in $SkillSources) {
 ダウンロード時の検証はpipが行う。
 
 ```powershell
-# 1. 閉域側の7.でまとめてインストールする pip パッケージを列挙
+# 1. 閉域側の6.でまとめてインストールする pip パッケージを列挙
 $PipPackages = @(
     'ruff'
     'pre-commit'
@@ -449,8 +507,8 @@ tar -xf $ZipFile.FullName -C "$HOME\offline-dist"
 
 ## 3. 開発ツールをインストールする
 
-SETUP.mdの2.でwingetを使ってインストールしているツールとGitを、配布物からインストールする。
-Python/Node.jsは5.でインストールするため、miseは使用しない。
+SETUP.mdの2.でwingetを使ってインストールしているツールのうちmiseを除くツールとGitを、配布物からインストールする。
+Python/Node.jsは4.でインストールするため、miseは使用しない。
 
 ```powershell
 # 1. 資材の場所と作業ディレクトリを設定し、インストール先ディレクトリを作成
@@ -478,20 +536,9 @@ Start-Process -Wait -FilePath "msiexec.exe" -ArgumentList "/i", "`"$((Get-ChildI
 [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$HOME\.local\bin;$HOME\.local\opt\pwsh;$env:LOCALAPPDATA\Programs\Git\cmd;$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin;$env:LOCALAPPDATA\Pandoc", "User")
 ```
 
-## 4. craneをインストールする
-
-```powershell
-# 1. インストール先ディレクトリを作成
-New-Item -ItemType Directory -Path "$HOME\.local\bin" -Force | Out-Null
-# 2. crane を展開
-tar -xzf "$HOME\offline-dist\tools\go-containerregistry_Windows_x86_64.tar.gz" -C "$HOME\.local\bin" crane.exe
-# 3. ユーザ環境変数 PATH に追加
-[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$HOME\.local\bin", "User")
-```
-
 ここまでに設定したPATHを反映するため、**PowerShellを開き直してから**次の手順へ進む。
 
-## 5. Python/Node.jsをインストールする
+## 4. Python/Node.jsをインストールする
 
 0-1でダウンロードした配布物から、Python/Node.jsをユーザ権限でインストールする。
 
@@ -509,21 +556,21 @@ tar -xf (Get-ChildItem -LiteralPath "$HOME\offline-dist\tools" -Filter "node-v*-
 
 PATHを反映するため、**PowerShellを開き直してから**次の手順へ進む。
 
-## 6. npmパッケージをインストール
+## 5. npmパッケージをインストール
 
 ```powershell
 # npmキャッシュから、一覧の npm パッケージをまとめてオフラインインストール
 npm install --global --offline --cache "$HOME\offline-dist\npm\npm-cache" (Get-Content "$HOME\offline-dist\npm\npm-packages.txt")
 ```
 
-## 7. pipパッケージをインストール
+## 6. pipパッケージをインストール
 
 ```powershell
 # wheelから、一覧の pip パッケージをまとめてオフラインインストール
 python -m pip install --no-index --find-links "$HOME\offline-dist\pip\wheels" -r "$HOME\offline-dist\pip\pip-packages.txt"
 ```
 
-## 8. VSCode 拡張機能をインストールする
+## 7. VSCode 拡張機能をインストールする
 
 Remote - SSH、WSL、Dev Containersは、接続先へVS Code Serverを配置する際にインターネットへ接続する。
 閉域環境で使う場合は、接続先へVS Code Serverを別途配置する。
@@ -537,7 +584,7 @@ foreach ($FileName in Get-Content "$HOME\offline-dist\vsix\extensions.txt") {
 code --list-extensions --show-versions
 ```
 
-## 9. VSCode の設定を追加する
+## 8. VSCode の設定を追加する
 
 [SETUP.mdの8. VSCode の設定を追加する](SETUP.md#8-vscode-の設定を追加する)の設定を追加したうえで、閉域環境では以下も追加する。
 
@@ -550,12 +597,12 @@ code --list-extensions --show-versions
 }
 ```
 
-## 10. コーディングエージェントにローカルLLMを設定する
+## 9. コーディングエージェントにローカルLLMを設定する
 
 [SETUP.mdの9. コーディングエージェントにローカルLLMを設定する](SETUP.md#9-コーディングエージェントにローカルllmを設定する)と同じ手順で設定する。
 `localhost`の代わりに閉域内のLLMサーバを使う場合は、URLのホスト名を置き換える。
 
-## 11. 重複したPATHを除去
+## 10. 重複したPATHを除去
 
 ここまでの手順でユーザ環境変数PATHに重複して追加されたディレクトリを、順序を保ったまま除去する。
 
@@ -566,11 +613,10 @@ code --list-extensions --show-versions
 
 PATHを反映するため、**PowerShellを開き直してから**次の手順へ進む。
 
-## 12. 動作確認
+## 11. 動作確認
 
 ```powershell
 # インストールしたコマンドのバージョンを確認する
-crane version
 git --version
 node --version
 npm --version
@@ -598,7 +644,7 @@ codespell --version
 yamllint --version
 ```
 
-## 13. OpenSpecをプロジェクトに導入
+## 12. OpenSpecをプロジェクトに導入
 
 ```powershell
 # 1. npmキャッシュから OpenSpec 1.17.0 をオフラインインストール
@@ -611,9 +657,9 @@ openspec init --tools agents --force --profile custom --no-animation
 openspec config set telemetry.enabled false
 ```
 
-## 14. 有用なAgent Skillsをインストール
+## 13. 有用なAgent Skillsをインストール
 
-プロジェクトのルートで実行する。skills CLIは6.でインストール済みである。
+プロジェクトのルートで実行する。skills CLIは5.でインストール済みである。
 
 ```powershell
 # 1. プロジェクトのルートへ移動し、作業ディレクトリを設定
@@ -628,7 +674,7 @@ foreach ($Source in (Get-Content "$HOME\offline-dist\skills\skills.json" -Raw | 
     skills add $Dest --agent universal --yes @($Source.Skills)
 }
 
-# 3. 7.でインストールした Graphify をプロジェクトへ導入
+# 3. 6.でインストールした Graphify をプロジェクトへ導入
 graphify agents install --project
 ```
 
@@ -650,7 +696,6 @@ graphify agents install --project
 - [uv tool install - uv](https://docs.astral.sh/uv/reference/cli/#uv-tool-install)
 - [pip download - pip documentation](https://pip.pypa.io/en/stable/cli/pip_download/)
 - [pip install - pip documentation](https://pip.pypa.io/en/stable/cli/pip_install/)
-- [google/go-containerregistry](https://github.com/google/go-containerregistry)
 - [jqlang/jq: Command-line JSON processor](https://github.com/jqlang/jq)
 - [Pandoc - index](https://pandoc.org/)
 - [BurntSushi/ripgrep](https://github.com/burntsushi/ripgrep)
